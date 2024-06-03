@@ -50,6 +50,8 @@ dev_dependencies:
   typethis: ^1.0.0
   get: ^4.6.6
   flutter_svg: ^2.0.10+1
+  shared_preferences: ^2.2.3
+  dartssh2: ^2.8.2
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

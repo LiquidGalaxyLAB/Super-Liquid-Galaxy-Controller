@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:super_liquid_galaxy_controller/screens/dashboard.dart';
+import 'package:super_liquid_galaxy_controller/screens/settings.dart';
 import 'package:super_liquid_galaxy_controller/screens/splashscreen.dart';
 import 'package:get/get.dart';
 

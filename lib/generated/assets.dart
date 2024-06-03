@@ -10,8 +10,11 @@ class Assets {
   static const String assetsLogotxt = 'assets/logotxt.png';
   static const String iconsArcade = 'assets/icons/arcade.png';
   static const String iconsCode = 'assets/icons/code.png';
+  static const String iconsConnection = 'assets/icons/connection.png';
   static const String iconsController = 'assets/icons/controller.png';
+  static const String iconsKey = 'assets/icons/key.png';
   static const String iconsLandmark = 'assets/icons/landmark.png';
+  static const String iconsSsh = 'assets/icons/ssh.png';
   static const String iconsTravel = 'assets/icons/travel.png';
   static const String svgOpenMouth = 'assets/svg/open_mouth.svg';
 

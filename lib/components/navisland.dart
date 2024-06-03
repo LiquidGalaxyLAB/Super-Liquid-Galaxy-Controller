@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:super_liquid_galaxy_controller/components/nav_element.dart';
 import 'package:super_liquid_galaxy_controller/generated/assets.dart';
+import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
 
 //ignore_for_file: prefer_const_constructors
 //ignore_for_file: prefer_const_literals
@@ -68,6 +69,7 @@ class NavIsland extends StatelessWidget {
                       SizedBox(height: 20.0),
                       NavElement(path: Assets.iconsLandmark, text: "POI Exploration", hasDivider: true, onTap: (){
                         print('Pressed');
+                        var k = LGConnection.instance;
                       },),
                       SizedBox(height: 20.0),
                       NavElement(path: Assets.iconsTravel, text: "Tour Management", hasDivider: true),
