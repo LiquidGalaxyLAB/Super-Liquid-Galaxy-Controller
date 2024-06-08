@@ -5,6 +5,7 @@ import 'package:super_liquid_galaxy_controller/screens/settings.dart';
 import 'package:super_liquid_galaxy_controller/screens/splashscreen.dart';
 import 'package:get/get.dart';
 
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/': (context) => SplashScreen(), // Root route
+        '/': (context) => Settings(), // Root route
         // Settings route
       },
       theme: ThemeData(

@@ -200,6 +200,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.5.0"
+  material_text_fields:
+    dependency: "direct dev"
+    description:
+      name: material_text_fields
+      sha256: "3c9866d1bc6abc546a0c4dedc2166c015ae2108fa76d63b1c61c058fa5700639"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.5"
   meta:
     dependency: transitive
     description:
