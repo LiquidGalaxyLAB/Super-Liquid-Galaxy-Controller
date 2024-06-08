@@ -81,6 +81,7 @@ class _GalaxyTextFieldState extends State<GalaxyTextField> {
                   ? (Material(
                       color: Colors.transparent,
                       child: InkWell(
+                        borderRadius: BorderRadius.circular(30),
                         onTap: () {
                           setState(() {
                             _obscureText = !_obscureText;

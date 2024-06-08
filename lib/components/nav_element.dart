@@ -11,6 +11,7 @@ class NavElement extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        borderRadius: BorderRadius.circular(30),
         onTap: onTap,
         child: Ink(
           child: Column(

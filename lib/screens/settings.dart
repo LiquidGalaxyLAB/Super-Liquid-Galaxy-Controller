@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:super_liquid_galaxy_controller/tabs/apikey_tab.dart';
 import 'package:super_liquid_galaxy_controller/tabs/connection_tab.dart';
 import 'package:super_liquid_galaxy_controller/generated/assets.dart';
 import 'package:super_liquid_galaxy_controller/tabs/sshcommands_tab.dart';
@@ -47,7 +48,7 @@ class _SettingsState extends State<Settings> {
                 ),
             DefaultTabController(
             length: 3,
-            initialIndex: 1,
+            initialIndex: 2,
             child: Scaffold(
               backgroundColor: Colors.transparent,
               appBar: AppBar(
@@ -122,7 +123,7 @@ class _SettingsState extends State<Settings> {
               body: TabBarView(children: const [
                       ConnectionTab(),
                       SSHCommandsTab(),
-                      ConnectionTab()
+                      ApiKeyTab()
                     ],
                     ),
                 ),
