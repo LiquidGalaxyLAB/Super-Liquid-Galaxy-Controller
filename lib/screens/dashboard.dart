@@ -117,15 +117,15 @@ class _DashBoardState extends State<DashBoard> {
                   SizedBox(width: 20),
                   GlassBox(
                       height: 50,
-                      width: 270,
+                      width: 210,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           ConnectionFlag(
                             status: false,
                             backgroundColor: Colors.white.withOpacity(0.0),
-                            selectedText: 'AI SERVER CONNECTED',
-                            unSelectedText: 'AI SERVER NOT CONNECTED',
+                            selectedText: 'API CONNECTED',
+                            unSelectedText: 'API NOT CONNECTED',
                             fontSize: 15.0,
                           ),
                         ],
@@ -152,7 +152,7 @@ class _DashBoardState extends State<DashBoard> {
               Padding(
                 padding: const EdgeInsets.all(25.0),
                 child: NavIsland(
-                    height: screenHeight * 0.60, width: screenWidth * 0.25),
+                    height: screenHeight * 0.60, width: screenWidth * 0.3),
               )
             ],
           )

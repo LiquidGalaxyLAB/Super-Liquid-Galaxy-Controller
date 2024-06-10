@@ -53,6 +53,7 @@ dev_dependencies:
   shared_preferences: ^2.2.3
   dartssh2: ^2.8.2
   material_text_fields: ^1.0.5
+  lottie: ^3.1.2
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -67,6 +68,7 @@ flutter:
     - assets/
     - assets/icons/
     - assets/svg/
+    - assets/lottie/
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

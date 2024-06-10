@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:super_liquid_galaxy_controller/components/galaxy_button.dart';
-import 'package:super_liquid_galaxy_controller/components/glassbox.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 
 //ignore_for_file: prefer_const_constructors

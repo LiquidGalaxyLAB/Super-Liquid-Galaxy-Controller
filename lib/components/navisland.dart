@@ -1,25 +1,25 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:super_liquid_galaxy_controller/components/nav_element.dart';
-import 'package:super_liquid_galaxy_controller/generated/assets.dart';
-import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
+
+import '../generated/assets.dart';
 
 //ignore_for_file: prefer_const_constructors
 //ignore_for_file: prefer_const_literals
 
 class NavIsland extends StatelessWidget {
-  NavIsland({super.key,required this.height,required this.width,this.child});
+  NavIsland({super.key, required this.height, required this.width, this.child});
 
   double height;
   double width;
   Widget? child;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 20.0),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(15),
         child: Container(
           width: width,
           height: height,
@@ -36,51 +36,223 @@ class NavIsland extends StatelessWidget {
                     gradient: LinearGradient(colors: [
                       Colors.white.withOpacity(0.1),
                       Colors.white.withOpacity(0.1)
-                    ]
-                    )
-                ),
+                    ])),
               ),
-      
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 17.0,horizontal: 15.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        height: height/7,
-                        width: width,
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 15.0, horizontal: 15.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: height * 0.12,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: Colors.black.withOpacity(0.4)),
+                      child: Center(
+                          child: Text(
+                        "GALAXY HUB",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w300,
+                            fontSize: 30.0),
+                      )),
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: (){},
+                        borderRadius: BorderRadius.circular(15),
                         child: Container(
+                          width: double.infinity,
+                          height: height * 0.37,
                           decoration: BoxDecoration(
-                            image: DecorationImage(image: AssetImage(Assets.assetsBackgroundspace),fit: BoxFit.none),
-                            borderRadius: BorderRadius.circular(40.0),
-                          ),
+                              borderRadius: BorderRadius.circular(15),
+                              color: Colors.black.withOpacity(0.4)),
                           child: Center(
-                            child: Text(
-                              "Galaxy Hub",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 30.0,
-                                  fontWeight: FontWeight.w300),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ImageIcon(AssetImage(Assets.iconsLandmark),size: height*0.15,color: Colors.white),
+                              Text(
+                                "POI EXPLORATION",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: 20.0),
+                              ),
+                            ],
+                          )),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Row(
+                      children: [
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: (){print("blah");},
+                            borderRadius: BorderRadius.circular(15),
+                            child: Container(
+                              width: width*0.34,
+                              height: height * 0.4,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  color: Colors.black.withOpacity(0.4)),
+                              child: Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ImageIcon(AssetImage(Assets.iconsTravel),size: height*0.12,color: Colors.white),
+                                      Text(
+                                        "TOUR ",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w300,
+                                            fontSize: 12.0,),
+                                      ),
+                                      Text(
+                                        "MANAGEMENT",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: 15.0,),
+                                      ),
+                                    ],
+                                  )),
                             ),
                           ),
                         ),
-                      ),
-                      SizedBox(height: 20.0),
-                      NavElement(path: Assets.iconsLandmark, text: "POI Exploration", hasDivider: true, onTap: (){
-                        print('Pressed');
-                        var k = LGConnection.instance;
-                      },),
-                      SizedBox(height: 20.0),
-                      NavElement(path: Assets.iconsTravel, text: "Tour Management", hasDivider: true),
-                      SizedBox(height: 20.0),
-                      NavElement(path: Assets.iconsArcade, text: "Touch-less controllers", hasDivider: true),
-                      SizedBox(height: 20.0),
-                      NavElement(path: Assets.iconsController, text: "Geo-Quest", hasDivider: true),
-                      SizedBox(height: 20.0),
-                      NavElement(path: Assets.iconsCode, text: "KML Uploader", hasDivider: false),
-                    ],
-                  ),
+                        SizedBox(width: 10.0,),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: (){print("blah");},
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Container(
+                                    height: height * 0.12,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(15),
+                                        color: Colors.black.withOpacity(0.4)),
+                                    child: Center(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            SizedBox(width: 10.0),
+                                            ImageIcon(AssetImage(Assets.iconsController),size: height*0.1,color: Colors.white),
+                                            SizedBox(width: 10.0),
+                                            Text(
+                                              "GEO-QUEST",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w300,
+                                                  fontSize: 15.0),
+                                            ),
+                                          ],
+                                        )),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10.0,
+                              ),
+                              Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: (){print("blah");},
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Container(
+                                    height: height * 0.12,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(15),
+                                        color: Colors.black.withOpacity(0.4)),
+                                    child: Center(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            SizedBox(width: 10.0),
+                                            ImageIcon(AssetImage(Assets.iconsArcade),size: height*0.1,color: Colors.white),
+                                            SizedBox(width: 10.0),
+                                            Text(
+                                              "LG CONTROLLERS",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w300,
+                                                  fontSize: 15.0),
+                                            ),
+                                          ],
+                                        )),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10.0,
+                              ),
+                              Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: (){print("blah");},
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Container(
+                                    height: height * 0.12,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(15),
+                                        color: Colors.black.withOpacity(0.4)),
+                                    child: Center(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            SizedBox(width: 10.0),
+                                            ImageIcon(AssetImage(Assets.iconsCode),size: height*0.1,color: Colors.white),
+                                            SizedBox(width: 10.0),
+                                            Text(
+                                              "KML MAKER",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w300,
+                                                  fontSize: 15.0),
+                                            ),
+                                          ],
+                                        )),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+
+                    /*SizedBox(height: 20.0),
+                    NavElement(path: Assets.iconsLandmark, text: "POI Exploration", hasDivider: true, onTap: (){
+                      print('Pressed');
+                      var k = LGConnection.instance;
+                    },),
+                    SizedBox(height: 20.0),
+                    NavElement(path: Assets.iconsTravel, text: "Tour Management", hasDivider: true),
+                    SizedBox(height: 20.0),
+                    NavElement(path: Assets.iconsArcade, text: "Touch-less controllers", hasDivider: true),
+                    SizedBox(height: 20.0),
+                    NavElement(path: Assets.iconsController, text: "Geo-Quest", hasDivider: true),
+                    SizedBox(height: 20.0),
+                    NavElement(path: Assets.iconsCode, text: "KML Uploader", hasDivider: false),*/
+                  ],
                 ),
               )
             ],

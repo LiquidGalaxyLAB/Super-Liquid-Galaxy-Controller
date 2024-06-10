@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/': (context) => Settings(), // Root route
+        '/': (context) => DashBoard(), // Root route
         // Settings route
       },
       theme: ThemeData(

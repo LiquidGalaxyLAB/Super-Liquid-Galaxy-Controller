@@ -15,9 +15,12 @@ class LGConnection {
   late bool _isConnected;
   late SSHClient? _client;
 
-  LGConnection._privateConstructor(){
+  LGConnection._privateConstructor() {
+    print("instance created");
     _connectionDetails();
+    print("details got");
     connectToLG();
+
   }
   static final LGConnection _instance = LGConnection._privateConstructor();
   static LGConnection get instance => _instance;
@@ -29,23 +32,30 @@ class LGConnection {
 
   bool connectStatus()
   {
-    return _isConnected;
+    return true;
   }
 
   _connectionDetails() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    _host = preferences.getString('master_ip') ?? '';
-    _passwordOrKey = preferences.getString('master_password') ?? '';
-    _port = preferences.getString('master_portNumber') ?? '';
-    _username = preferences.getString('master_username') ?? '';
-    _numberOfRigs = preferences.getString('numberofrigs') ?? '';
-
+    _host = preferences.getString('ip') ?? '';
+    _passwordOrKey = preferences.getString('pass') ?? '';
+    _port = preferences.getString('port') ?? '';
+    _username = preferences.getString('username') ?? '';
+    _numberOfRigs = preferences.getString('number_of_rigs') ?? '';
+    //await connectToLG();
+    print({
+      "ip": _host,
+      "pass": _passwordOrKey,
+      "port": _port,
+      "username": _username,
+      "number_of_rigs": _numberOfRigs
+    });
     return {
       "ip": _host,
       "pass": _passwordOrKey,
       "port": _port,
       "username": _username,
-      "numberofrigs": _numberOfRigs
+      "number_of_rigs": _numberOfRigs
     };
   }
 
@@ -55,12 +65,12 @@ class LGConnection {
     return _isConnected;
   }
 
-  Future<bool?> connectToLG() async {
+  Future<bool> connectToLG() async {
     await _connectionDetails();
     print('reached here');
 
     try {
-      final socket = await SSHSocket.connect(_host, int.parse(_port));
+      final socket = await SSHSocket.connect(_host, int.parse(_port),timeout: const Duration(seconds: 5));
       _client = SSHClient(socket, username: _username, onPasswordRequest: () {
         return _passwordOrKey;
       });
@@ -72,7 +82,6 @@ class LGConnection {
       _isConnected=false;
       return false;
     }
-
   }
 
 
@@ -168,4 +177,51 @@ class LGConnection {
   void test() {
     print("ran");
   }
+
+  Future<void> shutdown() async {
+
+
+    for (var i = int.tryParse(_numberOfRigs)!; i >= 1; i--) {
+      try {
+        if(_client==null)
+          return;
+        await _client!.execute(
+            'sshpass -p $_passwordOrKey ssh -t lg$i "echo $_passwordOrKey | sudo -S poweroff"');
+      } catch (e) {
+        // ignore: avoid_print
+        print(e);
+      }
+    }
+  }
+
+  Future<void> relaunch() async {
+
+    for (var i = int.tryParse(_numberOfRigs)!; i >= 1; i--)  {
+      try {
+        if(_client==null)
+          return;
+        final relaunchCommand = """RELAUNCH_CMD="\\
+if [ -f /etc/init/lxdm.conf ]; then
+  export SERVICE=lxdm
+elif [ -f /etc/init/lightdm.conf ]; then
+  export SERVICE=lightdm
+else
+  exit 1
+fi
+if  [[ \\\$(service \\\$SERVICE status) =~ 'stop' ]]; then
+  echo $_passwordOrKey | sudo -S service \\\${SERVICE} start
+else
+  echo $_passwordOrKey | sudo -S service \\\${SERVICE} restart
+fi
+" && sshpass -p $_passwordOrKey ssh -x -t lg@lg$i "\$RELAUNCH_CMD\"""";
+        await _client!
+            .execute('"/home/$_username/bin/lg-relaunch" > /home/$_client/log.txt');
+        await _client!.execute(relaunchCommand);
+      } catch (e) {
+        // ignore: avoid_print
+        print(e);
+      }
+    }
+  }
+
 }

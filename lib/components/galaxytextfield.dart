@@ -8,13 +8,15 @@ class GalaxyTextField extends StatefulWidget {
       required this.labelText,
       required this.iconData,
       required this.textInputType,
-      required this.isPassword});
+      required this.isPassword,
+      this.controller});
 
   String hintText;
   String labelText;
   IconData iconData;
   TextInputType textInputType;
   bool isPassword;
+  TextEditingController? controller;
 
   @override
   State<GalaxyTextField> createState() => _GalaxyTextFieldState();
@@ -36,6 +38,7 @@ class _GalaxyTextFieldState extends State<GalaxyTextField> {
       child: TextFormField(
           obscureText: _obscureText,
           onChanged: (text) {},
+          controller: widget.controller,
           decoration: InputDecoration(
               hintText: widget.hintText,
               hintStyle:
