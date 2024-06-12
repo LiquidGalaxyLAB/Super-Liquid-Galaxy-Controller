@@ -54,6 +54,7 @@ dev_dependencies:
   dartssh2: ^2.8.2
   material_text_fields: ^1.0.5
   lottie: ^3.1.2
+  url_launcher: ^6.3.0
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

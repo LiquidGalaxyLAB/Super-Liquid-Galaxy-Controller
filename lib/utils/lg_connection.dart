@@ -70,7 +70,7 @@ class LGConnection {
     print('reached here');
 
     try {
-      final socket = await SSHSocket.connect(_host, int.parse(_port),timeout: const Duration(seconds: 5));
+      final socket = await SSHSocket.connect(_host, int.parse(_port),);
       _client = SSHClient(socket, username: _username, onPasswordRequest: () {
         return _passwordOrKey;
       });
