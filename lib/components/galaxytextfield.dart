@@ -9,7 +9,9 @@ class GalaxyTextField extends StatefulWidget {
       required this.iconData,
       required this.textInputType,
       required this.isPassword,
-      this.controller});
+      this.controller,
+      this.buttonAction,
+      this.endIcon});
 
   String hintText;
   String labelText;
@@ -17,6 +19,8 @@ class GalaxyTextField extends StatefulWidget {
   TextInputType textInputType;
   bool isPassword;
   TextEditingController? controller;
+  VoidCallback? buttonAction;
+  IconData? endIcon;
 
   @override
   State<GalaxyTextField> createState() => _GalaxyTextFieldState();
@@ -80,16 +84,18 @@ class _GalaxyTextFieldState extends State<GalaxyTextField> {
                   color: Colors.white,
                   fontWeight: FontWeight.bold),
               alignLabelWithHint: true,
-              suffixIcon: widget.isPassword
+              suffixIcon:
+              (widget.endIcon==null)?
+              (widget.isPassword
                   ? (Material(
                       color: Colors.transparent,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(30),
-                        onTap: () {
+                        onTap: widget.buttonAction ?? (() {
                           setState(() {
                             _obscureText = !_obscureText;
                           });
-                        },
+                        }),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20.0),
                           child: Icon(
@@ -101,7 +107,27 @@ class _GalaxyTextFieldState extends State<GalaxyTextField> {
                           ),
                         ),
                       )))
-                  : null),
+                  : null):
+              (Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(30),
+                    onTap: widget.buttonAction ?? (() {
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
+                    }),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Icon(
+                        widget.endIcon,
+                        color: Colors.grey,
+                        size: 40.0,
+                      ),
+                    ),
+                  )))
+
+          ),
           style: const TextStyle(fontSize: 25, color: Colors.grey),
           maxLines: 1,
           minLines: 1,

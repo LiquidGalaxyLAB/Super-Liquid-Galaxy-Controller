@@ -15,7 +15,7 @@ class ApiKeyTab extends StatefulWidget {
   State<ApiKeyTab> createState() => _ApiKeyTabState();
 }
 
-class _ApiKeyTabState extends State<ApiKeyTab> {
+class _ApiKeyTabState extends State<ApiKeyTab> with AutomaticKeepAliveClientMixin{
   late double screenHeight;
   late double screenWidth;
 
@@ -64,4 +64,7 @@ class _ApiKeyTabState extends State<ApiKeyTab> {
       print("$url:  $e");
     }
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

@@ -1,8 +1,8 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
-
+import 'package:super_liquid_galaxy_controller/utils/api_manager.dart';
 import 'galaxytextfield.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiManagerBlock extends StatefulWidget {
   ApiManagerBlock(
@@ -13,7 +13,7 @@ class ApiManagerBlock extends StatefulWidget {
       required this.urlDesc2,
       this.urlLauncher1,
       this.urlLauncher2,
-      this.keyController,
+      required this.keyController,
       required this.screenHeight,
       required this.screenWidth});
 
@@ -23,7 +23,7 @@ class ApiManagerBlock extends StatefulWidget {
   VoidCallback? urlLauncher1;
   String urlDesc2;
   VoidCallback? urlLauncher2;
-  TextEditingController? keyController;
+  TextEditingController keyController;
   double screenHeight;
   double screenWidth;
 
@@ -154,15 +154,35 @@ class _ApiManagerBlockState extends State<ApiManagerBlock> {
                                 height: 10.0,
                               ),
                               GalaxyTextField(
-                                  hintText:
-                                      "eg, ZaCELgL.0imfnc8mVLWwsAawjYr4Rx",
-                                  labelText: "PLACES API-KEY",
-                                  iconData: Icons.code,
-                                  textInputType: TextInputType.text,
-                                  controller: widget.keyController,
-                                  isPassword: true)
+                                hintText: "eg, ZaCELgL.0imfnc8mVLWwsAawjYr4Rx",
+                                labelText: "PLACES API-KEY",
+                                iconData: Icons.code,
+                                textInputType: TextInputType.text,
+                                controller: widget.keyController,
+                                isPassword: false,
+                                buttonAction: () {
+                                  if (widget.keyController.text.isNotEmpty) {
+                                    saveApiKey('places_api');
+                                  }
+                                  else
+                                    {
+                                      var snackbar = const SnackBar(content: Text("API-Key Field is empty!"));
+                                      ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                                    }
+                                },
+                                endIcon: Icons.save_alt_outlined,
+                              ),
+                              const SizedBox(
+                                height: 10.0,
+                              ),
                             ],
                           )))
                 ]))));
+  }
+
+  void saveApiKey(String prefKey) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.setString(prefKey, widget.keyController.text);
+    var manager = ApiManager.instance;
   }
 }

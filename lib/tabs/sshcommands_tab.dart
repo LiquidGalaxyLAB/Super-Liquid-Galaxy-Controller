@@ -12,7 +12,7 @@ class SSHCommandsTab extends StatefulWidget {
   State<SSHCommandsTab> createState() => _SSHCommandsTabState();
 }
 
-class _SSHCommandsTabState extends State<SSHCommandsTab> {
+class _SSHCommandsTabState extends State<SSHCommandsTab> with AutomaticKeepAliveClientMixin {
   late double screenHeight;
   late double screenWidth;
 
@@ -77,4 +77,7 @@ class _SSHCommandsTabState extends State<SSHCommandsTab> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

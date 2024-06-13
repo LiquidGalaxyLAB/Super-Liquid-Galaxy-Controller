@@ -17,7 +17,7 @@ class ConnectionTab extends StatefulWidget {
   State<ConnectionTab> createState() => _ConnectionTabState();
 }
 
-class _ConnectionTabState extends State<ConnectionTab> {
+class _ConnectionTabState extends State<ConnectionTab> with AutomaticKeepAliveClientMixin{
 
   TextEditingController userController = TextEditingController();
   TextEditingController passController = TextEditingController();
@@ -162,4 +162,7 @@ class _ConnectionTabState extends State<ConnectionTab> {
       );
     });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
