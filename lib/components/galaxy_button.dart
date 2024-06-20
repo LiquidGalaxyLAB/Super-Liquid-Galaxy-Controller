@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class GalaxyButton extends StatelessWidget {
 
 
-  GalaxyButton({super.key,required this.height,required this.width,this.onTap,this.backgroundColor,required this.actionText,required this.icon});
+  GalaxyButton({super.key,required this.height,required this.width,this.onTap,this.backgroundColor,required this.actionText,required this.icon,this.isLeading});
 
   double height;
   double width;
@@ -12,6 +12,7 @@ class GalaxyButton extends StatelessWidget {
   Color? backgroundColor;
   String actionText;
   IconData icon;
+  bool? isLeading;
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +41,17 @@ class GalaxyButton extends StatelessWidget {
 
                   Center(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12.0,horizontal: 35.0),
+                      padding: const EdgeInsets.symmetric(vertical: 12.0,horizontal: 35.0),
                       child: Row(
                         mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                        mainAxisAlignment:(isLeading ==null||isLeading==false)?  MainAxisAlignment.spaceBetween : MainAxisAlignment.spaceEvenly,
+                        children:(isLeading ==null||isLeading==false) ? [
                           Text(actionText,style: const TextStyle(color: Colors.white,fontWeight: FontWeight.w400,fontSize: 25),),
                           Icon(icon,size: 45,color: Colors.white,)
+                        ] : [
+                          Icon(icon,size: 45,color: Colors.white,),
+                          Text(actionText,style: const TextStyle(color: Colors.white,fontWeight: FontWeight.w400,fontSize: 25),),
+
                         ],
                       ),
                     ),

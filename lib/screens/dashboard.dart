@@ -6,6 +6,7 @@ import 'package:super_liquid_galaxy_controller/components/navisland.dart';
 import 'package:super_liquid_galaxy_controller/components/planet_selector.dart';
 import 'package:super_liquid_galaxy_controller/generated/assets.dart';
 import 'package:super_liquid_galaxy_controller/screens/settings.dart';
+import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
 
 import '../components/connection_flag.dart';
 import '../components/glassbox.dart';
@@ -23,11 +24,14 @@ class DashBoard extends StatefulWidget {
 class _DashBoardState extends State<DashBoard> {
   late double screenHeight;
   late double screenWidth;
+  late LGConnection connectionClient;
 
   @override
-  void initState() {
+  Future<void> initState() async {
     super.initState();
     log("ui", "dashboard-built");
+    connectionClient = LGConnection.instance;
+    await connectionClient.connectToLG();
   }
 
   @override
@@ -106,7 +110,7 @@ class _DashBoardState extends State<DashBoard> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           ConnectionFlag(
-                            status: false,
+                            status: connectionClient.connectStatus(),
                             backgroundColor: Colors.white.withOpacity(0.0),
                             selectedText: 'LG CONNECTED',
                             unSelectedText: 'LG NOT CONNECTED',
@@ -122,7 +126,7 @@ class _DashBoardState extends State<DashBoard> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           ConnectionFlag(
-                            status: false,
+                            status: connectionClient.connectStatus(),
                             backgroundColor: Colors.white.withOpacity(0.0),
                             selectedText: 'API CONNECTED',
                             unSelectedText: 'API NOT CONNECTED',

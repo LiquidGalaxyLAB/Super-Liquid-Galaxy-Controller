@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:super_liquid_galaxy_controller/screens/dashboard.dart';
-import 'package:super_liquid_galaxy_controller/screens/settings.dart';
-import 'package:super_liquid_galaxy_controller/screens/splashscreen.dart';
 import 'package:get/get.dart';
+import 'package:super_liquid_galaxy_controller/screens/kml_builder.dart';
 
 
 void main() {
@@ -26,7 +25,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/': (context) => DashBoard(), // Root route
+        '/': (context) => KmlUploader(), // Root route
         // Settings route
       },
       theme: ThemeData(

@@ -162,7 +162,7 @@ class _ApiManagerBlockState extends State<ApiManagerBlock> {
                                 isPassword: false,
                                 buttonAction: () {
                                   if (widget.keyController.text.isNotEmpty) {
-                                    saveApiKey('places_api');
+                                    saveApiKey('places_apikey');
                                   }
                                   else
                                     {

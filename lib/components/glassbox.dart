@@ -1,13 +1,16 @@
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 class GlassBox extends StatelessWidget {
-  GlassBox({super.key,required this.height,required this.width,this.child,this.onTap});
+  GlassBox({super.key,required this.height,required this.width,this.child,this.onTap,this.backgroundGradient});
 
   double height;
   double width;
   Widget? child;
   VoidCallback? onTap;
+  LinearGradient? backgroundGradient;
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -30,7 +33,7 @@ class GlassBox extends StatelessWidget {
                   decoration: BoxDecoration(
                       border: Border.all(color: Colors.white.withOpacity(0.1)),
                       borderRadius: BorderRadius.circular(20),
-                      gradient: LinearGradient(colors: [
+                      gradient: backgroundGradient ?? LinearGradient(colors: [
                         Colors.white.withOpacity(0.2),
                         Colors.white.withOpacity(0.0)
                       ]
