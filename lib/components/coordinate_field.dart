@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import '../utils/galaxy_colors.dart';
 
 class CoordinateField extends StatefulWidget {
-  CoordinateField({super.key, required this.width,required this.headerText,required this.inputType});
+  CoordinateField({super.key, required this.width,required this.headerText,required this.inputType, this.controller});
 
   double width;
   String headerText;
   TextInputType inputType;
+  TextEditingController? controller;
 
   @override
   State<CoordinateField> createState() => _CoordinateFieldState();
@@ -22,7 +23,8 @@ class _CoordinateFieldState extends State<CoordinateField> {
         child: Padding(
 
             padding: const EdgeInsets.all(5.0),
-            child: Row(children: [
+            child: Row(
+                children: [
               Text(
                 " ${widget.headerText} ",
                 style: const TextStyle(
@@ -40,6 +42,7 @@ class _CoordinateFieldState extends State<CoordinateField> {
                 color: Colors.transparent,
                 child: TextField(
                   keyboardType: widget.inputType,
+                  controller: widget.controller,
                   style: const TextStyle(color: Colors.white,fontSize: 20.0),
                   decoration: const InputDecoration(
                     fillColor: Colors.transparent,

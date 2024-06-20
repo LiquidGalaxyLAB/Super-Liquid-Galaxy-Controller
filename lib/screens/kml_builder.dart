@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:super_liquid_galaxy_controller/components/galaxy_button.dart';
 import 'package:super_liquid_galaxy_controller/components/glassbox.dart';
+import 'package:super_liquid_galaxy_controller/components/kml_elements/linestring.dart';
 import 'package:super_liquid_galaxy_controller/components/kml_elements/placemark.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 
@@ -20,7 +21,7 @@ class KmlUploader extends StatefulWidget {
 class _KmlUploaderState extends State<KmlUploader> {
   late double screenHeight;
   late double screenWidth;
-  int elementIndex = 0;
+  int elementIndex = 1;
   List<String> labels = ['Placemark', 'Polyline', 'Polygon'];
   List<List<dynamic>> kmlElements = [
     ['Placemark', Icons.place_outlined],
@@ -119,7 +120,8 @@ class _KmlUploaderState extends State<KmlUploader> {
                           ),
                           RichAttributionWidget(
                             attributions: [
-                              TextSourceAttribution('OpenStreetMap contributors',
+                              TextSourceAttribution(
+                                  'OpenStreetMap contributors',
                                   onTap: () {}),
                             ],
                           ),
@@ -165,7 +167,8 @@ class _KmlUploaderState extends State<KmlUploader> {
                   ],
                 ),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.0,vertical: 35.0),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 20.0, vertical: 35.0),
                   child: Column(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -178,7 +181,8 @@ class _KmlUploaderState extends State<KmlUploader> {
                               elementIndex = labels.indexOf(label!);
                             });
                           },
-                          textStyle: TextStyle(color: Colors.white,fontSize: 20.0),
+                          textStyle:
+                              TextStyle(color: Colors.white, fontSize: 20.0),
                           leadingIcon: Icon(kmlElements[elementIndex][1]),
                           trailingIcon: const Row(
                             mainAxisSize: MainAxisSize.min,
@@ -212,7 +216,7 @@ class _KmlUploaderState extends State<KmlUploader> {
                               fillColor: Colors.black.withOpacity(0.5),
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(20.0))),
-                          initialSelection: 'Placemark',
+                          initialSelection: 'Polyline',
                         ),
                         Expanded(child: kmlElementOptionsWidget(elementIndex)),
                         MaterialButton(
@@ -236,7 +240,7 @@ class _KmlUploaderState extends State<KmlUploader> {
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w400,
-                                fontSize: 20.0),
+                                    fontSize: 20.0),
                               )
                             ],
                           ),
@@ -255,12 +259,24 @@ class _KmlUploaderState extends State<KmlUploader> {
     switch (elementIndex) {
       case 0:
         {
-          return PlacemarkElement(width: screenWidth*0.25,height: screenHeight*0.9,);
+          return PlacemarkElement(
+            width: screenWidth * 0.25,
+            height: screenHeight * 0.9,
+          );
         }
-
+      case 1:
+        {
+          return LineStringElement(
+            width: screenWidth * 0.25,
+            height: screenHeight * 0.9,
+          );
+        }
       default:
         {
-          return PlacemarkElement(width: screenWidth*0.25,height: screenHeight*0.9,);
+          return PlacemarkElement(
+            width: screenWidth * 0.25,
+            height: screenHeight * 0.9,
+          );
         }
     }
   }
