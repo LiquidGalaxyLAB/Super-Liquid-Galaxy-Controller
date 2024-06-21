@@ -154,7 +154,6 @@ class _KmlUploaderState extends State<KmlUploader> {
                                           itemBuilder:
                                               (BuildContext context, int index) {
                                                 var element = kmlList[index];
-                                                String label = "";
                                                 return Row(
                                                   mainAxisAlignment: MainAxisAlignment.center,
                                                   mainAxisSize: MainAxisSize.min,
@@ -165,7 +164,7 @@ class _KmlUploaderState extends State<KmlUploader> {
                                                       size: 25.0,
                                                     ),
                                                     const SizedBox(
-                                                      width: 5.0,
+                                                      width: 10.0,
                                                     ),
                                                     Text(
                                                       "${kmlElements[element.index][0]} : ${element.elementData?.label}",

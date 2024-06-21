@@ -224,4 +224,23 @@ fi
     }
   }
 
+ /* Future<bool> moveTo() async {
+
+    if(_client==null)
+      {
+        await reConnectToLG();
+        if(_isConnected==false) {
+          return false;
+        }
+      }
+
+    try {
+      await _client!.execute(
+          'echo "flytoview=${flyto.generateLinearString()}" > /tmp/query.txt');
+    } catch (e) {
+      print('Could not connect to host LG');
+      return Future.error(e);
+    }
+  }*/
+
 }

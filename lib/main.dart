@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:super_liquid_galaxy_controller/screens/dashboard.dart';
 import 'package:get/get.dart';
-import 'package:super_liquid_galaxy_controller/screens/kml_builder.dart';
+import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
+import 'package:super_liquid_galaxy_controller/screens/maps_controller.dart';
 
+AndroidMapRenderer mapRenderer = AndroidMapRenderer.platformDefault;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  /*final GoogleMapsFlutterPlatform mapsImplementation =
+      GoogleMapsFlutterPlatform.instance;
+  if (mapsImplementation is GoogleMapsFlutterAndroid) {
+    // Force Hybrid Composition mode.
+    mapsImplementation.useAndroidViewSurface = true;
+    mapRenderer = await mapsImplementation
+        .initializeWithRenderer(AndroidMapRenderer.latest);
+  }*/
   SystemChrome.setPreferredOrientations([
     // Lock orientation to landscape
     DeviceOrientation.landscapeRight,
@@ -25,7 +34,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/': (context) => KmlUploader(), // Root route
+        '/': (context) => MapController(), // Root route
         // Settings route
       },
       theme: ThemeData(
