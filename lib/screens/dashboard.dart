@@ -27,11 +27,12 @@ class _DashBoardState extends State<DashBoard> {
   late LGConnection connectionClient;
 
   @override
-  Future<void> initState() async {
+  void initState(){
     super.initState();
     log("ui", "dashboard-built");
-    connectionClient = LGConnection.instance;
-    await connectionClient.connectToLG();
+    initializeLGClient();
+
+
   }
 
   @override
@@ -91,9 +92,10 @@ class _DashBoardState extends State<DashBoard> {
                         size: 60,
                         color: Colors.white,
                       ),
-                      onTap: () {
+                      onTap: () async {
                         log("gesture", "settings tapped");
-                        Get.to(() => Settings());
+                        await Get.to(() => Settings());
+                        _reload();
                       },
                     ),
                   )
@@ -167,5 +169,17 @@ class _DashBoardState extends State<DashBoard> {
 
   void log(String name, String message) {
     developer.log(message, name: name);
+  }
+
+  void initializeLGClient() async {
+    connectionClient = LGConnection.instance;
+    await connectionClient.connectToLG();
+    setState(() {
+
+    });
+  }
+
+  void _reload() {
+    setState(() {});
   }
 }

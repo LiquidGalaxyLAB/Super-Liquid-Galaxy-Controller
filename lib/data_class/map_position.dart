@@ -1,4 +1,5 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:super_liquid_galaxy_controller/data_class/LookAt.dart';
 
 class MapPosition {
   double latitude;
@@ -51,6 +52,11 @@ class MapPosition {
     longitude = cameraPosition.target.longitude;
     bearing = cameraPosition.bearing;
     tilt = cameraPosition.tilt;
+  }
+
+  toLookAt(int rigCount)
+  {
+    return LookAt(longitude, latitude, zoom/rigCount, tilt, bearing);
   }
 
 }

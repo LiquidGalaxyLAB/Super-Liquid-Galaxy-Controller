@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dartssh2/dartssh2.dart';
 import 'package:get/get.dart';
+import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
+import 'package:super_liquid_galaxy_controller/utils/kmlgenerator.dart';
 
 class LGConnection {
 
@@ -12,7 +14,7 @@ class LGConnection {
   late String _username;
   late String _passwordOrKey;
   late String _numberOfRigs;
-  late bool _isConnected;
+  bool _isConnected = false;
   late SSHClient? _client;
 
   LGConnection._privateConstructor() {
@@ -32,7 +34,7 @@ class LGConnection {
 
   bool connectStatus()
   {
-    return true;
+    return _isConnected;
   }
 
   _connectionDetails() async {
@@ -43,6 +45,29 @@ class LGConnection {
     _username = preferences.getString('username') ?? '';
     _numberOfRigs = preferences.getString('number_of_rigs') ?? '';
     //await connectToLG();
+    print({
+      "ip": _host,
+      "pass": _passwordOrKey,
+      "port": _port,
+      "username": _username,
+      "number_of_rigs": _numberOfRigs
+    });
+    return {
+      "ip": _host,
+      "pass": _passwordOrKey,
+      "port": _port,
+      "username": _username,
+      "number_of_rigs": _numberOfRigs
+    };
+  }
+
+  getStoredDetails() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    _host = preferences.getString('ip') ?? '';
+    _passwordOrKey = preferences.getString('pass') ?? '';
+    _port = preferences.getString('port') ?? '';
+    _username = preferences.getString('username') ?? '';
+    _numberOfRigs = preferences.getString('number_of_rigs') ?? '';
     print({
       "ip": _host,
       "pass": _passwordOrKey,
@@ -82,10 +107,16 @@ class LGConnection {
       _isConnected=false;
       return false;
     }
+    catch(e)
+    {
+      print('Failed to connect: $e');
+      _isConnected=false;
+      return false;
+    }
   }
 
 
-  resetRefresh(context) async {
+  resetRefresh() async {
     try {
       if(_client==null)
         return;
@@ -102,7 +133,7 @@ class LGConnection {
     }
   }
 
-  rebootLG(context) async {
+  rebootLG() async {
 
     if (_client == null) {
       print('SSH client is not initialized.');
@@ -121,7 +152,7 @@ class LGConnection {
     }
   }
 
-  setRefresh(context) async {
+  setRefresh() async {
     try {
       for (var i = 2; i <= int.parse(_numberOfRigs); i++) {
         if(_client==null) {
@@ -143,14 +174,14 @@ class LGConnection {
       print("Refresh error");
     }
   }
-  Future<void> renderInSlave(context, int slaveNo, String kml) async {
+  Future<void> renderInSlave(int slaveNo, String kml) async {
     try {
       if(_client==null) {
         return;
       }
       await _client!.run("echo '$kml' > /var/www/html/kml/slave_$slaveNo.kml");
       print("balloon sent");
-      await setRefresh(context);
+      await setRefresh();
       print("refresh sent");
 
       return;
@@ -162,7 +193,7 @@ class LGConnection {
     }
   }
 
-  runKml(context, String kmlName) async {
+  runKml(String kmlName) async {
     try {
       if(_client==null)
         return;
@@ -224,8 +255,30 @@ fi
     }
   }
 
- /* Future<bool> moveTo() async {
+  Future<bool> clearKml() async {
+    try {
+      if (_client == null) {
+        return false;
+      }
 
+      String query =
+          'echo "exittour=true" > /tmp/query.txt && > /var/www/html/kmls.txt';
+      for (var i = 2; i <= int.parse(_numberOfRigs); i++) {
+        String blankKml = KMLGenerator.generateBlank('slave_$i');
+        query += " && echo '$blankKml' > /var/www/html/kml/slave_$i.kml";
+      }
+
+      await _client!.execute(query);
+      return true;
+    }
+    catch(e)
+    {
+      print(e);
+      return false;
+    }
+  }
+
+  Future<bool> moveTo(MapPosition position) async {
     if(_client==null)
       {
         await reConnectToLG();
@@ -236,11 +289,12 @@ fi
 
     try {
       await _client!.execute(
-          'echo "flytoview=${flyto.generateLinearString()}" > /tmp/query.txt');
+          'echo "flytoview=${position.toLookAt(int.parse(_numberOfRigs)).generateLinearString()}" > /tmp/query.txt');
+      return true;
     } catch (e) {
-      print('Could not connect to host LG');
-      return Future.error(e);
+      print(e);
+      return false;
     }
-  }*/
+  }
 
 }

@@ -48,7 +48,7 @@ class _SettingsState extends State<Settings> {
                 ),
             DefaultTabController(
             length: 3,
-            initialIndex: 2,
+            initialIndex: 0,
             child: Scaffold(
               backgroundColor: Colors.transparent,
               appBar: AppBar(

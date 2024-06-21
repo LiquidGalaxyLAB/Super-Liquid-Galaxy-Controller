@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
 import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
+import 'package:get/get.dart';
 
 class MapController extends StatefulWidget {
   const MapController({super.key});
@@ -18,6 +19,7 @@ class MapControllerState extends State<MapController> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
+  bool locationSet = false;
   MapPosition position = MapPosition(
       latitude: 28.65665656297236,
       longitude: -17.885454520583153,
@@ -54,19 +56,22 @@ class MapControllerState extends State<MapController> {
             _controller.complete(controller);
           },
           onCameraMove: _onCameraMove,
+          onCameraIdle: _onCameraIdle,
         ),
       ),
     );
   }
 
   void _onCameraMove(CameraPosition camera) {
+    if(!locationSet) {
+      return;
+    }
     position.updateFromCameraPosition(camera);
     print(position);
   }
 
-  void _onCameraIdle() {
-    // motionControls(
-    //     latvalue, longvalue, zoomvalue / rigcount, tiltvalue, bearingvalue);
+  void _onCameraIdle() async {
+    await client.moveTo(position);
   }
 
   Future<void> _determinePosition() async {
@@ -79,6 +84,7 @@ class MapControllerState extends State<MapController> {
       // Location services are not enabled don't continue
       // accessing the position and request users of the
       // App to enable the location services.
+      locationSet = true;
       return Future.error('Location services are disabled.');
     }
 
@@ -91,12 +97,14 @@ class MapControllerState extends State<MapController> {
         // Android's shouldShowRequestPermissionRationale
         // returned true. According to Android guidelines
         // your App should show an explanatory UI now.
+        locationSet = true;
         return Future.error('Location permissions are denied');
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
       // Permissions are denied forever, handle appropriately.
+      locationSet = true;
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
@@ -108,6 +116,7 @@ class MapControllerState extends State<MapController> {
     setState(() {
       position.latitude = point.latitude;
       position.longitude = point.longitude;
+      locationSet = true;
     });
   }
 
@@ -122,7 +131,18 @@ class MapControllerState extends State<MapController> {
     await client.reConnectToLG();
     if(!client.connectStatus())
       {
-
+        Get.dialog(
+          AlertDialog(
+            title: const Text('LG Connection Error', style: TextStyle(color: Colors.red),),
+            content: const Text('Connection to the Liquid Galaxy rig could not be established. \nPlease go to the settings page and re-enter credentials. \nThe map will work in stand-alone mode till then.'),
+            actions: [
+              TextButton(
+                child: const Text("Close", style: TextStyle(color: Colors.red),),
+                onPressed: () => Get.back(),
+              ),
+            ],
+          ),
+        );
       }
   }
 }

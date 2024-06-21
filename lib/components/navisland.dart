@@ -1,7 +1,9 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-
+import 'package:super_liquid_galaxy_controller/screens/kml_builder.dart';
+import 'package:super_liquid_galaxy_controller/screens/maps_controller.dart';
+import 'package:get/get.dart';
 import '../generated/assets.dart';
 
 //ignore_for_file: prefer_const_constructors
@@ -173,7 +175,9 @@ class NavIsland extends StatelessWidget {
                               Material(
                                 color: Colors.transparent,
                                 child: InkWell(
-                                  onTap: (){print("blah");},
+                                  onTap: (){
+                                    Get.to(() => MapController());
+                                  },
                                   borderRadius: BorderRadius.circular(15),
                                   child: Container(
                                     height: height * 0.12,
@@ -206,7 +210,7 @@ class NavIsland extends StatelessWidget {
                               Material(
                                 color: Colors.transparent,
                                 child: InkWell(
-                                  onTap: (){print("blah");},
+                                  onTap: (){Get.to(()=>KmlUploader());},
                                   borderRadius: BorderRadius.circular(15),
                                   child: Container(
                                     height: height * 0.12,
