@@ -13,6 +13,7 @@ class Assets {
   static const String iconsConnection = 'assets/icons/connection.png';
   static const String iconsController = 'assets/icons/controller.png';
   static const String iconsKey = 'assets/icons/key.png';
+  static const String iconsKml = 'assets/icons/kml.png';
   static const String iconsLandmark = 'assets/icons/landmark.png';
   static const String iconsMapmarker = 'assets/icons/mapmarker.png';
   static const String iconsSsh = 'assets/icons/ssh.png';

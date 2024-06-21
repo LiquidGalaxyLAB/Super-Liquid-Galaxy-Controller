@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -7,8 +8,10 @@ import 'package:super_liquid_galaxy_controller/components/galaxy_button.dart';
 import 'package:super_liquid_galaxy_controller/components/glassbox.dart';
 import 'package:super_liquid_galaxy_controller/components/kml_elements/linestring.dart';
 import 'package:super_liquid_galaxy_controller/components/kml_elements/placemark.dart';
+import 'package:super_liquid_galaxy_controller/components/kml_elements/polygon.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 
+import '../data_class/KmlElement.dart';
 import '../generated/assets.dart';
 
 class KmlUploader extends StatefulWidget {
@@ -21,13 +24,16 @@ class KmlUploader extends StatefulWidget {
 class _KmlUploaderState extends State<KmlUploader> {
   late double screenHeight;
   late double screenWidth;
-  int elementIndex = 1;
+  late DataRetrieverHandler dataController;
+
+  int elementIndex = 0;
   List<String> labels = ['Placemark', 'Polyline', 'Polygon'];
   List<List<dynamic>> kmlElements = [
     ['Placemark', Icons.place_outlined],
     ['Polyline', Icons.polyline],
-    ['Polygon', Icons.square]
+    ['Polygon', Icons.pentagon_rounded]
   ];
+  List<KmlElement> kmlList = [];
 
   @override
   Widget build(BuildContext context) {
@@ -87,15 +93,92 @@ class _KmlUploaderState extends State<KmlUploader> {
                 child: Column(
                   children: [
                     GlassBox(
-                      height: screenHeight * 0.25,
-                      width: screenWidth * 0.64,
-                      backgroundGradient: LinearGradient(
-                        colors: [
-                          Colors.white.withOpacity(0.07),
-                          Colors.white.withOpacity(0.07)
-                        ],
-                      ),
-                    ),
+                        height: screenHeight * 0.25,
+                        width: screenWidth * 0.64,
+                        backgroundGradient: LinearGradient(
+                          colors: [
+                            Colors.white.withOpacity(0.07),
+                            Colors.white.withOpacity(0.07)
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              const Text(
+                                "KML FILE:",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 25.0),
+                              ),
+
+                              Divider(thickness: 1.0,),
+                              const SizedBox(
+                                width: 20.0,
+                              ),
+                              Visibility(
+                                  visible: kmlList.isEmpty,
+                                  child: const Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Image(
+                                              image: AssetImage(Assets.iconsKml),
+                                            fit: BoxFit.scaleDown,
+                                          ),
+                                          const Text(
+                                            "ADD ELEMENTS \n TO VIEW \n KML FILE",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 17.0),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                              ),
+                              Visibility(
+                                visible: kmlList.isNotEmpty,
+                                child: Expanded(
+                                    child: Scrollbar(
+                                      controller: ScrollController(),
+                                      radius: const Radius.circular(20.0),
+                                      thickness: 2.0,
+                                      child: ListView.builder(
+                                        itemCount: kmlList.length,
+                                          itemBuilder:
+                                              (BuildContext context, int index) {
+                                                var element = kmlList[index];
+                                                String label = "";
+                                                return Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                      Icon(
+                                                      kmlElements[element.index][1],
+                                                      color: Colors.white,
+                                                      size: 25.0,
+                                                    ),
+                                                    const SizedBox(
+                                                      width: 5.0,
+                                                    ),
+                                                    Text(
+                                                      "${kmlElements[element.index][0]} : ${element.elementData?.label}",
+                                                      style: const TextStyle(color: Colors.white,fontSize: 20.0,fontWeight: FontWeight.w400),
+                                                    )
+                                                  ],
+                                                );
+                                              }),
+                                    )),
+                              )
+                            ],
+                          ),
+                        )),
                     const SizedBox(
                       height: 20.0,
                     ),
@@ -216,14 +299,18 @@ class _KmlUploaderState extends State<KmlUploader> {
                               fillColor: Colors.black.withOpacity(0.5),
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(20.0))),
-                          initialSelection: 'Polyline',
+                          initialSelection: 'Placemark',
                         ),
                         Expanded(child: kmlElementOptionsWidget(elementIndex)),
                         MaterialButton(
                           minWidth: screenWidth * 0.2,
                           height: screenHeight * 0.06,
                           color: GalaxyColors.green.withOpacity(0.4),
-                          onPressed: () {},
+                          onPressed: () {
+                            if (dataController.dataRetriever != null) {
+                              addElementToList(dataController.dataRetriever!());
+                            }
+                          },
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0)),
                           child: const Row(
@@ -255,6 +342,12 @@ class _KmlUploaderState extends State<KmlUploader> {
     ]));
   }
 
+  addElementToList(KmlElement elementData) {
+    setState(() {
+      kmlList.add(elementData);
+    });
+  }
+
   Widget kmlElementOptionsWidget(int elementIndex) {
     switch (elementIndex) {
       case 0:
@@ -262,6 +355,9 @@ class _KmlUploaderState extends State<KmlUploader> {
           return PlacemarkElement(
             width: screenWidth * 0.25,
             height: screenHeight * 0.9,
+            handlerCallback: ((handler) {
+              dataController = handler;
+            }),
           );
         }
       case 1:
@@ -269,6 +365,19 @@ class _KmlUploaderState extends State<KmlUploader> {
           return LineStringElement(
             width: screenWidth * 0.25,
             height: screenHeight * 0.9,
+            handlerCallback: ((handler) {
+              dataController = handler;
+            }),
+          );
+        }
+      case 2:
+        {
+          return PolygonElement(
+            width: screenWidth * 0.25,
+            height: screenHeight * 0.9,
+            handlerCallback: ((handler) {
+              dataController = handler;
+            }),
           );
         }
       default:
@@ -276,6 +385,9 @@ class _KmlUploaderState extends State<KmlUploader> {
           return PlacemarkElement(
             width: screenWidth * 0.25,
             height: screenHeight * 0.9,
+            handlerCallback: ((handler) {
+              dataController = handler;
+            }),
           );
         }
     }
