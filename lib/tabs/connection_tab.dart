@@ -6,6 +6,8 @@ import 'package:super_liquid_galaxy_controller/generated/assets.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
 
+import '../components/custom_dialog.dart';
+
 //ignore_for_file: prefer_const_constructors
 //ignore_for_file: prefer_const_literals
 
@@ -131,39 +133,21 @@ class _ConnectionTabState extends State<ConnectionTab>
     print("clicked");
     var lgConnection = LGConnection.instance;
     await lgConnection.connectToLG();
-    Dialog dialog = lgConnection.connectStatus()
-        ? (Dialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0)),
-            //this right here
-            child: Container(
-              height: 300.0,
-              width: 300.0,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Lottie.asset(Assets.lottieConnected,
-                      decoder: customDecoder, repeat: false),
-                ],
-              ),
-            ),
-          ))
-        : (Dialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0)),
-            //this right here
-            child: Container(
-              height: 300.0,
-              width: 300.0,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Lottie.asset(Assets.lottieFailedconnection,
-                      decoder: customDecoder, repeat: false),
-                ],
-              ),
-            ),
-          ));
+    var dialog = lgConnection.connectStatus()
+        ? CustomDialog(
+        content: Text("SSH operations are now possible."),
+        title: Text("Connection established",style: TextStyle(color: Colors.green.shade500,fontSize: 25.0,fontWeight: FontWeight.bold),),
+        firstColor: Colors.green,
+        secondColor: Colors.white,
+        headerIcon: Lottie.asset(Assets.lottieConnected,
+            decoder: customDecoder, repeat: false,width: 200.0,height: 200.0))
+        : CustomDialog(
+        content: Text("SSH operations unavailable."),
+        title: Text("Connection failed",style: TextStyle(color: Colors.red.shade500,fontSize: 25.0,fontWeight: FontWeight.bold),),
+        firstColor: Colors.red.shade400,
+        secondColor: Colors.white,
+        headerIcon: Lottie.asset(Assets.lottieConnectionfailed,
+            decoder: customDecoder, repeat: false,width: 200.0,height: 200.0));
     showDialog(
       context: context,
       builder: (BuildContext context) {

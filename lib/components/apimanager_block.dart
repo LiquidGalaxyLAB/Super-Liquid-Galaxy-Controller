@@ -39,7 +39,7 @@ class _ApiManagerBlockState extends State<ApiManagerBlock> {
         child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Container(
-                height: widget.screenHeight * 0.54,
+                height: widget.screenHeight * 0.5,
                 width: widget.screenWidth * 0.9,
                 child: Stack(children: [
                   BackdropFilter(

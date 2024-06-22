@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:super_liquid_galaxy_controller/data_class/LookAt.dart';
 
@@ -52,6 +54,7 @@ class MapPosition {
     longitude = cameraPosition.target.longitude;
     bearing = cameraPosition.bearing;
     tilt = cameraPosition.tilt;
+    zoom = 591657550.500000 / pow(2, cameraPosition.zoom);
   }
 
   toLookAt(int rigCount)

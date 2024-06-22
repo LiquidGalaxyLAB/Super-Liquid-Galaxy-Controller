@@ -49,7 +49,10 @@ class _SSHCommandsTabState extends State<SSHCommandsTab> with AutomaticKeepAlive
               actionText: "SET SLAVES REFRESH",
               icon: Icons.av_timer_rounded,
               onTap: () {
-                client.setRefresh();
+                showAlertMessage("Warning!",
+                    "This will set a refresh rate on all slave Screens on LG rig",
+                    client.setRefresh);
+                //client.setRefresh();
               },
             ),
             GalaxyButton(
@@ -59,7 +62,10 @@ class _SSHCommandsTabState extends State<SSHCommandsTab> with AutomaticKeepAlive
               actionText: "RESET SLAVES REFRESH",
               icon: Icons.timer_off_outlined,
               onTap: () {
-                client.resetRefresh();
+                showAlertMessage("Warning!",
+                    "This will reset the refresh rate on all slave Screens on LG rig",
+                    client.resetRefresh);
+                // client.resetRefresh();
               },
             ),
             GalaxyButton(
@@ -69,7 +75,12 @@ class _SSHCommandsTabState extends State<SSHCommandsTab> with AutomaticKeepAlive
               actionText: "CLEAR KML & LOGOS",
               icon: Icons.cleaning_services_sharp,
               onTap: () {
-                client.clearKml();
+
+                showAlertMessage("Warning!",
+                    "This will clear all KMLs on the LG rig",
+                    client.clearKml);
+
+                //client.clearKml();
               },
             ),
             GalaxyButton(
@@ -79,7 +90,12 @@ class _SSHCommandsTabState extends State<SSHCommandsTab> with AutomaticKeepAlive
               actionText: "REBOOT LG",
               icon: Icons.refresh_rounded,
               onTap: () {
-                client.rebootLG();
+
+                showAlertMessage("Warning!",
+                    "This will restart all the LG-rig machines",
+                    client.rebootLG);
+
+                // client.rebootLG();
               },
             ),
             GalaxyButton(
@@ -89,7 +105,10 @@ class _SSHCommandsTabState extends State<SSHCommandsTab> with AutomaticKeepAlive
               actionText: "RE-LAUNCH LG",
               icon: Icons.reset_tv_rounded,
               onTap: () {
-                client.relaunch();
+                showAlertMessage("Warning!",
+                    "Relaunches the Liquid Galaxy core on all rig systems",
+                    client.relaunch);
+                // client.relaunch();
               },
             ),
             GalaxyButton(
@@ -99,7 +118,10 @@ class _SSHCommandsTabState extends State<SSHCommandsTab> with AutomaticKeepAlive
               actionText: "SHUTDOWN LG",
               icon: Icons.settings_power_rounded,
               onTap: () {
-                client.shutdown();
+                showAlertMessage("Warning!",
+                    "This will shut-down all LG-rig machines",
+                    client.shutdown);
+                // client.shutdown();
               },
             ),
 
@@ -126,5 +148,24 @@ class _SSHCommandsTabState extends State<SSHCommandsTab> with AutomaticKeepAlive
         ));
       }
     }
+  }
+
+  showAlertMessage(String title, String content, Function action) {
+    Get.dialog(
+      AlertDialog(
+        title: Text(title, style: TextStyle(color: Colors.red),),
+        content: Text(content),
+        actions: [
+          TextButton(
+            child: const Text("CANCEL", style: TextStyle(color: Colors.black),),
+            onPressed: () => Get.back(),
+          ),
+          TextButton(
+            child: const Text("CONTINUE", style: TextStyle(color: Colors.red),),
+            onPressed: () => action(),
+          ),
+        ],
+      ),
+    );
   }
 }

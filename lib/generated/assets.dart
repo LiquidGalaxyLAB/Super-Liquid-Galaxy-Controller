@@ -19,6 +19,7 @@ class Assets {
   static const String iconsSsh = 'assets/icons/ssh.png';
   static const String iconsTravel = 'assets/icons/travel.png';
   static const String lottieConnected = 'assets/lottie/connected.lottie';
+  static const String lottieConnectionfailed = 'assets/lottie/connectionfailed.lottie';
   static const String lottieFailedconnection = 'assets/lottie/failedconnection.lottie';
   static const String svgOpenMouth = 'assets/svg/open_mouth.svg';
 
