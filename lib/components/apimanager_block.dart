@@ -183,6 +183,6 @@ class _ApiManagerBlockState extends State<ApiManagerBlock> {
   void saveApiKey(String prefKey) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     await preferences.setString(prefKey, widget.keyController.text);
-    var manager = ApiManager.instance;
+    ApiManager.instance;
   }
 }

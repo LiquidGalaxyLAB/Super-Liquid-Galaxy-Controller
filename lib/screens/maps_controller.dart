@@ -1,12 +1,18 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
-import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:super_liquid_galaxy_controller/components/AutoCompleteLocationField.dart';
+import 'package:super_liquid_galaxy_controller/components/galaxytextfield.dart';
+import 'package:super_liquid_galaxy_controller/data_class/PlaceSuggestionResponse.dart';
+import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
+import 'package:super_liquid_galaxy_controller/utils/autocomplete_controller.dart';
+import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
 
 class MapController extends StatefulWidget {
   const MapController({super.key});
@@ -19,6 +25,7 @@ class MapControllerState extends State<MapController> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
+  AutocompleteController textController = AutocompleteController();
   bool locationSet = false;
   MapPosition position = MapPosition(
       latitude: 28.65665656297236,
@@ -28,7 +35,7 @@ class MapControllerState extends State<MapController> {
       zoom: 591657550.500000 / pow(2, 13.15393352508545));
 
   late LGConnection client;
-
+  bool widgetVisible = true;
 
   @override
   void initState() {
@@ -40,30 +47,133 @@ class MapControllerState extends State<MapController> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        body: GoogleMap(
-          minMaxZoomPreference: MinMaxZoomPreference.unbounded,
-          mapToolbarEnabled: true,
-          tiltGesturesEnabled: true,
-          zoomControlsEnabled: true,
-          zoomGesturesEnabled: true,
-          scrollGesturesEnabled: true,
-          compassEnabled: true,
-          mapType: MapType.hybrid,
-          initialCameraPosition: position.toCameraPosition()
-          ,
-          onMapCreated: (GoogleMapController controller) {
-            _controller.complete(controller);
-          },
-          onCameraMove: _onCameraMove,
-          onCameraIdle: _onCameraIdle,
+      child: Stack(children: [
+        Scaffold(
+          body: GoogleMap(
+            gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+              new Factory<OneSequenceGestureRecognizer>(
+                () => new EagerGestureRecognizer(),
+              ),
+            ].toSet(),
+            minMaxZoomPreference: MinMaxZoomPreference.unbounded,
+            mapToolbarEnabled: true,
+            tiltGesturesEnabled: true,
+            zoomControlsEnabled: true,
+            zoomGesturesEnabled: true,
+            scrollGesturesEnabled: true,
+            compassEnabled: false,
+            mapType: MapType.hybrid,
+            initialCameraPosition: position.toCameraPosition(),
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+            },
+            onCameraMove: _onCameraMove,
+            onCameraIdle: _onCameraIdle,
+            onLongPress: (LatLng point) {
+              setState(() {
+                widgetVisible = !widgetVisible;
+              });
+            },
+          ),
         ),
-      ),
+        Visibility(
+          visible: widgetVisible,
+          child: Material(
+            color: Colors.transparent,
+            child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: /*Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: AutoCompleteLocationField(
+                    hintText: "Enter Location to search here",
+                    labelText: "",
+                    iconData: Icons.search_rounded,
+                    textInputType: TextInputType.text,
+                    isPassword: false,
+                    fillColor: Colors.white,
+                    textColor: Colors.black,
+                    autocompleteController: textController,
+                  ),
+                )
+*/
+                Autocomplete<Features>(
+                fieldViewBuilder: (BuildContext context,
+                    TextEditingController controller,
+                    FocusNode focusNode,
+                    VoidCallback onFieldSubmitted) {
+                  return GalaxyTextField(
+                    hintText: "Enter Location to search here",
+                    labelText: "",
+                    iconData: Icons.search_rounded,
+                    textInputType: TextInputType.text,
+                    isPassword: false,
+                    fillColor: Colors.white,
+                    textColor: Colors.black,
+                    controller: controller,
+                  );
+                },
+                displayStringForOption: (option) => '${option.properties?.name} - ${option.properties?.city}',
+                optionsBuilder: (TextEditingValue textEditingValue) async {
+                  if (textEditingValue.text.isEmpty) {
+                    return textController.lastOptions;
+                  }
+                  setState(() {
+                    textController.networkError = false;
+                  });
+                  //debug
+                  print("Request sent: ${textEditingValue.text}");
+                  final Iterable<Features>? options = await textController
+                      .debouncedSearch(textEditingValue.text);
+                  if (options == null) {
+                    return textController.lastOptions;
+                  }
+                  textController.lastOptions = options;
+                  print("suggestion: ${options.length}");
+                  for(final item in options.toList())
+                    {
+                      print('${item.properties?.name}');
+                    }
+                  return options;
+                },
+                optionsViewBuilder: (context, onSelected, options) {
+                  print('Building: ${options.length}');
+                  return Material(
+                    elevation: 4.0,
+                    child: SizedBox(
+                      height: 200.0,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(8.0),
+                        itemCount: options.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final option = options.elementAt(index);
+                          return GestureDetector(
+                            onTap: () {
+                              onSelected(option);
+                            },
+                            child: ListTile(
+                              title: Text(
+                                  '${option.properties?.name} - ${option.properties?.city}'),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                },
+                onSelected: (Features selection) {
+                  debugPrint('You just selected ${selection.properties?.name}');
+                },
+
+              ),
+                ),
+          ),
+        ),
+      ]),
     );
   }
 
   void _onCameraMove(CameraPosition camera) {
-    if(!locationSet) {
+    if (!locationSet) {
       return;
     }
     position.updateFromCameraPosition(camera);
@@ -123,26 +233,33 @@ class MapControllerState extends State<MapController> {
   void updateToCurrentLocation() async {
     await _determinePosition();
     final GoogleMapController controller = await _controller.future;
-    await controller.animateCamera(CameraUpdate.newCameraPosition(position.toCameraPosition()));
+    await controller.animateCamera(
+        CameraUpdate.newCameraPosition(position.toCameraPosition()));
   }
 
   void bootLGClient() async {
     client = LGConnection.instance;
     await client.reConnectToLG();
-    if(!client.connectStatus())
-      {
-        Get.dialog(
-          AlertDialog(
-            title: const Text('LG Connection Error', style: TextStyle(color: Colors.red),),
-            content: const Text('Connection to the Liquid Galaxy rig could not be established. \nPlease go to the settings page and re-enter credentials. \nThe map will work in stand-alone mode till then.'),
-            actions: [
-              TextButton(
-                child: const Text("Close", style: TextStyle(color: Colors.red),),
-                onPressed: () => Get.back(),
-              ),
-            ],
+    if (!client.connectStatus()) {
+      Get.dialog(
+        AlertDialog(
+          title: const Text(
+            'LG Connection Error',
+            style: TextStyle(color: Colors.red),
           ),
-        );
-      }
+          content: const Text(
+              'Connection to the Liquid Galaxy rig could not be established. \nPlease go to the settings page and re-enter credentials. \nThe map will work in stand-alone mode till then.'),
+          actions: [
+            TextButton(
+              child: const Text(
+                "Close",
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () => Get.back(),
+            ),
+          ],
+        ),
+      );
+    }
   }
 }

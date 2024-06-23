@@ -216,40 +216,6 @@ class _DashBoardState extends State<DashBoard> {
         secondColor: Colors.white,
         headerIcon: Lottie.asset(Assets.lottieConnectionfailed,
             decoder: customDecoder, repeat: false,width: 200.0,height: 200.0));
-
-    /*var dialog = true
-        ? (Dialog(
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0)),
-      //this right here
-      child: Container(
-        height: 300.0,
-        width: 300.0,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Lottie.asset(Assets.lottieConnected,
-                decoder: customDecoder, repeat: false),
-          ],
-        ),
-      ),
-    ))
-        : (Dialog(
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0)),
-      //this right here
-      child: Container(
-        height: 300.0,
-        width: 300.0,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Lottie.asset(Assets.lottieFailedconnection,
-                decoder: customDecoder, repeat: false),
-          ],
-        ),
-      ),
-    ));*/
     showDialog(
       context: context,
       builder: (BuildContext context) {

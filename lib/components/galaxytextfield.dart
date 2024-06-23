@@ -11,7 +11,9 @@ class GalaxyTextField extends StatefulWidget {
       required this.isPassword,
       this.controller,
       this.buttonAction,
-      this.endIcon});
+      this.endIcon,
+      this.fillColor,
+      this.textColor});
 
   String hintText;
   String labelText;
@@ -21,6 +23,8 @@ class GalaxyTextField extends StatefulWidget {
   TextEditingController? controller;
   VoidCallback? buttonAction;
   IconData? endIcon;
+  Color? fillColor;
+  Color? textColor;
 
   @override
   State<GalaxyTextField> createState() => _GalaxyTextFieldState();
@@ -53,7 +57,7 @@ class _GalaxyTextFieldState extends State<GalaxyTextField> {
                 padding: const EdgeInsets.all(12.0),
                 child: Icon(
                   widget.iconData,
-                  color: Colors.grey,
+                  color: widget.textColor??Colors.grey,
                   size: 50.0,
                 ),
               ),
@@ -75,7 +79,9 @@ class _GalaxyTextFieldState extends State<GalaxyTextField> {
                       color: Colors.grey,
                       style: BorderStyle.solid,
                       width: 2.5)),
-              fillColor: Colors.transparent,
+
+              fillColor:widget.fillColor??Colors.transparent,
+              filled: widget.fillColor==null?false:true,
               label: Text(widget.labelText),
               focusColor: Colors.grey,
               floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -128,7 +134,7 @@ class _GalaxyTextFieldState extends State<GalaxyTextField> {
                   )))
 
           ),
-          style: const TextStyle(fontSize: 25, color: Colors.grey),
+          style:TextStyle(fontSize: 25, color: widget.textColor ?? Colors.grey),
           maxLines: 1,
           minLines: 1,
           keyboardType: widget.textInputType,
