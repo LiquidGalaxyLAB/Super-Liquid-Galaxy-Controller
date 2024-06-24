@@ -1,7 +1,8 @@
 import 'dart:math';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:super_liquid_galaxy_controller/data_class/LookAt.dart';
+import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
+import 'package:super_liquid_galaxy_controller/data_class/look_at.dart';
 
 class MapPosition {
   double latitude;
@@ -55,6 +56,11 @@ class MapPosition {
     bearing = cameraPosition.bearing;
     tilt = cameraPosition.tilt;
     zoom = 591657550.500000 / pow(2, cameraPosition.zoom);
+  }
+
+  void updateFromCoordinates(Coordinates coordinates) {
+    latitude = coordinates.latitude;
+    longitude = coordinates.longitude;
   }
 
   toLookAt(int rigCount)

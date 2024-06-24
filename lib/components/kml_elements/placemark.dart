@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:super_liquid_galaxy_controller/data_class/KmlElement.dart';
+import 'package:super_liquid_galaxy_controller/data_class/kml_element.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:get/get.dart';
 import '../coordinate_field.dart';

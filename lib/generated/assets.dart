@@ -8,6 +8,7 @@ class Assets {
   static const String assetsLiquidgalaxynewlogo = 'assets/liquidgalaxynewlogo.webp';
   static const String assetsLogo = 'assets/logo.png';
   static const String assetsLogotxt = 'assets/logotxt.png';
+  static const String iconsApiIndicator = 'assets/icons/api_indicator.png';
   static const String iconsArcade = 'assets/icons/arcade.png';
   static const String iconsCode = 'assets/icons/code.png';
   static const String iconsConnection = 'assets/icons/connection.png';
@@ -17,6 +18,7 @@ class Assets {
   static const String iconsLandmark = 'assets/icons/landmark.png';
   static const String iconsMapmarker = 'assets/icons/mapmarker.png';
   static const String iconsSsh = 'assets/icons/ssh.png';
+  static const String iconsSshIndicator = 'assets/icons/ssh_indicator.png';
   static const String iconsTravel = 'assets/icons/travel.png';
   static const String lottieConnected = 'assets/lottie/connected.lottie';
   static const String lottieConnectionfailed = 'assets/lottie/connectionfailed.lottie';

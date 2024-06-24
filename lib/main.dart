@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
-import 'package:super_liquid_galaxy_controller/screens/maps_controller.dart';
 import 'package:super_liquid_galaxy_controller/screens/splashscreen.dart';
+import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
 
 AndroidMapRenderer mapRenderer = AndroidMapRenderer.platformDefault;
 
@@ -17,6 +17,9 @@ void main() {
     mapRenderer = await mapsImplementation
         .initializeWithRenderer(AndroidMapRenderer.latest);
   }*/
+  Get.put(LGConnection());
+  LGConnection client = Get.find();
+  client.connectToLG();
   SystemChrome.setPreferredOrientations([
     // Lock orientation to landscape
     DeviceOrientation.landscapeRight,

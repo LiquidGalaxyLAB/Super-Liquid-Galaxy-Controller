@@ -7,17 +7,17 @@ import 'package:get/get.dart';
 import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
 import 'package:super_liquid_galaxy_controller/utils/kmlgenerator.dart';
 
-class LGConnection {
+class LGConnection extends GetxController {
 
   late String _host;
   late String _port;
   late String _username;
   late String _passwordOrKey;
   late String _numberOfRigs;
-  bool _isConnected = false;
+  var isConnected = false.obs;
   late SSHClient? _client;
 
-  LGConnection._privateConstructor() {
+  /*LGConnection._privateConstructor() {
     print("instance created");
     _connectionDetails();
     print("details got");
@@ -25,7 +25,7 @@ class LGConnection {
 
   }
   static final LGConnection _instance = LGConnection._privateConstructor();
-  static LGConnection get instance => _instance;
+  static LGConnection get instance => _instance;*/
 
   int rigCount()
   {
@@ -34,7 +34,7 @@ class LGConnection {
 
   bool connectStatus()
   {
-    return _isConnected;
+    return isConnected.value;
   }
 
   _connectionDetails() async {
@@ -85,9 +85,9 @@ class LGConnection {
   }
 
   Future<bool?> reConnectToLG() async {
-    _connectionDetails();
+    //_connectionDetails();
     await connectToLG();
-    return _isConnected;
+    return isConnected.value;
   }
 
   Future<bool> connectToLG() async {
@@ -100,17 +100,17 @@ class LGConnection {
         return _passwordOrKey;
       });
       print("IP: $_host , port: $_port");
-      _isConnected=true;
+      isConnected.value =true;
       return true;
     } on SocketException catch (e) {
       print('Failed to connect: $e');
-      _isConnected=false;
+      isConnected.value=false;
       return false;
     }
     catch(e)
     {
       print('Failed to connect: $e');
-      _isConnected=false;
+      isConnected.value=false;
       return false;
     }
   }
@@ -282,7 +282,7 @@ fi
     if(_client==null)
       {
         await reConnectToLG();
-        if(_isConnected==false) {
+        if(isConnected.value==false) {
           return false;
         }
       }

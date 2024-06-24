@@ -7,9 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:super_liquid_galaxy_controller/components/AutoCompleteLocationField.dart';
+import 'package:super_liquid_galaxy_controller/components/autocomplete_locationfield.dart';
 import 'package:super_liquid_galaxy_controller/components/galaxytextfield.dart';
 import 'package:super_liquid_galaxy_controller/data_class/PlaceSuggestionResponse.dart';
+import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
 import 'package:super_liquid_galaxy_controller/utils/autocomplete_controller.dart';
 import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
@@ -82,7 +83,7 @@ class MapControllerState extends State<MapController> {
             color: Colors.transparent,
             child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: /*Padding(
+                child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: AutoCompleteLocationField(
                     hintText: "Enter Location to search here",
@@ -93,78 +94,9 @@ class MapControllerState extends State<MapController> {
                     fillColor: Colors.white,
                     textColor: Colors.black,
                     autocompleteController: textController,
+                    seekTo: goToSearchFeature,
                   ),
-                )
-*/
-                Autocomplete<Features>(
-                fieldViewBuilder: (BuildContext context,
-                    TextEditingController controller,
-                    FocusNode focusNode,
-                    VoidCallback onFieldSubmitted) {
-                  return GalaxyTextField(
-                    hintText: "Enter Location to search here",
-                    labelText: "",
-                    iconData: Icons.search_rounded,
-                    textInputType: TextInputType.text,
-                    isPassword: false,
-                    fillColor: Colors.white,
-                    textColor: Colors.black,
-                    controller: controller,
-                  );
-                },
-                displayStringForOption: (option) => '${option.properties?.name} - ${option.properties?.city}',
-                optionsBuilder: (TextEditingValue textEditingValue) async {
-                  if (textEditingValue.text.isEmpty) {
-                    return textController.lastOptions;
-                  }
-                  setState(() {
-                    textController.networkError = false;
-                  });
-                  //debug
-                  print("Request sent: ${textEditingValue.text}");
-                  final Iterable<Features>? options = await textController
-                      .debouncedSearch(textEditingValue.text);
-                  if (options == null) {
-                    return textController.lastOptions;
-                  }
-                  textController.lastOptions = options;
-                  print("suggestion: ${options.length}");
-                  for(final item in options.toList())
-                    {
-                      print('${item.properties?.name}');
-                    }
-                  return options;
-                },
-                optionsViewBuilder: (context, onSelected, options) {
-                  print('Building: ${options.length}');
-                  return Material(
-                    elevation: 4.0,
-                    child: SizedBox(
-                      height: 200.0,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(8.0),
-                        itemCount: options.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          final option = options.elementAt(index);
-                          return GestureDetector(
-                            onTap: () {
-                              onSelected(option);
-                            },
-                            child: ListTile(
-                              title: Text(
-                                  '${option.properties?.name} - ${option.properties?.city}'),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  );
-                },
-                onSelected: (Features selection) {
-                  debugPrint('You just selected ${selection.properties?.name}');
-                },
-
-              ),
+                 )
                 ),
           ),
         ),
@@ -230,6 +162,15 @@ class MapControllerState extends State<MapController> {
     });
   }
 
+  void goToSearchFeature(Features place) async
+  {
+    position.updateFromCoordinates(Coordinates(latitude: place.properties!.lat!, longitude: place.properties!.lon!));
+    final GoogleMapController controller = await _controller.future;
+    await controller.animateCamera(
+        CameraUpdate.newCameraPosition(position.toCameraPosition()));
+
+  }
+
   void updateToCurrentLocation() async {
     await _determinePosition();
     final GoogleMapController controller = await _controller.future;
@@ -238,7 +179,7 @@ class MapControllerState extends State<MapController> {
   }
 
   void bootLGClient() async {
-    client = LGConnection.instance;
+    client = Get.find();
     await client.reConnectToLG();
     if (!client.connectStatus()) {
       Get.dialog(

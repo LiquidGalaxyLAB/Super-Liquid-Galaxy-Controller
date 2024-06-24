@@ -11,7 +11,7 @@ import 'package:super_liquid_galaxy_controller/components/kml_elements/placemark
 import 'package:super_liquid_galaxy_controller/components/kml_elements/polygon.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 
-import '../data_class/KmlElement.dart';
+import '../data_class/kml_element.dart';
 import '../generated/assets.dart';
 
 class KmlUploader extends StatefulWidget {

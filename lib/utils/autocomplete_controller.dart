@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:super_liquid_galaxy_controller/data_class/PlaceSuggestionResponse.dart';
 import 'package:super_liquid_galaxy_controller/utils/api_manager.dart';
 
-const Duration debounceDuration = Duration(milliseconds: 500);
+const Duration debounceDuration = Duration(milliseconds: 250);
 
 class AutocompleteController {
   // The query currently being searched for. If null, there is no pending request.
@@ -71,7 +71,9 @@ class AutocompleteController {
     }
     _currentQuery = null;
 
-    return options;
+    return options.where((Features option){
+      return (option.properties!.name != null);
+    });
   }
 }
 

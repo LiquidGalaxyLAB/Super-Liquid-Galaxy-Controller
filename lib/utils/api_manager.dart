@@ -36,7 +36,7 @@ class ApiManager {
     final options = BaseOptions(
       baseUrl:(version == 1)?geoApifyV1BaseUrl:geoApifyV2BaseUrl,
       connectTimeout: const Duration(seconds: 5),
-      receiveTimeout: const Duration(seconds: 3),
+      receiveTimeout: const Duration(seconds: 10),
       validateStatus: (status){
         if(status!=null)
           return status < 500;
@@ -55,7 +55,7 @@ class ApiManager {
       autocompleteEndPoint,
       queryParameters: {
         'text':text,
-        'apiKey':_placesApiKey
+        'apiKey':_placesApiKey.trim()
       }
 
     );

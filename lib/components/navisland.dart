@@ -103,7 +103,7 @@ class NavIsland extends StatelessWidget {
                         Material(
                           color: Colors.transparent,
                           child: InkWell(
-                            onTap: (){print("blah");},
+                            onTap: (){},
                             borderRadius: BorderRadius.circular(15),
                             child: Container(
                               width: width*0.34,

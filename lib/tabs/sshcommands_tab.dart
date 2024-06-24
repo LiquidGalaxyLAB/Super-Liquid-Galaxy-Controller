@@ -41,91 +41,109 @@ class _SSHCommandsTabState extends State<SSHCommandsTab> with AutomaticKeepAlive
             vertical: screenHeight * 0.05,
             horizontal: screenHeight * 0.25),
         child: SingleChildScrollView(
-          child: Column(mainAxisSize: MainAxisSize.max, children: [
-            GalaxyButton(
-              height: screenHeight * 0.1,
-              width: screenWidth * 0.7,
-              backgroundColor: GalaxyColors.blue,
-              actionText: "SET SLAVES REFRESH",
-              icon: Icons.av_timer_rounded,
-              onTap: () {
-                showAlertMessage("Warning!",
-                    "This will set a refresh rate on all slave Screens on LG rig",
-                    client.setRefresh);
-                //client.setRefresh();
-              },
-            ),
-            GalaxyButton(
-              height: screenHeight * 0.1,
-              width: screenWidth * 0.7,
-              backgroundColor: GalaxyColors.blue,
-              actionText: "RESET SLAVES REFRESH",
-              icon: Icons.timer_off_outlined,
-              onTap: () {
-                showAlertMessage("Warning!",
-                    "This will reset the refresh rate on all slave Screens on LG rig",
-                    client.resetRefresh);
-                // client.resetRefresh();
-              },
-            ),
-            GalaxyButton(
-              height: screenHeight * 0.1,
-              width: screenWidth * 0.7,
-              backgroundColor: GalaxyColors.blue,
-              actionText: "CLEAR KML & LOGOS",
-              icon: Icons.cleaning_services_sharp,
-              onTap: () {
+          child: Obx((){
+            return Column(mainAxisSize: MainAxisSize.max, children: [
+              GalaxyButton(
+                height: screenHeight * 0.1,
+                width: screenWidth * 0.7,
+                backgroundColor: client.isConnected.value? GalaxyColors.blue : Colors.grey,
+                actionText: "SET SLAVES REFRESH",
+                icon: Icons.av_timer_rounded,
+                onTap: () {
+                  if(!client.isConnected.value) {
+                    return;
+                  }
+                  showAlertMessage("Warning!",
+                      "This will set a refresh rate on all slave Screens on LG rig",
+                      client.setRefresh);
+                  //client.setRefresh();
+                },
+              ),
+              GalaxyButton(
+                height: screenHeight * 0.1,
+                width: screenWidth * 0.7,
+                backgroundColor: client.isConnected.value? GalaxyColors.blue : Colors.grey,
+                actionText: "RESET SLAVES REFRESH",
+                icon: Icons.timer_off_outlined,
+                onTap: () {
+                  if(!client.isConnected.value) {
+                    return;
+                  }
+                  showAlertMessage("Warning!",
+                      "This will reset the refresh rate on all slave Screens on LG rig",
+                      client.resetRefresh);
+                  // client.resetRefresh();
+                },
+              ),
+              GalaxyButton(
+                height: screenHeight * 0.1,
+                width: screenWidth * 0.7,
+                backgroundColor: client.isConnected.value? GalaxyColors.blue : Colors.grey,
+                actionText: "CLEAR KML & LOGOS",
+                icon: Icons.cleaning_services_sharp,
+                onTap: () {
+                  if(!client.isConnected.value) {
+                    return;
+                  }
+                  showAlertMessage("Warning!",
+                      "This will clear all KMLs on the LG rig",
+                      client.clearKml);
 
-                showAlertMessage("Warning!",
-                    "This will clear all KMLs on the LG rig",
-                    client.clearKml);
+                  //client.clearKml();
+                },
+              ),
+              GalaxyButton(
+                height: screenHeight * 0.1,
+                width: screenWidth * 0.7,
+                backgroundColor: client.isConnected.value? GalaxyColors.blue : Colors.grey,
+                actionText: "REBOOT LG",
+                icon: Icons.refresh_rounded,
+                onTap: () {
+                  if(!client.isConnected.value) {
+                    return;
+                  }
+                  showAlertMessage("Warning!",
+                      "This will restart all the LG-rig machines",
+                      client.rebootLG);
 
-                //client.clearKml();
-              },
-            ),
-            GalaxyButton(
-              height: screenHeight * 0.1,
-              width: screenWidth * 0.7,
-              backgroundColor: GalaxyColors.blue,
-              actionText: "REBOOT LG",
-              icon: Icons.refresh_rounded,
-              onTap: () {
+                  // client.rebootLG();
+                },
+              ),
+              GalaxyButton(
+                height: screenHeight * 0.1,
+                width: screenWidth * 0.7,
+                backgroundColor: client.isConnected.value? GalaxyColors.blue : Colors.grey,
+                actionText: "RE-LAUNCH LG",
+                icon: Icons.reset_tv_rounded,
+                onTap: () {
+                  if(!client.isConnected.value) {
+                    return;
+                  }
+                  showAlertMessage("Warning!",
+                      "Relaunches the Liquid Galaxy core on all rig systems",
+                      client.relaunch);
+                  // client.relaunch();
+                },
+              ),
+              GalaxyButton(
+                height: screenHeight * 0.1,
+                width: screenWidth * 0.7,
+                backgroundColor: client.isConnected.value? GalaxyColors.blue : Colors.grey,
+                actionText: "SHUTDOWN LG",
+                icon: Icons.settings_power_rounded,
+                onTap: () {
+                  if(!client.isConnected.value) {
+                    return;
+                  }
+                  showAlertMessage("Warning!",
+                      "This will shut-down all LG-rig machines",
+                      client.shutdown);
+                  // client.shutdown();
+                },
+              ),
 
-                showAlertMessage("Warning!",
-                    "This will restart all the LG-rig machines",
-                    client.rebootLG);
-
-                // client.rebootLG();
-              },
-            ),
-            GalaxyButton(
-              height: screenHeight * 0.1,
-              width: screenWidth * 0.7,
-              backgroundColor: GalaxyColors.blue,
-              actionText: "RE-LAUNCH LG",
-              icon: Icons.reset_tv_rounded,
-              onTap: () {
-                showAlertMessage("Warning!",
-                    "Relaunches the Liquid Galaxy core on all rig systems",
-                    client.relaunch);
-                // client.relaunch();
-              },
-            ),
-            GalaxyButton(
-              height: screenHeight * 0.1,
-              width: screenWidth * 0.7,
-              backgroundColor: GalaxyColors.blue,
-              actionText: "SHUTDOWN LG",
-              icon: Icons.settings_power_rounded,
-              onTap: () {
-                showAlertMessage("Warning!",
-                    "This will shut-down all LG-rig machines",
-                    client.shutdown);
-                // client.shutdown();
-              },
-            ),
-
-          ]),
+            ]);}
+          ),
         ),
       ),
     );
@@ -135,7 +153,7 @@ class _SSHCommandsTabState extends State<SSHCommandsTab> with AutomaticKeepAlive
   bool get wantKeepAlive => true;
 
   void initializeLGClient() async {
-    client = LGConnection.instance;
+    client = Get.find();
     await client.reConnectToLG();
     if (!client.connectStatus()) {
       if (!Get.isSnackbarOpen) {

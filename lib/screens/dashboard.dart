@@ -33,6 +33,7 @@ class _DashBoardState extends State<DashBoard> {
     super.initState();
     log("ui", "dashboard-built");
     initializeLGClient();
+
   }
 
   @override
@@ -122,13 +123,16 @@ class _DashBoardState extends State<DashBoard> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  ConnectionFlag(
-                                    status: connectionClient.connectStatus(),
-                                    backgroundColor: Colors.white.withOpacity(
-                                        0.0),
-                                    selectedText: 'LG CONNECTED',
-                                    unSelectedText: 'LG NOT CONNECTED',
-                                    fontSize: 15.0,
+                                  Obx(() {
+                                    return ConnectionFlag(
+                                      status: connectionClient.isConnected.value,
+                                      backgroundColor: Colors.white.withOpacity(
+                                          0.0),
+                                      selectedText: 'LG CONNECTED',
+                                      unSelectedText: 'LG NOT CONNECTED',
+                                      fontSize: 15.0,
+                                    );
+                                  }
                                   ),
                                 ],
                               )),
@@ -139,13 +143,16 @@ class _DashBoardState extends State<DashBoard> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  ConnectionFlag(
-                                    status: connectionClient.connectStatus(),
-                                    backgroundColor: Colors.white.withOpacity(
-                                        0.0),
-                                    selectedText: 'API CONNECTED',
-                                    unSelectedText: 'API NOT CONNECTED',
-                                    fontSize: 15.0,
+                                  Obx(() {
+                                    return ConnectionFlag(
+                                      status: connectionClient.isConnected.value,
+                                      backgroundColor: Colors.white.withOpacity(
+                                          0.0),
+                                      selectedText: 'API CONNECTED',
+                                      unSelectedText: 'API NOT CONNECTED',
+                                      fontSize: 15.0,
+                                    );
+                                  }
                                   ),
                                 ],
                               )),
@@ -186,7 +193,7 @@ class _DashBoardState extends State<DashBoard> {
   }
 
   void initializeLGClient() async {
-    connectionClient = LGConnection.instance;
+    connectionClient = Get.find();
     await connectionClient.connectToLG();
     setState(() {
 

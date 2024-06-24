@@ -93,6 +93,11 @@ class Features {
     }
     return data;
   }
+
+  @override
+  String toString() {
+    return "${properties?.name} - ${properties?.city}";
+  }
 }
 
 class Geometry {
@@ -202,8 +207,8 @@ class Rank {
 
   Rank.fromJson(Map<String, dynamic> json) {
     this.importance = json["importance"];
-    this.confidence = json["confidence"];
-    this.confidenceCityLevel = json["confidence_city_level"];
+    this.confidence = (json["confidence"])?.toInt();
+    this.confidenceCityLevel = json["confidence_city_level"]?.toInt();
     this.matchType = json["match_type"];
   }
 

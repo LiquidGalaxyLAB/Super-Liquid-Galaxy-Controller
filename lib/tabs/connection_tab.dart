@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:super_liquid_galaxy_controller/components/galaxytextfield.dart';
 import 'package:super_liquid_galaxy_controller/generated/assets.dart';
@@ -131,7 +132,7 @@ class _ConnectionTabState extends State<ConnectionTab>
     await preferences.setString('username', userController.text);
     await preferences.setString('number_of_rigs', rigController.text);
     print("clicked");
-    var lgConnection = LGConnection.instance;
+    LGConnection lgConnection = Get.find();
     await lgConnection.connectToLG();
     var dialog = lgConnection.connectStatus()
         ? CustomDialog(
@@ -168,7 +169,7 @@ class _ConnectionTabState extends State<ConnectionTab>
   bool get wantKeepAlive => true;
 
   void loadSetValues() async {
-    var client = LGConnection.instance;
+    LGConnection client = Get.find();
     var details = await client.getStoredDetails();
     try {
       userController.text = details['username'];
