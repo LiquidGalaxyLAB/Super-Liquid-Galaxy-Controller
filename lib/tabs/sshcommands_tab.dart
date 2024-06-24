@@ -180,7 +180,10 @@ class _SSHCommandsTabState extends State<SSHCommandsTab> with AutomaticKeepAlive
           ),
           TextButton(
             child: const Text("CONTINUE", style: TextStyle(color: Colors.red),),
-            onPressed: () => action(),
+            onPressed: () async {
+              await action();
+              Get.back();
+            },
           ),
         ],
       ),

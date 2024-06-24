@@ -1,15 +1,20 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:get/get.dart';
 import 'package:super_liquid_galaxy_controller/components/galaxy_button.dart';
 import 'package:super_liquid_galaxy_controller/components/glassbox.dart';
 import 'package:super_liquid_galaxy_controller/components/kml_elements/linestring.dart';
 import 'package:super_liquid_galaxy_controller/components/kml_elements/placemark.dart';
 import 'package:super_liquid_galaxy_controller/components/kml_elements/polygon.dart';
+import 'package:super_liquid_galaxy_controller/screens/test.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
+import 'package:super_liquid_galaxy_controller/utils/kmlgenerator.dart';
+import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
 
 import '../data_class/kml_element.dart';
 import '../generated/assets.dart';
@@ -25,6 +30,7 @@ class _KmlUploaderState extends State<KmlUploader> {
   late double screenHeight;
   late double screenWidth;
   late DataRetrieverHandler dataController;
+  late LGConnection sshClient;
 
   int elementIndex = 0;
   List<String> labels = ['Placemark', 'Polyline', 'Polygon'];
@@ -34,6 +40,12 @@ class _KmlUploaderState extends State<KmlUploader> {
     ['Polygon', Icons.pentagon_rounded]
   ];
   List<KmlElement> kmlList = [];
+
+  @override
+  void initState() {
+    sshClient = Get.find();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -219,7 +231,16 @@ class _KmlUploaderState extends State<KmlUploader> {
                           actionText: "VISUALIZE IN LG",
                           icon: Icons.smart_screen,
                           isLeading: true,
-                          onTap: () {},
+                          onTap: () async {
+                            print("tapped");
+                            await sshClient.connectToLG();
+                            await sshClient.clearKml();
+                            File? file = await sshClient.makeFile('custom_kml', KMLGenerator.generateKml('slave_1', kmlList));
+                            print("made successfully");
+                            await sshClient.kmlFileUpload(context, file!, 'custom_kml');
+                            print("uploaded successfully");
+                            await sshClient.runKml('custom_kml');
+                          },
                           backgroundColor: GalaxyColors.blue.withOpacity(0.4),
                         ),
                         GalaxyButton(
@@ -228,7 +249,8 @@ class _KmlUploaderState extends State<KmlUploader> {
                           actionText: "VISUALIZE IN MAP",
                           icon: Icons.map,
                           isLeading: true,
-                          onTap: () {},
+                          onTap: () {
+                            },
                           backgroundColor: GalaxyColors.blue.withOpacity(0.4),
                         )
                       ],

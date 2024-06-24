@@ -7,6 +7,7 @@ import 'package:super_liquid_galaxy_controller/generated/assets.dart';
 import 'package:super_liquid_galaxy_controller/tabs/apikey_tab.dart';
 import 'package:super_liquid_galaxy_controller/tabs/connection_tab.dart';
 import 'package:super_liquid_galaxy_controller/tabs/sshcommands_tab.dart';
+import 'package:super_liquid_galaxy_controller/utils/api_manager.dart';
 import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
 
 //ignore_for_file: prefer_const_constructors
@@ -22,11 +23,13 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   late double screenHeight;
   late double screenWidth;
-  late LGConnection client;
+  late LGConnection connectionClient;
+  late ApiManager apiClient;
 
   @override
   void initState() {
-    client = Get.find();
+    connectionClient = Get.find();
+    apiClient = Get.find();
     super.initState();
   }
 
@@ -89,7 +92,7 @@ class _SettingsState extends State<Settings> {
                       ]),
                       child: ImageIcon(
                         AssetImage(Assets.iconsSshIndicator),
-                        color: client.isConnected.value ? Colors.green : Colors.red,
+                        color: connectionClient.isConnected.value ? Colors.green : Colors.red,
                         size: screenHeight *0.06,
                       )),
                 );}
@@ -107,7 +110,7 @@ class _SettingsState extends State<Settings> {
                       ]),
                       child: ImageIcon(
                         AssetImage(Assets.iconsApiIndicator),
-                        color: client.isConnected.value ? Colors.green : Colors.red,
+                        color: apiClient.isConnected.value ? Colors.green : Colors.red,
                         size: screenHeight *0.07,
                       )),
                 );}

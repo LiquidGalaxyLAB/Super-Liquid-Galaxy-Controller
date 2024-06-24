@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dartssh2/dartssh2.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
 import 'package:super_liquid_galaxy_controller/utils/kmlgenerator.dart';
 
@@ -120,7 +121,7 @@ class LGConnection extends GetxController {
     try {
       if(_client==null)
         return;
-      for (var i = 2; i <= int.parse(_numberOfRigs); i++) {
+      for (var i = 1; i <= int.parse(_numberOfRigs); i++) {
         String search =
             '<href>##LG_PHPIFACE##kml\\/slave_$i.kml<\\/href><refreshMode>onInterval<\\/refreshMode><refreshInterval>2<\\/refreshInterval>';
         String replace = '<href>##LG_PHPIFACE##kml\\/slave_$i.kml<\\/href>';
@@ -154,7 +155,7 @@ class LGConnection extends GetxController {
 
   setRefresh() async {
     try {
-      for (var i = 2; i <= int.parse(_numberOfRigs); i++) {
+      for (var i = 1; i <= int.parse(_numberOfRigs); i++) {
         if(_client==null) {
           return;
         }
@@ -196,17 +197,17 @@ class LGConnection extends GetxController {
   runKml(String kmlName) async {
     try {
       if(_client==null)
-        return;
+        return false;
       print('running kml');
       await _client!.run('echo "\nhttp://lg1:81/$kmlName.kml" > /var/www/html/kmls.txt');
+      print('kml ran');
+      return true;
     } catch (error) {
-
-      print('Error occurred while running');
+      print('Error occurred while running:$error');
+      return false;
+      // await connectToLG();
+      // await runKml(kmlName);
     }
-  }
-
-  void test() {
-    print("ran");
   }
 
   Future<void> shutdown() async {
@@ -278,6 +279,34 @@ fi
     }
   }
 
+  kmlFileUpload(context, File inputFile, String kmlName) async {
+    try {
+      if(_client == null)
+          return;
+
+      //bool uploading = true;
+      final sftp = await _client?.sftp();
+      final file = await sftp?.open('/var/www/html/$kmlName.kml',
+          mode: SftpFileOpenMode.create |
+          SftpFileOpenMode.truncate |
+          SftpFileOpenMode.write);
+      var fileSize = await inputFile.length();
+      file?.write(inputFile.openRead().cast(),
+          onProgress: (progress) {
+        print(progress / fileSize);
+        if (fileSize == progress) {
+          //uploading = false;
+        }
+      });
+      if (file == null) {
+        return;
+      }
+    } catch (error) {
+      print(error);
+    }
+  }
+
+
   Future<bool> moveTo(MapPosition position) async {
     if(_client==null)
       {
@@ -294,6 +323,21 @@ fi
     } catch (e) {
       print(e);
       return false;
+    }
+  }
+
+  makeFile(String filename, String content) async {
+    try{
+      var localPath = await getApplicationDocumentsDirectory();
+      print(localPath.path.toString());
+      File localFile = File('${localPath.path}/$filename.kml');
+      await localFile.writeAsString(content);
+      print("file created");
+      return localFile;
+    }
+    catch(e)
+    {
+      print("error : $e");
     }
   }
 

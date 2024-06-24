@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:super_liquid_galaxy_controller/data_class/PlaceSuggestionResponse.dart';
 import 'package:super_liquid_galaxy_controller/utils/api_manager.dart';
+import 'package:get/get.dart';
 
 const Duration debounceDuration = Duration(milliseconds: 250);
 
@@ -30,7 +31,7 @@ class AutocompleteController {
 
     late final Iterable<Features> options;
     try {
-      var apiClient = ApiManager.instance;
+      ApiManager apiClient = Get.find();
       var response = await apiClient.getAutoCompleteResponse(query);
       if(response.statusCode != 200) {
         return null;

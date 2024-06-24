@@ -1,7 +1,11 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:super_liquid_galaxy_controller/utils/api_manager.dart';
+import '../generated/assets.dart';
+import 'custom_dialog.dart';
 import 'galaxytextfield.dart';
+import 'package:lottie/lottie.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiManagerBlock extends StatefulWidget {
@@ -31,7 +35,16 @@ class ApiManagerBlock extends StatefulWidget {
   State<ApiManagerBlock> createState() => _ApiManagerBlockState();
 }
 
+
+
 class _ApiManagerBlockState extends State<ApiManagerBlock> {
+
+  @override
+  void initState() {
+    loadSetValues();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -179,10 +192,56 @@ class _ApiManagerBlockState extends State<ApiManagerBlock> {
                           )))
                 ]))));
   }
+  void loadSetValues() async {
+
+    try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      var key = preferences.getString("places_apikey") ?? "";
+      key = key.trim();
+      widget.keyController.text = key;
+    }
+    catch(e)
+    {
+      print(e);
+    }
+
+  }
+
 
   void saveApiKey(String prefKey) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     await preferences.setString(prefKey, widget.keyController.text);
-    ApiManager.instance;
+    ApiManager apiClient = Get.find();
+    await apiClient.testApiKey();
+    var dialog = apiClient.isConnected.value
+        ? CustomDialog(
+        content: Text("All Api Services now available!"),
+        title: Text("API KEY VALIDATED",style: TextStyle(color: Colors.green.shade500,fontSize: 25.0,fontWeight: FontWeight.bold),),
+        firstColor: Colors.green,
+        secondColor: Colors.white,
+        headerIcon: Lottie.asset(Assets.lottieConnected,
+            decoder: customDecoder, repeat: false,width: 200.0,height: 200.0))
+        : CustomDialog(
+        content: Text("Api services unavailable"),
+        title: Text("API KEY INVALID",style: TextStyle(color: Colors.red.shade500,fontSize: 25.0,fontWeight: FontWeight.bold),),
+        firstColor: Colors.red.shade400,
+        secondColor: Colors.white,
+        headerIcon: Lottie.asset(Assets.lottieConnectionfailed,
+            decoder: customDecoder, repeat: false,width: 200.0,height: 200.0));
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return dialog;
+      },
+    );
+
+  }
+
+  Future<LottieComposition?> customDecoder(List<int> bytes) {
+    return LottieComposition.decodeZip(bytes, filePicker: (files) {
+      return files.firstWhere(
+            (f) => f.name.startsWith('animations/') && f.name.endsWith('.json'),
+      );
+    });
   }
 }

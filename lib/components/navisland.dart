@@ -144,9 +144,9 @@ class NavIsland extends StatelessWidget {
                                 color: Colors.transparent,
                                 child: InkWell(
                                   onTap: () async {
-                                    var manager = ApiManager.instance;
+                                    /*var manager = ApiManager.instance;
                                     var response = await manager.getAutoCompleteResponse("How");
-                                    print(response.data);
+                                    print(response.data);*/
                                   },
                                   borderRadius: BorderRadius.circular(15),
                                   child: Container(

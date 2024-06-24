@@ -7,6 +7,7 @@ import 'package:super_liquid_galaxy_controller/components/navisland.dart';
 import 'package:super_liquid_galaxy_controller/components/planet_selector.dart';
 import 'package:super_liquid_galaxy_controller/generated/assets.dart';
 import 'package:super_liquid_galaxy_controller/screens/settings.dart';
+import 'package:super_liquid_galaxy_controller/utils/api_manager.dart';
 import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
 import 'package:lottie/lottie.dart';
 
@@ -27,12 +28,14 @@ class _DashBoardState extends State<DashBoard> {
   late double screenHeight;
   late double screenWidth;
   late LGConnection connectionClient;
+  late ApiManager apiClient;
 
   @override
   void initState() {
     super.initState();
     log("ui", "dashboard-built");
     initializeLGClient();
+    initializeApiClient();
 
   }
 
@@ -107,7 +110,6 @@ class _DashBoardState extends State<DashBoard> {
                               onTap: () async {
                                 log("gesture", "settings tapped");
                                 await Get.to(() => Settings());
-                                _reload();
                               },
                             ),
                           )
@@ -145,7 +147,7 @@ class _DashBoardState extends State<DashBoard> {
                                 children: [
                                   Obx(() {
                                     return ConnectionFlag(
-                                      status: connectionClient.isConnected.value,
+                                      status: apiClient.isConnected.value,
                                       backgroundColor: Colors.white.withOpacity(
                                           0.0),
                                       selectedText: 'API CONNECTED',
@@ -195,9 +197,10 @@ class _DashBoardState extends State<DashBoard> {
   void initializeLGClient() async {
     connectionClient = Get.find();
     await connectionClient.connectToLG();
-    setState(() {
-
-    });
+  }
+  void initializeApiClient() async {
+    apiClient = Get.find();
+    await apiClient.testApiKey();
   }
 
   void _reload() {
@@ -207,7 +210,7 @@ class _DashBoardState extends State<DashBoard> {
 
   //test
 
-  Future<void> testDialog() async {
+  /*Future<void> testDialog() async {
     var customDialog = CustomDialog(
       content: Text("SSH operations are now possible."),
       title: Text("Connection established",style: TextStyle(color: Colors.green.shade500,fontSize: 25.0,fontWeight: FontWeight.bold),),
@@ -229,7 +232,7 @@ class _DashBoardState extends State<DashBoard> {
         return customDialog1;
       },
     );
-  }
+  }*/
 
   Future<LottieComposition?> customDecoder(List<int> bytes) {
     return LottieComposition.decodeZip(bytes, filePicker: (files) {
@@ -238,5 +241,7 @@ class _DashBoardState extends State<DashBoard> {
       );
     });
   }
+
+
 
 }
