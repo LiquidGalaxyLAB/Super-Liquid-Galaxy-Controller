@@ -325,6 +325,16 @@ fi
       return false;
     }
   }
+  startOrbit(context) async {
+    try {
+      if(_client==null) {
+        return;
+      }
+      await _client?.run('echo "playtour=Orbit" > /tmp/query.txt');
+    } catch (error) {
+      print("failed: ${error.toString()}");
+    }
+  }
 
   makeFile(String filename, String content) async {
     try{

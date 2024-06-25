@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
-import 'package:super_liquid_galaxy_controller/screens/splashscreen.dart';
+import 'package:super_liquid_galaxy_controller/screens/test.dart';
 import 'package:super_liquid_galaxy_controller/utils/api_manager.dart';
 import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
+import 'package:super_liquid_galaxy_controller/utils/map_movement_controller.dart';
+import 'package:super_liquid_galaxy_controller/utils/speech_controller.dart';
 
 AndroidMapRenderer mapRenderer = AndroidMapRenderer.platformDefault;
 
@@ -20,6 +22,9 @@ void main() {
   }*/
   Get.lazyPut(() => LGConnection(),fenix: true);
   Get.lazyPut(() => ApiManager(),fenix: true);
+  Get.lazyPut(() => SpeechController(),fenix: true);
+  Get.lazyPut(() => MapMovementController(),fenix: true);
+
   LGConnection client = Get.find();
   client.connectToLG();
   SystemChrome.setPreferredOrientations([
@@ -40,7 +45,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/': (context) => const SplashScreen(), // Root route
+        '/': (context) => const TestScreen(kml: ""), // Root route
         // Settings route
       },
       theme: ThemeData(

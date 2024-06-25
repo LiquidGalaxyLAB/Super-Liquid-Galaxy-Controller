@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -233,13 +234,14 @@ class _KmlUploaderState extends State<KmlUploader> {
                           isLeading: true,
                           onTap: () async {
                             print("tapped");
+                            String filename = generateRandomString(7);
                             await sshClient.connectToLG();
-                            await sshClient.clearKml();
-                            File? file = await sshClient.makeFile('custom_kml', KMLGenerator.generateKml('slave_1', kmlList));
+                            //await sshClient.clearKml();
+                            File? file = await sshClient.makeFile(filename, KMLGenerator.generateKml('slave_1', kmlList));
                             print("made successfully");
-                            await sshClient.kmlFileUpload(context, file!, 'custom_kml');
+                            await sshClient.kmlFileUpload(context, file!, filename);
                             print("uploaded successfully");
-                            await sshClient.runKml('custom_kml');
+                            await sshClient.runKml(filename);
                           },
                           backgroundColor: GalaxyColors.blue.withOpacity(0.4),
                         ),
@@ -249,7 +251,8 @@ class _KmlUploaderState extends State<KmlUploader> {
                           actionText: "VISUALIZE IN MAP",
                           icon: Icons.map,
                           isLeading: true,
-                          onTap: () {
+                          onTap: () async {
+                            await sshClient.clearKml();
                             },
                           backgroundColor: GalaxyColors.blue.withOpacity(0.4),
                         )
@@ -361,6 +364,12 @@ class _KmlUploaderState extends State<KmlUploader> {
         ),
       )
     ]));
+  }
+
+  String generateRandomString(int len) {
+    var r = Random.secure();
+    const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz_';
+    return List.generate(len, (index) => _chars[r.nextInt(_chars.length)]).join();
   }
 
   addElementToList(KmlElement elementData) {

@@ -8,7 +8,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:super_liquid_galaxy_controller/components/autocomplete_locationfield.dart';
-import 'package:super_liquid_galaxy_controller/components/galaxytextfield.dart';
 import 'package:super_liquid_galaxy_controller/data_class/PlaceSuggestionResponse.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';

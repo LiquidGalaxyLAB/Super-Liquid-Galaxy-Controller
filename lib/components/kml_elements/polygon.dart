@@ -177,7 +177,7 @@ class _PolygonElementState extends State<PolygonElement> {
                             width: 10.0,
                           ),
                           Text(
-                            "(${pointList[index].latitude},${pointList[index].longitude})",
+                            "(${pointList[index].latitude.toStringAsFixed(2)},${pointList[index].longitude.toStringAsFixed(2)})",
                             style: const TextStyle(color: Colors.white,fontSize: 17.0),
                           )
                         ],

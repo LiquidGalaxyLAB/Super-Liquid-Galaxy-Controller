@@ -1,5 +1,6 @@
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/kml_element.dart';
+import 'package:super_liquid_galaxy_controller/utils/geo_utils.dart';
 
 class KMLGenerator {
   static String generateBlank(String id) {
@@ -65,30 +66,39 @@ class KMLGenerator {
 
   static String generateKml(String id, List<KmlElement> list) {
     var visList = '';
+    List<Coordinates> coordsList = [];
     for (final item in list) {
+
       switch (item.index) {
         case 0:
           {
            Placemark element = item.elementData;
            visList+=getPlacemark(element);
+           coordsList.add(element.coordinate);
           }
         case 1:
           {
             LineString element = item.elementData;
             visList+=getLineString(element);
+            coordsList.addAll(element.coordinates);
           }
         case 2:
           {
             Polygon element = item.elementData;
             visList+=getLinearRing(element);
+            coordsList.addAll(element.coordinates);
           }
         default:
           {
             Placemark element = item.elementData;
             visList+=getPlacemark(element);
+            coordsList.add(element.coordinate);
           }
       }
     }
+
+    var lookAt ='';
+    lookAt+= GeoUtils.calculateLookAt(coordsList,45);
 
     return '''
 <?xml version="1.0" encoding="UTF-8"?>
