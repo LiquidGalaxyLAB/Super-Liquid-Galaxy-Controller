@@ -33,13 +33,13 @@ class LineString {
 
 }
 
-class Polygon {
+class PolyGon {
   String label;
   String description;
   List<Coordinates> coordinates;
   String color;
 
-  Polygon({
+  PolyGon({
     required this.label,
     required this.description,
     required this.coordinates,

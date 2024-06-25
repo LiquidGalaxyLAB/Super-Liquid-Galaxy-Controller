@@ -68,4 +68,9 @@ class MapPosition {
     return LookAt(longitude, latitude, zoom/rigCount, tilt, bearing);
   }
 
+  LatLng toLatLng()
+  {
+    return LatLng(latitude, longitude);
+  }
+
 }

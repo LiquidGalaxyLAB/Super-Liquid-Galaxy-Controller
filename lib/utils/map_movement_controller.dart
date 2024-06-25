@@ -10,13 +10,6 @@ class MapMovementController extends GetxController {
   var currentMapType = MapType.normal.obs;
   Timer? _movementTimer;
   Timer? _zoomTimer;
-  /*MapPosition _currentPosition = MapPosition(
-    latitude: 0.0,
-    longitude: 0.0,
-    bearing: 0.0,
-    tilt: 0.0,
-    zoom: 0.0,
-  );*/
 
   void onMapCreated(GoogleMapController controller) {
     _mapController = controller;
@@ -36,11 +29,6 @@ class MapMovementController extends GetxController {
         ? MapType.satellite
         : MapType.normal;
   }
-
-  /*void _moveCamera(LatLng target) {
-    _mapController.animateCamera(CameraUpdate.newLatLng(target));
-  }*/
-
 
   void _scrollBy(double x, double y) {
     _mapController.animateCamera(CameraUpdate.scrollBy(x, y));

@@ -30,6 +30,7 @@ class _PolygonElementState extends State<PolygonElement> {
     super.initState();
     DataRetrieverHandler handler = DataRetrieverHandler();
     handler.dataRetriever =this.retrieveData;
+    handler.dataSetter = this.setData;
     widget.handlerCallback(handler);
   }
 
@@ -198,15 +199,25 @@ class _PolygonElementState extends State<PolygonElement> {
       }
       return KmlElement(
           index: 2,
-          elementData: Polygon(
+          elementData: PolyGon(
               coordinates: pointList,
               label: nameController.text.toString(),
               description: bodyController.text.toString(),
-              color: ''),);
+              color: 'ffffff'),);
     } catch (e) {
       print(e.toString());
       return null;
     }
+  }
+  void setData(KmlElement element) {
+    if (element.index != 2) {
+      return;
+    }
+    PolyGon ele = element.elementData;
+    nameController.text=ele.label;
+    bodyController.text=ele.description;
+    pointList.clear();
+    pointList.addAll(ele.coordinates);
   }
 
   bool validateData() {

@@ -47,7 +47,7 @@ class KMLGenerator {
   </LineString>
   </Placemark>''';
 
-  static getLinearRing(Polygon placeMark) => '''<Placemark>
+  static getLinearRing(PolyGon placeMark) => '''<Placemark>
   <name>${placeMark.label}</name>
   <description>
   ${placeMark.description}
@@ -84,7 +84,7 @@ class KMLGenerator {
           }
         case 2:
           {
-            Polygon element = item.elementData;
+            PolyGon element = item.elementData;
             visList+=getLinearRing(element);
             coordsList.addAll(element.coordinates);
           }

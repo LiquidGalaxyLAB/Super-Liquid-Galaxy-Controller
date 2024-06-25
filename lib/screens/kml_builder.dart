@@ -2,23 +2,22 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:get/get.dart';
+import 'package:super_liquid_galaxy_controller/components/MapKmlElement.dart';
 import 'package:super_liquid_galaxy_controller/components/galaxy_button.dart';
 import 'package:super_liquid_galaxy_controller/components/glassbox.dart';
 import 'package:super_liquid_galaxy_controller/components/kml_elements/linestring.dart';
 import 'package:super_liquid_galaxy_controller/components/kml_elements/placemark.dart';
 import 'package:super_liquid_galaxy_controller/components/kml_elements/polygon.dart';
-import 'package:super_liquid_galaxy_controller/screens/test.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 import 'package:super_liquid_galaxy_controller/utils/kmlgenerator.dart';
 import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
 
 import '../data_class/kml_element.dart';
+import '../data_class/map_position.dart';
 import '../generated/assets.dart';
+import '../utils/map_movement_controller.dart';
 
 class KmlUploader extends StatefulWidget {
   const KmlUploader({super.key});
@@ -28,9 +27,22 @@ class KmlUploader extends StatefulWidget {
 }
 
 class _KmlUploaderState extends State<KmlUploader> {
+  MapPosition position = MapPosition(
+    latitude: 40.7128,
+    longitude: -74.0060,
+    // Example: New York City
+    zoom: 5,
+    bearing: 45,
+    // 45 degrees east of north
+    tilt: 45, // City level zoom
+  );
+
+  late MapMovementController mapMovementController;
+
   late double screenHeight;
   late double screenWidth;
   late DataRetrieverHandler dataController;
+  late CallbackHandler callbackController;
   late LGConnection sshClient;
 
   int elementIndex = 0;
@@ -41,10 +53,12 @@ class _KmlUploaderState extends State<KmlUploader> {
     ['Polygon', Icons.pentagon_rounded]
   ];
   List<KmlElement> kmlList = [];
+  KmlElement? loadElement;
 
   @override
   void initState() {
     sshClient = Get.find();
+    mapMovementController = Get.find();
     super.initState();
   }
 
@@ -126,8 +140,9 @@ class _KmlUploaderState extends State<KmlUploader> {
                                     fontWeight: FontWeight.w400,
                                     fontSize: 25.0),
                               ),
-
-                              Divider(thickness: 1.0,),
+                              Divider(
+                                thickness: 1.0,
+                              ),
                               const SizedBox(
                                 width: 20.0,
                               ),
@@ -140,7 +155,7 @@ class _KmlUploaderState extends State<KmlUploader> {
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Image(
-                                              image: AssetImage(Assets.iconsKml),
+                                            image: AssetImage(Assets.iconsKml),
                                             fit: BoxFit.scaleDown,
                                           ),
                                           const Text(
@@ -153,40 +168,43 @@ class _KmlUploaderState extends State<KmlUploader> {
                                         ],
                                       ),
                                     ),
-                                  )
-                              ),
+                                  )),
                               Visibility(
                                 visible: kmlList.isNotEmpty,
                                 child: Expanded(
                                     child: Scrollbar(
-                                      controller: ScrollController(),
-                                      radius: const Radius.circular(20.0),
-                                      thickness: 2.0,
-                                      child: ListView.builder(
-                                        itemCount: kmlList.length,
-                                          itemBuilder:
-                                              (BuildContext context, int index) {
-                                                var element = kmlList[index];
-                                                return Row(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                      Icon(
-                                                      kmlElements[element.index][1],
-                                                      color: Colors.white,
-                                                      size: 25.0,
-                                                    ),
-                                                    const SizedBox(
-                                                      width: 10.0,
-                                                    ),
-                                                    Text(
-                                                      "${kmlElements[element.index][0]} : ${element.elementData?.label}",
-                                                      style: const TextStyle(color: Colors.white,fontSize: 20.0,fontWeight: FontWeight.w400),
-                                                    )
-                                                  ],
-                                                );
-                                              }),
-                                    )),
+                                  controller: ScrollController(),
+                                  radius: const Radius.circular(20.0),
+                                  thickness: 2.0,
+                                  child: ListView.builder(
+                                      itemCount: kmlList.length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        var element = kmlList[index];
+                                        return Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              kmlElements[element.index][1],
+                                              color: Colors.white,
+                                              size: 25.0,
+                                            ),
+                                            const SizedBox(
+                                              width: 10.0,
+                                            ),
+                                            Text(
+                                              "${kmlElements[element.index][0]} : ${element.elementData?.label}",
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 20.0,
+                                                  fontWeight: FontWeight.w400),
+                                            )
+                                          ],
+                                        );
+                                      }),
+                                )),
                               )
                             ],
                           ),
@@ -202,25 +220,19 @@ class _KmlUploaderState extends State<KmlUploader> {
                       backgroundGradient: const LinearGradient(
                         colors: [Colors.white, Colors.white],
                       ),
-                      child: FlutterMap(
-                        options: const MapOptions(
-                          initialCenter: LatLng(51.509364, -0.128928),
-                          initialZoom: 9.2,
-                        ),
-                        children: [
-                          TileLayer(
-                            urlTemplate:
-                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                            userAgentPackageName: 'com.example.app',
-                          ),
-                          RichAttributionWidget(
-                            attributions: [
-                              TextSourceAttribution(
-                                  'OpenStreetMap contributors',
-                                  onTap: () {}),
-                            ],
-                          ),
-                        ],
+                      child: Mapkmlelement(
+                        position: position,
+                        mapMovementController: mapMovementController,
+                        elementIndex: elementIndex,
+                        handlerCallback: ((handler) {
+                          callbackController = handler;
+                        }),
+                        submitData: (KmlElement data){
+                          setState(() {
+                            loadElement = data;
+                            dataController.dataSetter!(data);
+                          });
+                        },
                       ),
                     ),
                     Row(
@@ -237,9 +249,11 @@ class _KmlUploaderState extends State<KmlUploader> {
                             String filename = generateRandomString(7);
                             await sshClient.connectToLG();
                             //await sshClient.clearKml();
-                            File? file = await sshClient.makeFile(filename, KMLGenerator.generateKml('slave_1', kmlList));
+                            File? file = await sshClient.makeFile(filename,
+                                KMLGenerator.generateKml('slave_1', kmlList));
                             print("made successfully");
-                            await sshClient.kmlFileUpload(context, file!, filename);
+                            await sshClient.kmlFileUpload(
+                                context, file!, filename);
                             print("uploaded successfully");
                             await sshClient.runKml(filename);
                           },
@@ -253,7 +267,7 @@ class _KmlUploaderState extends State<KmlUploader> {
                           isLeading: true,
                           onTap: () async {
                             await sshClient.clearKml();
-                            },
+                          },
                           backgroundColor: GalaxyColors.blue.withOpacity(0.4),
                         )
                       ],
@@ -286,7 +300,9 @@ class _KmlUploaderState extends State<KmlUploader> {
                           onSelected: (label) {
                             setState(() {
                               elementIndex = labels.indexOf(label!);
+                              callbackController.callBack!(elementIndex);
                             });
+
                           },
                           textStyle:
                               TextStyle(color: Colors.white, fontSize: 20.0),
@@ -369,7 +385,8 @@ class _KmlUploaderState extends State<KmlUploader> {
   String generateRandomString(int len) {
     var r = Random.secure();
     const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz_';
-    return List.generate(len, (index) => _chars[r.nextInt(_chars.length)]).join();
+    return List.generate(len, (index) => _chars[r.nextInt(_chars.length)])
+        .join();
   }
 
   addElementToList(KmlElement elementData) {

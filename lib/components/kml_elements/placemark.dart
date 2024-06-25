@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:super_liquid_galaxy_controller/data_class/kml_element.dart';
-import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:get/get.dart';
+import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
+import 'package:super_liquid_galaxy_controller/data_class/kml_element.dart';
+
 import '../coordinate_field.dart';
 
 class PlacemarkElement extends StatefulWidget {
@@ -15,12 +16,14 @@ class PlacemarkElement extends StatefulWidget {
   double width;
   final Function handlerCallback;
 
+
   @override
   State<PlacemarkElement> createState() => _PlacemarkElementState();
 }
 
 class DataRetrieverHandler {
   Function? dataRetriever;
+  Function? dataSetter;
 }
 
 class _PlacemarkElementState extends State<PlacemarkElement> {
@@ -34,6 +37,7 @@ class _PlacemarkElementState extends State<PlacemarkElement> {
     super.initState();
     DataRetrieverHandler handler = DataRetrieverHandler();
     handler.dataRetriever = this.retrieveData;
+    handler.dataSetter = this.setData;
     widget.handlerCallback(handler);
   }
 
@@ -124,7 +128,7 @@ class _PlacemarkElementState extends State<PlacemarkElement> {
 
   KmlElement? retrieveData() {
     try {
-      if(!validateData()) {
+      if (!validateData()) {
         return null;
       }
 
@@ -145,22 +149,33 @@ class _PlacemarkElementState extends State<PlacemarkElement> {
     }
   }
 
+  void setData(KmlElement element) {
+    if (element.index != 0) {
+      return;
+    }
+    Placemark ele = element.elementData;
+    coordinateLatController.text = ele.coordinate.latitude.toString();
+    coordinateLongController.text = ele.coordinate.longitude.toString();
+    labelController.text = ele.label;
+    descController.text = ele.description;
+  }
+
   bool validateData() {
-    if(coordinateLongController.text.isEmpty||coordinateLatController.text.isEmpty||labelController.text.isEmpty||descController.text.isEmpty)
-      {
-        if (!Get.isSnackbarOpen) {
-          Get.showSnackbar(GetSnackBar(
-            backgroundColor: Colors.red.shade300,
-            title: "EMPTY FIELDS",
-            message:
-            "One or more Fields are empty",
-            isDismissible: true,
-            duration: 5.seconds,
-          ));
-        }
-        return false;
+    if (coordinateLongController.text.isEmpty ||
+        coordinateLatController.text.isEmpty ||
+        labelController.text.isEmpty ||
+        descController.text.isEmpty) {
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(GetSnackBar(
+          backgroundColor: Colors.red.shade300,
+          title: "EMPTY FIELDS",
+          message: "One or more Fields are empty",
+          isDismissible: true,
+          duration: 5.seconds,
+        ));
       }
-    else {
+      return false;
+    } else {
       return true;
     }
   }
