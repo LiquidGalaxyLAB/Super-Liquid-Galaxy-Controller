@@ -10,6 +10,7 @@ class SpeechController extends GetxController {
   var wordsString = ''.obs;
   var confidence = 1.0.obs;
   var wordQueue = Queue<String>().obs;
+  var commandWord = "IDLE".obs;
 
   //Current Command
   var _currentCommand = SpeechCommands.NONE;
@@ -19,17 +20,20 @@ class SpeechController extends GetxController {
   late MapMovementController mapController;
 
   //command words
-  List<String> commands = ["move","zoom", "stop"];
+  List<String> commands = ["move", "zoom", "stop"];
   List<String> zoomDirections = ["in", "out"];
   List<String> moveDirections = ["up", "down", "left", "right"];
-
-
 
   @override
   void onInit() {
     super.onInit();
     _speech = stt.SpeechToText();
     mapController = Get.find();
+  }
+
+  void setMapController(MapMovementController controller)
+  {
+    mapController = controller;
   }
 
   void startListening() async {
@@ -101,25 +105,25 @@ class SpeechController extends GetxController {
         continue;
       }
       if (wordQueue.value.last.compareTo(word) == 0) {
-        print('common found $word');
+        print('mapTest: common found $word');
         continue;
       } else {
         if (wordQueue.value.length >= 10) {
           wordQueue.value.removeFirst();
-          print('length exceeded');
+          print('mapTest: length exceeded');
         }
         wordQueue.value.addLast(word);
       }
     }
     detectCommandWord();
-    print("queue:${wordQueue.value.length}");
+    print("mapTest: queue:${wordQueue.value.length}");
   }
 
   void updateWordsStringQueue() {
     wordsString.value = '';
-    //wordQueue.value.remove('');
-    for (var word in wordQueue.value) {
-      wordsString.value += '[$word] ,';
+    var listQueue = LinkedHashSet<String>.from(wordQueue.value.toList()).toList();
+    for (var word in listQueue) {
+      wordsString.value += '$word ';
     }
   }
 
@@ -127,24 +131,32 @@ class SpeechController extends GetxController {
     var traversalList = wordQueue.value.toList().reversed.toList();
     if(_needsDirectionWord) {
       detectDirectionWord(wordQueue.value.toList(),0);
+      return;
     }
     for (final (index,token) in traversalList.indexed) {
       if (commands.contains(token.toLowerCase())) {
-        print("commandMatchFound ${commands.indexOf(token.toLowerCase())+1}");
+        print("mapTest: commandMatchFound ${commands.indexOf(token.toLowerCase())+1}");
         _currentCommand = commands.indexOf(token.toLowerCase())+1;
+        commandWord.value = SpeechCommands.getCommandWord(commands.indexOf(token.toLowerCase())+1, -1);
+        print('mapTest: command word updates : ${commandWord.value}');
         if(_currentCommand != SpeechCommands.STOP) {
           _needsDirectionWord = true;
         }
         detectDirectionWord(wordQueue.value.toList(),wordQueue.value.length-index-1);
+        break;
       }
     }
   }
 
   void detectDirectionWord(List<String> traversalList, int index)
   {
+    if(_currentCommand == SpeechCommands.STOP)
+      {
+        executeCommand(-1);
+      }
+
     for(final (i,token) in traversalList.indexed)
       {
-        //print("checking $token");
         if(i<=index) {
           continue;
         }
@@ -152,7 +164,6 @@ class SpeechController extends GetxController {
           case SpeechCommands.MOVE:
             {
               if(moveDirections.contains(token)) {
-                //print("movedir $token");
                 _needsDirectionWord = false;
                 executeCommand(moveDirections.indexOf(token));
                 return;
@@ -174,7 +185,7 @@ class SpeechController extends GetxController {
             }
           default:
             {
-              print("default/none case");
+              print("mapTest: default/none case");
             }
         }
 
@@ -182,31 +193,32 @@ class SpeechController extends GetxController {
   }
 
   void executeCommand(int index) {
+    commandWord.value = SpeechCommands.getCommandWord(_currentCommand, index);
+    print('mapTest: command word updates : ${commandWord.value}');
     switch(_currentCommand) {
       case SpeechCommands.MOVE:
         {
-          print("move $index");
-          //mapController.moveByIndex(index);
+          print("mapTest: move $index");
+          mapController.moveByIndex(index);
         }
       case SpeechCommands.ZOOM:
         {
-          print("zoom $index");
-          //mapController.zoomByIndex(index);
+          print("mapTest: zoom $index");
+          mapController.zoomByIndex(index);
           _currentCommand = SpeechCommands.NONE;
         }
       case SpeechCommands.STOP:
         {
-          print("stop $index");
-         // mapController.stop();
+          print("mapTest: stop $index");
+          mapController.stop();
           _currentCommand = SpeechCommands.NONE;
 
         }
       default:
         {
-          print("default/none case");
+          print("mapTest: default/none case");
         }
     }
-
     wordQueue.value.clear();
   }
 }
@@ -217,4 +229,60 @@ class SpeechCommands {
   static const ZOOM = 2;
   static const STOP = 3;
 
+  static String getCommandWord(int command, int index)
+  {
+    switch(command) {
+      case SpeechCommands.MOVE:
+        {
+          switch (index) {
+            case 0:
+              {
+                return "MOVE UP";
+              }
+            case 1:
+              {
+                return "MOVE DOWN";
+              }
+            case 2:
+              {
+                return "MOVE LEFT";
+              }
+            case 3:
+              {
+                return "MOVE RIGHT";
+              }
+            case -1:
+              {
+                return "MOVE";
+              }
+          }
+        }
+      case SpeechCommands.ZOOM:
+        {
+          switch (index) {
+            case 0:
+              {
+                return "ZOOM IN";
+              }
+            case 1:
+              {
+                return "ZOOM OUT";
+              }
+            case -1:
+              {
+                return "ZOOM";
+              }
+          }
+        }
+      case SpeechCommands.STOP:
+        {
+          return "STOP";
+        }
+      default:
+        {
+          return "IDLE";
+        }
+    }
+    return "IDLE";
+  }
 }

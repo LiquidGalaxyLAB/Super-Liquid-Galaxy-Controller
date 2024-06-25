@@ -7,12 +7,18 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:avatar_glow/avatar_glow.dart';
 import 'package:super_liquid_galaxy_controller/components/autocomplete_locationfield.dart';
+import 'package:super_liquid_galaxy_controller/components/tray_button.dart';
 import 'package:super_liquid_galaxy_controller/data_class/PlaceSuggestionResponse.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
+import 'package:super_liquid_galaxy_controller/generated/assets.dart';
 import 'package:super_liquid_galaxy_controller/utils/autocomplete_controller.dart';
+import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
+import 'package:super_liquid_galaxy_controller/utils/map_movement_controller.dart';
+import 'package:super_liquid_galaxy_controller/utils/speech_controller.dart';
 
 class MapController extends StatefulWidget {
   const MapController({super.key});
@@ -22,8 +28,8 @@ class MapController extends StatefulWidget {
 }
 
 class MapControllerState extends State<MapController> {
-  final Completer<GoogleMapController> _controller =
-      Completer<GoogleMapController>();
+  //final Completer<GoogleMapController> _controller =
+ //     Completer<GoogleMapController>();
 
   AutocompleteController textController = AutocompleteController();
   bool locationSet = false;
@@ -35,17 +41,29 @@ class MapControllerState extends State<MapController> {
       zoom: 591657550.500000 / pow(2, 13.15393352508545));
 
   late LGConnection client;
+  late SpeechController speechController;
+  late MapMovementController mapMovementController;
+  late double screenHeight;
+  late double screenWidth;
   bool widgetVisible = true;
+  bool voiceCommandActive = false;
 
   @override
   void initState() {
     super.initState();
+    client = Get.find();
+    speechController = Get.find();
+    mapMovementController = Get.find();
+
+    speechController.setMapController(mapMovementController);
     updateToCurrentLocation();
     bootLGClient();
   }
 
   @override
   Widget build(BuildContext context) {
+    screenHeight = MediaQuery.of(context).size.height;
+    screenWidth = MediaQuery.of(context).size.width;
     return SafeArea(
       child: Stack(children: [
         Scaffold(
@@ -64,9 +82,7 @@ class MapControllerState extends State<MapController> {
             compassEnabled: false,
             mapType: MapType.hybrid,
             initialCameraPosition: position.toCameraPosition(),
-            onMapCreated: (GoogleMapController controller) {
-              _controller.complete(controller);
-            },
+            onMapCreated: mapMovementController.onMapCreated,
             onCameraMove: _onCameraMove,
             onCameraIdle: _onCameraIdle,
             onLongPress: (LatLng point) {
@@ -95,10 +111,161 @@ class MapControllerState extends State<MapController> {
                     autocompleteController: textController,
                     seekTo: goToSearchFeature,
                   ),
-                 )
-                ),
+                )),
           ),
         ),
+        Visibility(
+          visible: widgetVisible,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                    decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(1.0),
+                        borderRadius: BorderRadius.circular(20.0),
+                        backgroundBlendMode: BlendMode.screen),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TrayButton(
+                          icon: Assets.iconsMic,
+                          color: voiceCommandActive ?Colors.green:Colors.grey.shade700,
+                          text: "VOICE \n COMMANDS",
+                          iconSize: screenHeight * 0.07,
+                          action: (){
+                            setState(() {
+                              voiceCommandActive = !voiceCommandActive;
+                            });
+                          },
+                        ),
+                        Obx(() {
+                          return TrayButton(
+                            icon: Assets.iconsSync,
+                            color: client.isConnected.value
+                                ? Colors.green
+                                : Colors.red,
+                            text: "SYNC TO \n  LG",
+                            iconSize: screenHeight * 0.07,
+                            action: (){
+                              bootLGClient();
+                            },
+                          );
+                        }),
+                        TrayButton(
+                          icon: Assets.iconsNearbypoi,
+                          color: Colors.black,
+                          text: "NEARBY \n POIs",
+                          iconSize: screenHeight * 0.07,
+                        ),
+                      ],
+                    )
+                ),
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Visibility(
+            visible: voiceCommandActive,
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: Obx((){
+                print('mapTest: command word ui ${speechController.commandWord.value}');
+                return Row(
+                  children: [
+                    AvatarGlow(
+                      glowColor: Colors.white,
+                      glowShape: BoxShape.circle,
+                      animate: speechController.isListening.value,
+                      curve: Curves.fastOutSlowIn,
+                      child: Material(
+                        elevation: 8.0,
+                        shape: CircleBorder(),
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(20.0),
+                          onTapUp: (TapUpDetails tapdetails) {
+                            print('up: ${tapdetails.kind}');
+                            speechController.stopListening();
+                          },
+                          onTapDown: (TapDownDetails details) {
+                            print('down: ${details.kind}');
+                            speechController.startListening();
+                          },
+                          onTapCancel: () {
+                            print('cancel');
+                            speechController.stopListening();
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.all(12.0),
+                            child: CircleAvatar(
+                              backgroundColor: Colors.white,
+                              backgroundImage: AssetImage(Assets.iconsMic),
+                              radius: screenHeight *0.05,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(width: screenWidth*0.07,),
+
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Material(
+                          color: Colors.transparent,
+                          child: Container(
+                            height: screenHeight*0.06,
+                            width: screenWidth*0.2,
+                            decoration: const BoxDecoration(
+                                color: Colors.grey,
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+                                backgroundBlendMode: BlendMode.screen),
+                            child: Center(
+                              child: Text(
+                                speechController.commandWord.value,
+                                style: const TextStyle(
+                                    fontSize: 25.0,
+                                    fontWeight: FontWeight.bold
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          color: Colors.grey,
+                          width: screenWidth*0.2,
+                          height: 2.0,
+                        ),
+                        Container(
+                          width: screenWidth*0.2,
+                          decoration: const BoxDecoration(
+                              color: Colors.grey,
+                              backgroundBlendMode: BlendMode.screen),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Center(child: Text(speechController.wordsString.value,style: const TextStyle(color: Colors.black,fontSize: 12.0),),),
+                            ),
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                );
+              }
+
+              )
+            ),
+          ),
+        )
       ]),
     );
   }
@@ -161,24 +328,24 @@ class MapControllerState extends State<MapController> {
     });
   }
 
-  void goToSearchFeature(Features place) async
-  {
-    position.updateFromCoordinates(Coordinates(latitude: place.properties!.lat!, longitude: place.properties!.lon!));
-    final GoogleMapController controller = await _controller.future;
-    await controller.animateCamera(
-        CameraUpdate.newCameraPosition(position.toCameraPosition()));
-
+  void goToSearchFeature(Features place) async {
+    position.updateFromCoordinates(Coordinates(
+        latitude: place.properties!.lat!, longitude: place.properties!.lon!));
+    // final GoogleMapController controller = await _controller.future;
+    // await controller.animateCamera(
+    //     CameraUpdate.newCameraPosition(position.toCameraPosition()));
+    mapMovementController.moveTo(position.toCameraPosition());
   }
 
   void updateToCurrentLocation() async {
     await _determinePosition();
-    final GoogleMapController controller = await _controller.future;
-    await controller.animateCamera(
-        CameraUpdate.newCameraPosition(position.toCameraPosition()));
+    // final GoogleMapController controller = await _controller.future;
+    // await controller.animateCamera(
+    //     CameraUpdate.newCameraPosition(position.toCameraPosition()));
+    mapMovementController.moveTo(position.toCameraPosition());
   }
 
   void bootLGClient() async {
-    client = Get.find();
     await client.reConnectToLG();
     if (!client.connectStatus()) {
       Get.dialog(
@@ -201,5 +368,18 @@ class MapControllerState extends State<MapController> {
         ),
       );
     }
+    else
+      {
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(GetSnackBar(
+            backgroundColor: Colors.green.shade300,
+            title: "CONNECTED!",
+            message: "Your Maps controller is now connected to the LG rig.",
+            isDismissible: true,
+            duration: 5.seconds,
+          ));
+
+        }
+      }
   }
 }

@@ -9,23 +9,19 @@ class MapMovementController extends GetxController {
   late GoogleMapController _mapController;
   var currentMapType = MapType.normal.obs;
   Timer? _movementTimer;
-  MapPosition _currentPosition = MapPosition(
+  Timer? _zoomTimer;
+  /*MapPosition _currentPosition = MapPosition(
     latitude: 0.0,
     longitude: 0.0,
     bearing: 0.0,
     tilt: 0.0,
     zoom: 0.0,
-  );
+  );*/
 
   void onMapCreated(GoogleMapController controller) {
     _mapController = controller;
   }
 
-  void setPosition(MapPosition position) {
-    _currentPosition = position;
-    _mapController.animateCamera(
-        CameraUpdate.newCameraPosition(position.toCameraPosition()));
-  }
 
   void zoomIn() {
     _mapController.animateCamera(CameraUpdate.zoomIn());
@@ -41,47 +37,60 @@ class MapMovementController extends GetxController {
         : MapType.normal;
   }
 
-  void _moveCamera(LatLng target) {
+  /*void _moveCamera(LatLng target) {
     _mapController.animateCamera(CameraUpdate.newLatLng(target));
+  }*/
+
+
+  void _scrollBy(double x, double y) {
+    _mapController.animateCamera(CameraUpdate.scrollBy(x, y));
   }
 
-  void _startMovement(Function(LatLng) updatePosition) {
+  void _startMovement(double x, double y) {
     _movementTimer = Timer.periodic(Duration(milliseconds: 100), (timer) {
-      LatLng currentLatLng =
-          LatLng(_currentPosition.latitude, _currentPosition.longitude);
-      LatLng newLatLng = updatePosition(currentLatLng);
-      _currentPosition.latitude = newLatLng.latitude;
-      _currentPosition.longitude = newLatLng.longitude;
-      _moveCamera(newLatLng);
+      _scrollBy(x, y);
+    });
+  }
+
+  void _startZoom(int index)
+  {
+    _zoomTimer = Timer.periodic(Duration(milliseconds: 1000), (timer) {
+      if(index==0)
+        zoomIn();
+      else
+        zoomOut();
     });
   }
 
   void moveUp() {
-    _startMovement((LatLng current) {
-      return LatLng(current.latitude + 0.001, current.longitude);
-    });
+    stop();
+    _startMovement(0, -100);
   }
 
   void moveDown() {
-    _startMovement((LatLng current) {
-      return LatLng(current.latitude - 0.001, current.longitude);
-    });
+    stop();
+    _startMovement(0, 100);
   }
 
   void moveLeft() {
-    _startMovement((LatLng current) {
-      return LatLng(current.latitude, current.longitude - 0.001);
-    });
+    stop();
+    _startMovement(-100, 0);
   }
 
   void moveRight() {
-    _startMovement((LatLng current) {
-      return LatLng(current.latitude, current.longitude + 0.001);
-    });
+    stop();
+    _startMovement(100, 0);
   }
 
   void stop() {
     _movementTimer?.cancel();
+    _zoomTimer?.cancel();
+  }
+
+  void moveTo(CameraPosition cameraPosition) async
+  {
+    await _mapController.animateCamera(
+        CameraUpdate.newCameraPosition(cameraPosition));
   }
 
   void moveByIndex(int index) {
@@ -106,7 +115,7 @@ class MapMovementController extends GetxController {
   }
 
   void zoomByIndex(int index) {
-    switch (index) {
+    /*switch (index) {
       case 0:
         {
           zoomIn();
@@ -116,6 +125,7 @@ class MapMovementController extends GetxController {
           zoomOut();
         }
 
-    }
+    }*/
+    _startZoom(index);
   }
 }
