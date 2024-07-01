@@ -4,7 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:super_liquid_galaxy_controller/screens/kml_builder.dart';
 import 'package:super_liquid_galaxy_controller/screens/maps_controller.dart';
 import 'package:get/get.dart';
-import 'package:super_liquid_galaxy_controller/utils/api_manager.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:super_liquid_galaxy_controller/screens/test.dart';
+import 'package:super_liquid_galaxy_controller/utils/kmlgenerator.dart';
+
+import 'dart:math' as Math;
 import '../generated/assets.dart';
 
 //ignore_for_file: prefer_const_constructors
@@ -144,9 +148,24 @@ class NavIsland extends StatelessWidget {
                                 color: Colors.transparent,
                                 child: InkWell(
                                   onTap: () async {
-                                    /*var manager = ApiManager.instance;
-                                    var response = await manager.getAutoCompleteResponse("How");
-                                    print(response.data);*/
+                                    /*LatLng centerPoint = LatLng(37.7749, -122.4194); // Example center point (San Francisco)
+                                    double length = 120.0; // Length of the footprint in meters
+                                    double width = 70.0; // Width of the footprint in meters
+                                    double angle = 0 * (Math.pi / 180); // Angle of rotation in radians (45 degrees in this case)
+
+                                    String kmlOutput = KMLGenerator.generateFootprintBottomPolygon(centerPoint, length, width, angle);
+                                    print(kmlOutput);*/
+                                    LatLng start = LatLng(1,6);
+                                    LatLng end = LatLng(5, 3);
+
+                                    double dashLength = 10000.0; // Length of each dash in meters
+                                    double gapLength = 5000.0; // Length of gap between dashes in meters
+
+                                    String kmlOutput = KMLGenerator.generatefootPrintLine(end,start, dashLength, gapLength);
+                                    print(kmlOutput.length);
+
+                                    print(kmlOutput);
+                                    Get.to(()=>TestScreen(kml: kmlOutput));
                                   },
                                   borderRadius: BorderRadius.circular(15),
                                   child: Container(

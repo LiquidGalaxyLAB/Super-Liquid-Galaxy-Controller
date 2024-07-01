@@ -235,6 +235,7 @@ class _MapkmlelementState extends State<Mapkmlelement> {
     print("resetData");
     points.clear();
     points.add(widget.position.toLatLng());
+    widget.elementIndex=idx;
     if (idx == 1) {
       var p1 = widget.position.toLatLng();
       p1 = LatLng(p1.latitude, p1.longitude + 2);

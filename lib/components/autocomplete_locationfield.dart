@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:super_liquid_galaxy_controller/utils/autocomplete_controller.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 
-import '../data_class/PlaceSuggestionResponse.dart';
+import '../data_class/place_suggestion_response.dart';
 
 class AutoCompleteLocationField extends StatefulWidget {
   AutoCompleteLocationField(

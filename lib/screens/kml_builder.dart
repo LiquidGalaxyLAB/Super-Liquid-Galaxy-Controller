@@ -10,6 +10,7 @@ import 'package:super_liquid_galaxy_controller/components/glassbox.dart';
 import 'package:super_liquid_galaxy_controller/components/kml_elements/linestring.dart';
 import 'package:super_liquid_galaxy_controller/components/kml_elements/placemark.dart';
 import 'package:super_liquid_galaxy_controller/components/kml_elements/polygon.dart';
+import 'package:super_liquid_galaxy_controller/screens/test.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 import 'package:super_liquid_galaxy_controller/utils/kmlgenerator.dart';
 import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
@@ -250,12 +251,15 @@ class _KmlUploaderState extends State<KmlUploader> {
                             await sshClient.connectToLG();
                             //await sshClient.clearKml();
                             File? file = await sshClient.makeFile(filename,
-                                KMLGenerator.generateKml('slave_1', kmlList));
+                                KMLGenerator.generateCustomKml('slave_1', kmlList));
+                            //String kml = KMLGenerator.generateCustomKml('slave_1', kmlList);
                             print("made successfully");
                             await sshClient.kmlFileUpload(
                                 context, file!, filename);
                             print("uploaded successfully");
                             await sshClient.runKml(filename);
+
+                            //Get.to(()=> TestScreen(kml: kml));
                           },
                           backgroundColor: GalaxyColors.blue.withOpacity(0.4),
                         ),
@@ -392,6 +396,7 @@ class _KmlUploaderState extends State<KmlUploader> {
   addElementToList(KmlElement elementData) {
     setState(() {
       kmlList.add(elementData);
+      print("added: $elementData");
     });
   }
 

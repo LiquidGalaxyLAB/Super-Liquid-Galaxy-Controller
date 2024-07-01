@@ -10,7 +10,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:super_liquid_galaxy_controller/components/autocomplete_locationfield.dart';
 import 'package:super_liquid_galaxy_controller/components/tray_button.dart';
-import 'package:super_liquid_galaxy_controller/data_class/PlaceSuggestionResponse.dart';
+import 'package:super_liquid_galaxy_controller/data_class/place_suggestion_response.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
 import 'package:super_liquid_galaxy_controller/generated/assets.dart';
@@ -270,12 +270,13 @@ class MapControllerState extends State<MapController> {
     );
   }
 
-  void _onCameraMove(CameraPosition camera) {
+  void _onCameraMove(CameraPosition camera) async {
     if (!locationSet) {
       return;
     }
     position.updateFromCameraPosition(camera);
     print(position);
+    _onCameraIdle();
   }
 
   void _onCameraIdle() async {
