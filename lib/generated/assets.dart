@@ -8,6 +8,8 @@ class Assets {
   static const String assetsLiquidgalaxynewlogo = 'assets/liquidgalaxynewlogo.webp';
   static const String assetsLogo = 'assets/logo.png';
   static const String assetsLogotxt = 'assets/logotxt.png';
+  static const String assetsSlgcLogos = 'assets/slgc_logos.png';
+  static const String dataCountry = 'assets/data/country.json';
   static const String iconsApiIndicator = 'assets/icons/api_indicator.png';
   static const String iconsArcade = 'assets/icons/arcade.png';
   static const String iconsCode = 'assets/icons/code.png';

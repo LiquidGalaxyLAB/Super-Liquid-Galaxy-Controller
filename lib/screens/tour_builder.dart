@@ -196,6 +196,28 @@ class _TourBuilderState extends State<TourBuilder> {
                     child: Container(
                       height: screenHeight * 0.448,
                       width: screenWidth * 0.93,
+                      child: GridView.builder(
+                          itemCount: 12,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2),
+                          itemBuilder: (_, int index) {
+                            return InkWell(
+                                onTap: () {
+                                  //tap
+                                },
+                                onLongPress: () {
+                                  //long press
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: MaterialButton(
+                                    onPressed: () {},
+                                    color: Colors.white.withOpacity(0.6),
+                                    height: screenHeight*0.15,
+                                  ),
+                                ));
+                          }),
                     ),
                   )
                 ],

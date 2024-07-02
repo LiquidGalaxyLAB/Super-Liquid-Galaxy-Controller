@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/': (context) => const TourBuilder(), // Root route
+        '/': (context) => const SplashScreen(), // Root route
         // Settings route
       },
       theme: ThemeData(

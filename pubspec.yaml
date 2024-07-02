@@ -46,8 +46,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
-  another_flutter_splash_screen: ^1.2.0
-  typethis: ^1.0.0
+  animated_splash_screen: ^1.3.0
   get: ^4.6.6
   flutter_svg: ^2.0.10+1
   shared_preferences: ^2.2.3
