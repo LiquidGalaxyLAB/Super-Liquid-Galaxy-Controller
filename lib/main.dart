@@ -7,10 +7,12 @@ import 'package:super_liquid_galaxy_controller/screens/kml_builder.dart';
 import 'package:super_liquid_galaxy_controller/screens/maps_controller.dart';
 import 'package:super_liquid_galaxy_controller/screens/splashscreen.dart';
 import 'package:super_liquid_galaxy_controller/screens/test.dart';
+import 'package:super_liquid_galaxy_controller/screens/tour_builder.dart';
 import 'package:super_liquid_galaxy_controller/utils/api_manager.dart';
 import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
 import 'package:super_liquid_galaxy_controller/utils/map_movement_controller.dart';
 import 'package:super_liquid_galaxy_controller/utils/speech_controller.dart';
+import 'package:super_liquid_galaxy_controller/utils/tour_controller.dart';
 
 AndroidMapRenderer mapRenderer = AndroidMapRenderer.platformDefault;
 
@@ -28,6 +30,7 @@ void main() {
   Get.lazyPut(() => ApiManager(),fenix: true);
   Get.lazyPut(() => SpeechController(),fenix: true);
   Get.lazyPut(() => MapMovementController(),fenix: true);
+  Get.lazyPut(() => TourController(),fenix: true);
 
   LGConnection client = Get.find();
   client.connectToLG();
@@ -49,7 +52,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/': (context) => const SplashScreen(), // Root route
+        '/': (context) => const TourBuilder(), // Root route
         // Settings route
       },
       theme: ThemeData(

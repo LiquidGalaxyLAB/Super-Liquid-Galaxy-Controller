@@ -13,7 +13,13 @@ class GalaxyTextField extends StatefulWidget {
       this.buttonAction,
       this.endIcon,
       this.fillColor,
-      this.textColor});
+      this.textColor,
+      this.focusColor,
+      this.labelWeight,
+      this.paddingSize,
+      this.contentPadding,
+      this.labelColor,
+      this.onTextChanged});
 
   String hintText;
   String labelText;
@@ -25,6 +31,12 @@ class GalaxyTextField extends StatefulWidget {
   IconData? endIcon;
   Color? fillColor;
   Color? textColor;
+  Color? focusColor;
+  Color? labelColor;
+  FontWeight? labelWeight;
+  double? paddingSize;
+  double? contentPadding;
+  Function(String)? onTextChanged;
 
   @override
   State<GalaxyTextField> createState() => _GalaxyTextFieldState();
@@ -42,17 +54,17 @@ class _GalaxyTextFieldState extends State<GalaxyTextField> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+      padding: EdgeInsets.symmetric(horizontal:widget.paddingSize?? 10.0, vertical: widget.paddingSize??20.0),
       child: TextFormField(
           obscureText: _obscureText,
-          onChanged: (text) {},
+          onChanged: widget.onTextChanged,
           controller: widget.controller,
           decoration: InputDecoration(
               hintText: widget.hintText,
               hintStyle:
                   TextStyle(fontSize: 20, color: Colors.grey.withOpacity(0.4)),
               contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                  EdgeInsets.symmetric(horizontal: 10, vertical:widget.contentPadding?? 20),
               prefixIcon: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Icon(
@@ -69,8 +81,8 @@ class _GalaxyTextFieldState extends State<GalaxyTextField> {
                       width: 2.5)),
               focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0),
-                  borderSide: const BorderSide(
-                      color: GalaxyColors.blue,
+                  borderSide: BorderSide(
+                      color: widget.focusColor ?? GalaxyColors.blue,
                       style: BorderStyle.solid,
                       width: 2.5)),
               enabledBorder: OutlineInputBorder(
@@ -79,16 +91,15 @@ class _GalaxyTextFieldState extends State<GalaxyTextField> {
                       color: Colors.grey,
                       style: BorderStyle.solid,
                       width: 2.5)),
-
               fillColor:widget.fillColor??Colors.transparent,
               filled: widget.fillColor==null?false:true,
               label: Text(widget.labelText),
               focusColor: Colors.grey,
               floatingLabelBehavior: FloatingLabelBehavior.always,
-              labelStyle: const TextStyle(
+              labelStyle: TextStyle(
                   fontSize: 30,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold),
+                  color: widget.labelColor?? Colors.white,
+                  fontWeight:widget.labelWeight?? FontWeight.bold),
               alignLabelWithHint: true,
               suffixIcon:
               (widget.endIcon==null)?

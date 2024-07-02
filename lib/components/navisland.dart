@@ -6,6 +6,7 @@ import 'package:super_liquid_galaxy_controller/screens/maps_controller.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:super_liquid_galaxy_controller/screens/test.dart';
+import 'package:super_liquid_galaxy_controller/screens/tour_builder.dart';
 import 'package:super_liquid_galaxy_controller/utils/kmlgenerator.dart';
 
 import 'dart:math' as Math;
@@ -107,7 +108,11 @@ class NavIsland extends StatelessWidget {
                         Material(
                           color: Colors.transparent,
                           child: InkWell(
-                            onTap: (){},
+                            onTap: (){
+
+                              Get.to(()=>TourBuilder());
+
+                            },
                             borderRadius: BorderRadius.circular(15),
                             child: Container(
                               width: width*0.34,

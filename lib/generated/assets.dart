@@ -19,6 +19,7 @@ class Assets {
   static const String iconsMapmarker = 'assets/icons/mapmarker.png';
   static const String iconsMic = 'assets/icons/mic.png';
   static const String iconsNearbypoi = 'assets/icons/nearbypoi.png';
+  static const String iconsPlaceMarker = 'assets/icons/place_marker.png';
   static const String iconsSsh = 'assets/icons/ssh.png';
   static const String iconsSshIndicator = 'assets/icons/ssh_indicator.png';
   static const String iconsSync = 'assets/icons/sync.png';

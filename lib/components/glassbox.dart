@@ -1,9 +1,16 @@
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 class GlassBox extends StatelessWidget {
-  GlassBox({super.key,required this.height,required this.width,this.child,this.onTap,this.backgroundGradient});
+  GlassBox(
+      {super.key,
+      required this.height,
+      required this.width,
+      this.child,
+      this.onTap,
+      this.backgroundGradient,
+      this.cornerRadius});
 
   double height;
   double width;
@@ -11,15 +18,17 @@ class GlassBox extends StatelessWidget {
   VoidCallback? onTap;
   LinearGradient? backgroundGradient;
 
+  double? cornerRadius;
+
   @override
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(cornerRadius??20),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(cornerRadius??20),
           child: Container(
             width: width,
             height: height,
@@ -32,15 +41,13 @@ class GlassBox extends StatelessWidget {
                 Container(
                   decoration: BoxDecoration(
                       border: Border.all(color: Colors.white.withOpacity(0.1)),
-                      borderRadius: BorderRadius.circular(20),
-                      gradient: backgroundGradient ?? LinearGradient(colors: [
-                        Colors.white.withOpacity(0.2),
-                        Colors.white.withOpacity(0.0)
-                      ]
-                      )
-                  ),
+                      borderRadius: BorderRadius.circular(cornerRadius??20),
+                      gradient: backgroundGradient ??
+                          LinearGradient(colors: [
+                            Colors.white.withOpacity(0.2),
+                            Colors.white.withOpacity(0.0)
+                          ])),
                 ),
-
                 Center(
                   child: child,
                 )
