@@ -21,6 +21,14 @@
             <action android:name="android.speech.RecognitionService" />
         </intent>
     </queries>
+    <supports-screens
+        android:largeScreens="true"
+        android:normalScreens="false"
+        android:requiresSmallestWidthDp="600"
+        android:smallScreens="false"
+        android:xlargeScreens="true"
+        />
+
     <application
         android:label="super_liquid_galaxy_controller"
         android:name="${applicationName}"
