@@ -14,7 +14,8 @@ import 'package:super_liquid_galaxy_controller/screens/test.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 import 'package:super_liquid_galaxy_controller/utils/kmlgenerator.dart';
 import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
-
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../data_class/kml_element.dart';
 import '../data_class/map_position.dart';
 import '../generated/assets.dart';
@@ -141,7 +142,7 @@ class _KmlUploaderState extends State<KmlUploader> {
                                     fontWeight: FontWeight.w400,
                                     fontSize: 25.0),
                               ),
-                              Divider(
+                              const Divider(
                                 thickness: 1.0,
                               ),
                               const SizedBox(
@@ -252,6 +253,8 @@ class _KmlUploaderState extends State<KmlUploader> {
                             //await sshClient.clearKml();
                             File? file = await sshClient.makeFile(filename,
                                 KMLGenerator.generateCustomKml('slave_1', kmlList));
+
+                            //Get.to(()=>TestScreen(kml: KMLGenerator.generateCustomKml('slave_1', kmlList)));
                             //String kml = KMLGenerator.generateCustomKml('slave_1', kmlList);
                             print("made successfully");
                             await sshClient.kmlFileUpload(
@@ -266,11 +269,15 @@ class _KmlUploaderState extends State<KmlUploader> {
                         GalaxyButton(
                           height: screenHeight * 0.1,
                           width: screenWidth * 0.31,
-                          actionText: "VISUALIZE IN MAP",
-                          icon: Icons.map,
+                          actionText: "DOWNLOAD KML",
+                          icon: Icons.save_alt_rounded,
                           isLeading: true,
                           onTap: () async {
-                            await sshClient.clearKml();
+                            //await sshClient.clearKml();
+                            String kml = KMLGenerator.generateCustomKml('slave_1', kmlList);
+                            saveStringToExternalStorageWithProgress(kml, 'custom_kml', 'kml', (progress){
+                              print(progress);
+                            });
                           },
                           backgroundColor: GalaxyColors.blue.withOpacity(0.4),
                         )
@@ -442,6 +449,54 @@ class _KmlUploaderState extends State<KmlUploader> {
             }),
           );
         }
+    }
+  }
+  Future<void> saveStringToExternalStorageWithProgress(
+      String content, String filename, String extension, Function(double) onProgress) async {
+    // Request storage permissions
+    if (await Permission.manageExternalStorage.request().isGranted) {
+      // Get the external storage directory
+      Directory? directory = await getExternalStorageDirectory();
+      if (directory != null) {
+        // Create the file path with the custom extension
+        String path = '${directory.path}/$filename.$extension';
+        // Write the string content to the file in chunks
+        File file = File(path);
+        RandomAccessFile raf = await file.open(mode: FileMode.write);
+        int totalLength = content.length;
+        int chunkSize = 1024; // Write in chunks of 1KB
+        int writtenLength = 0;
+
+        for (int i = 0; i < totalLength; i += chunkSize) {
+          int end = (i + chunkSize < totalLength) ? i + chunkSize : totalLength;
+          await raf.writeString(content.substring(i, end));
+          writtenLength += (end - i);
+          // Calculate and report progress
+          double progress = writtenLength / totalLength;
+          onProgress(progress);
+        }
+
+        await raf.close();
+        print('File saved at $path');
+        showSuccessSnackbar("File saved at $path");
+      } else {
+        print('External storage directory not found');
+      }
+    } else {
+      print('Storage permission denied');
+    }
+
+  }
+
+  void showSuccessSnackbar(String message) {
+    if (!Get.isSnackbarOpen) {
+      Get.showSnackbar(GetSnackBar(
+        backgroundColor: Colors.green.shade300,
+        title: "Download Successful",
+        message: message,
+        isDismissible: true,
+        duration: 5.seconds,
+      ));
     }
   }
 }

@@ -18,14 +18,7 @@ AndroidMapRenderer mapRenderer = AndroidMapRenderer.platformDefault;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  /*final GoogleMapsFlutterPlatform mapsImplementation =
-      GoogleMapsFlutterPlatform.instance;
-  if (mapsImplementation is GoogleMapsFlutterAndroid) {
-    // Force Hybrid Composition mode.
-    mapsImplementation.useAndroidViewSurface = true;
-    mapRenderer = await mapsImplementation
-        .initializeWithRenderer(AndroidMapRenderer.latest);
-  }*/
+
   Get.lazyPut(() => LGConnection(),fenix: true);
   Get.lazyPut(() => ApiManager(),fenix: true);
   Get.lazyPut(() => SpeechController(),fenix: true);

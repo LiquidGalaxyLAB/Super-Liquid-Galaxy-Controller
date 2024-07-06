@@ -19,7 +19,7 @@ class LocationSelector extends StatefulWidget {
   double? width;
   double? iconSize;
   double? searchSize;
-  Function(Coordinates) submitData;
+  Function(Coordinates,String) submitData;
 
   @override
   State<LocationSelector> createState() => _LocationSelectorState();
@@ -356,7 +356,7 @@ class _LocationSelectorState extends State<LocationSelector> {
         ));
       }
     }
-    widget.submitData(point);
+    widget.submitData(point,label);
   }
 
 
@@ -368,7 +368,7 @@ class _LocationSelectorState extends State<LocationSelector> {
     print(out);
     if (out.isNotEmpty) {
       widget.submitData(
-          Coordinates(latitude: out[0].latitude, longitude: out[0].longitude));
+          Coordinates(latitude: out[0].latitude, longitude: out[0].longitude), label);
     }
     else {
       if (!Get.isSnackbarOpen) {

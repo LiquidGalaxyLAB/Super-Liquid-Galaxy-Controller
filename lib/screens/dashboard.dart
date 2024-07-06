@@ -104,7 +104,7 @@ class _DashBoardState extends State<DashBoard> {
                               width: screenHeight * 0.1,
                               child: Icon(
                                 Icons.settings,
-                                size: 60,
+                                size: screenHeight*0.07,
                                 color: Colors.white,
                               ),
                               onTap: () async {

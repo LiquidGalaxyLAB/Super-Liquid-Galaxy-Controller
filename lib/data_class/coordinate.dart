@@ -1,11 +1,17 @@
+import 'package:latlong2/latlong.dart';
+
 class Coordinates {
-  double latitude;
-  double longitude;
+  late double latitude;
+  late double longitude;
 
   Coordinates({
     required this.latitude,
     required this.longitude,
   });
+  Coordinates.fromLatLng(LatLng point) {
+    latitude = point.latitude;
+    longitude = point.longitude;
+  }
 
   // Override toString for better debugging output
   @override

@@ -153,15 +153,9 @@ class NavIsland extends StatelessWidget {
                                 color: Colors.transparent,
                                 child: InkWell(
                                   onTap: () async {
-                                    /*LatLng centerPoint = LatLng(37.7749, -122.4194); // Example center point (San Francisco)
-                                    double length = 120.0; // Length of the footprint in meters
-                                    double width = 70.0; // Width of the footprint in meters
-                                    double angle = 0 * (Math.pi / 180); // Angle of rotation in radians (45 degrees in this case)
 
-                                    String kmlOutput = KMLGenerator.generateFootprintBottomPolygon(centerPoint, length, width, angle);
-                                    print(kmlOutput);*/
-                                    LatLng start = LatLng(1,6);
-                                    LatLng end = LatLng(5, 3);
+                                    LatLng start = LatLng(1,5);
+                                    LatLng end = LatLng(7,11);
 
                                     double dashLength = 10000.0; // Length of each dash in meters
                                     double gapLength = 5000.0; // Length of gap between dashes in meters

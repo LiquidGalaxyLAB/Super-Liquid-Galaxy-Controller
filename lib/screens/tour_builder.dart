@@ -27,7 +27,7 @@ class _TourBuilderState extends State<TourBuilder> {
   @override
   void initState() {
     tourController = Get.find();
-    _determinePosition();
+    //_determinePosition();
     super.initState();
   }
 
@@ -104,7 +104,7 @@ class _TourBuilderState extends State<TourBuilder> {
                           Colors.grey.withOpacity(0.2)
                         ]),
                         child: ImageIcon(
-                          AssetImage(Assets.iconsSshIndicator),
+                          const AssetImage(Assets.iconsSshIndicator),
                           color:
                               tourController.connectionClient.isConnected.value
                                   ? Colors.green
@@ -125,7 +125,7 @@ class _TourBuilderState extends State<TourBuilder> {
                           Colors.grey.withOpacity(0.2),
                         ]),
                         child: ImageIcon(
-                          AssetImage(Assets.iconsApiIndicator),
+                          const AssetImage(Assets.iconsApiIndicator),
                           color: tourController.apiClient.isConnected.value
                               ? Colors.green
                               : Colors.red,
@@ -183,8 +183,8 @@ class _TourBuilderState extends State<TourBuilder> {
                             width: screenWidth * 0.25,
                             iconSize: screenHeight * 0.1,
                             searchSize: screenWidth * 0.85,
-                            submitData: (Coordinates point) {
-                              setSearchAround(point);
+                            submitData: (Coordinates point, String label) {
+                              setSearchAround(point,label);
                             },
                           )
                         ],
@@ -265,13 +265,13 @@ class _TourBuilderState extends State<TourBuilder> {
     //_getCity(locator.latitude, locator.longitude);
     setState(() {
       setSearchAround(
-          Coordinates(latitude: point.latitude, longitude: point.longitude));
+          Coordinates(latitude: point.latitude, longitude: point.longitude),'Default');
     });
   }
 
-  void setSearchAround(Coordinates point) {
+  void setSearchAround(Coordinates point, String label) {
     setState(() {
-      tourController.setSearchAround(point);
+      tourController.setSearchAround(point,label);
     });
     print(tourController.getSearchAround());
   }
