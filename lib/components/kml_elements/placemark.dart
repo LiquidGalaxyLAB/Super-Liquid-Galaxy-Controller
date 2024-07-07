@@ -53,73 +53,79 @@ class _PlacemarkElementState extends State<PlacemarkElement> {
         radius: const Radius.circular(20.0),
         thickness: 2.0,
         child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "COORDINATES:",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w300,
-                    fontSize: 25.0),
-              ),
-              const SizedBox(height: 20.0),
-              Row(
-                mainAxisSize: MainAxisSize.min,
+          child: Container(
+            width: double.infinity,
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
+                  const Text(
+                    "COORDINATES:",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w300,
+                        fontSize: 25.0),
+                  ),
+                  const SizedBox(height: 20.0),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      CoordinateField(
-                        width: widget.width * 0.5,
-                        inputType: TextInputType.number,
-                        headerText: "X:",
-                        controller: coordinateLatController,
+                      Column(
+                        children: [
+                          CoordinateField(
+                            width: widget.width * 0.5,
+                            inputType: TextInputType.number,
+                            headerText: "X:",
+                            controller: coordinateLatController,
+                          ),
+                          const SizedBox(height: 10.0),
+                          CoordinateField(
+                            width: widget.width * 0.5,
+                            inputType: TextInputType.number,
+                            headerText: "Y:",
+                            controller: coordinateLongController,
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 10.0),
-                      CoordinateField(
-                        width: widget.width * 0.5,
-                        inputType: TextInputType.number,
-                        headerText: "Y:",
-                        controller: coordinateLongController,
+                      const SizedBox(
+                        width: 5.0,
                       ),
                     ],
                   ),
-                  const SizedBox(
-                    width: 5.0,
+                  const SizedBox(height: 20.0),
+                  const Text(
+                    "LABEL:",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w300,
+                        fontSize: 25.0),
                   ),
+                  const SizedBox(height: 20.0),
+                  CoordinateField(
+                    width: widget.width * 0.5,
+                    headerText: "Name:",
+                    inputType: TextInputType.text,
+                    controller: labelController,
+                  ),
+                  const SizedBox(height: 20.0),
+                  const Text("DESCRIPTION:",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w300,
+                          fontSize: 25.0)),
+                  const SizedBox(height: 20.0),
+                  CoordinateField(
+                    width: widget.width * 0.5,
+                    headerText: "Body:",
+                    inputType: TextInputType.text,
+                    controller: descController,
+                  )
                 ],
               ),
-              const SizedBox(height: 20.0),
-              const Text(
-                "LABEL:",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w300,
-                    fontSize: 25.0),
-              ),
-              const SizedBox(height: 20.0),
-              CoordinateField(
-                width: widget.width * 0.5,
-                headerText: "Name:",
-                inputType: TextInputType.text,
-                controller: labelController,
-              ),
-              const SizedBox(height: 20.0),
-              const Text("DESCRIPTION:",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w300,
-                      fontSize: 25.0)),
-              const SizedBox(height: 20.0),
-              CoordinateField(
-                width: widget.width * 0.5,
-                headerText: "Body:",
-                inputType: TextInputType.text,
-                controller: descController,
-              )
-            ],
+            ),
           ),
         ),
       ),

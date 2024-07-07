@@ -119,6 +119,7 @@ class _DashBoardState extends State<DashBoard> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          SizedBox(width: 20),
                           GlassBox(
                               height: 50,
                               width: 200,
@@ -164,11 +165,14 @@ class _DashBoardState extends State<DashBoard> {
                   ),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: const [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [PlanetSelector()],
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: screenHeight*0.15, vertical: screenHeight*0.1),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [PlanetSelector(height: screenHeight*0.2,width: screenWidth*0.4,)],
+                        ),
                       ),
                     ],
                   ),
@@ -180,8 +184,10 @@ class _DashBoardState extends State<DashBoard> {
                       Padding(
                         padding: const EdgeInsets.all(25.0),
                         child: NavIsland(
-                            height: screenHeight * 0.60,
-                            width: screenWidth * 0.3),
+
+                            height: screenHeight * 0.6,
+                            width: screenWidth * 0.3
+                          ),
                       )
                     ],
                   )

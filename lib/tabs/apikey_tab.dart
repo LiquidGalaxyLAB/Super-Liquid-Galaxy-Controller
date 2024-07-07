@@ -35,9 +35,8 @@ class _ApiKeyTabState extends State<ApiKeyTab> with AutomaticKeepAliveClientMixi
                   "This API is used by the App to dynamically fetch a huge list of recommended of POIs to explore.",
               title: "Geo-Apify Places API",
               urlDesc1: "GeoApify | Places API Playground ",
-              urlDesc2: "GeoApify | Create API KEY ",
-              screenHeight: screenHeight,
-              screenWidth: screenWidth,
+              urlDesc2: "    GeoApify | Create API Key    ",
+              width: screenWidth*0.8,
               urlLauncher1:() {
                 launchUrlFromLink(
                     Uri.parse(

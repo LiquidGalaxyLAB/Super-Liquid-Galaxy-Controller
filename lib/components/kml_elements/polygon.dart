@@ -50,143 +50,150 @@ class _PolygonElementState extends State<PolygonElement> {
         child: SingleChildScrollView(
           physics: const ScrollPhysics(),
           scrollDirection: Axis.vertical,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "LABEL:",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w300,
-                    fontSize: 25.0),
-              ),
-              const SizedBox(height: 20.0),
-              CoordinateField(
-                  width: widget.width * 0.5,
-                  headerText: "Name:",
-                  inputType: TextInputType.text,
-              controller: nameController,),
-              const SizedBox(height: 20.0),
-              const Text(
-                "DESCRIPTION:",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w300,
-                    fontSize: 25.0,
-                ),
-              ),
-              const SizedBox(height: 20.0),
-              CoordinateField(
-                  width: widget.width * 0.5,
-                  headerText: "Body:",
-                  inputType: TextInputType.text,
-              controller: bodyController,),
-              const SizedBox(height: 20.0),
-              const Text(
-                "COORDINATES:",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w300,
-                    fontSize: 25.0),
-              ),
-              const SizedBox(height: 20.0),
-              Row(
-                mainAxisSize: MainAxisSize.min,
+          child: Container(
+            width: double.infinity,
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
+                  const Text(
+                    "LABEL:",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w300,
+                        fontSize: 25.0),
+                  ),
+                  const SizedBox(height: 20.0),
+                  CoordinateField(
+                      width: widget.width * 0.5,
+                      headerText: "Name:",
+                      inputType: TextInputType.text,
+                  controller: nameController,),
+                  const SizedBox(height: 20.0),
+                  const Text(
+                    "DESCRIPTION:",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w300,
+                        fontSize: 25.0,
+                    ),
+                  ),
+                  const SizedBox(height: 20.0),
+                  CoordinateField(
+                      width: widget.width * 0.5,
+                      headerText: "Body:",
+                      inputType: TextInputType.text,
+                  controller: bodyController,),
+                  const SizedBox(height: 20.0),
+                  const Text(
+                    "COORDINATES:",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w300,
+                        fontSize: 25.0),
+                  ),
+                  const SizedBox(height: 20.0),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      CoordinateField(
-                          controller: latController,
-                          width: widget.width * 0.5,
-                          inputType: TextInputType.number,
-                          headerText: "X:"),
-                      const SizedBox(height: 10.0),
-                      CoordinateField(
-                          controller: longController,
-                          width: widget.width * 0.5,
-                          inputType: TextInputType.number,
-                          headerText: "Y:"),
+                      Column(
+                        children: [
+                          CoordinateField(
+                              controller: latController,
+                              width: widget.width * 0.5,
+                              inputType: TextInputType.number,
+                              headerText: "X:"),
+                          const SizedBox(height: 10.0),
+                          CoordinateField(
+                              controller: longController,
+                              width: widget.width * 0.5,
+                              inputType: TextInputType.number,
+                              headerText: "Y:"),
+                        ],
+                      ),
+                      const SizedBox(
+                        width: 7.0,
+                      ),
+                      FloatingActionButton(
+                          onPressed: () {
+                            if (latController.text.isNotEmpty &&
+                                longController.text.isNotEmpty) {
+                              try {
+                                setState(() {
+                                  pointList.add(Coordinates(
+                                      latitude: double.parse(
+                                          latController.text.toString()),
+                                      longitude: double.parse(
+                                          longController.text.toString())));
+
+                                });
+                                latController.clear();
+                                longController.clear();
+                              } catch (e) {
+                                print(e.toString());
+                              }
+                            } else {
+                              if (!Get.isSnackbarOpen) {
+                                Get.showSnackbar(GetSnackBar(
+                                  backgroundColor: Colors.red.shade300,
+                                  title: "EMPTY FIELDS",
+                                  message:
+                                  "One or more CoordinateFields are empty",
+                                  isDismissible: true,
+                                  duration: 5.seconds,
+                                ));
+                              }
+                            }
+                          },
+                          backgroundColor: GalaxyColors.darkBlue.withOpacity(0.4),
+                          child: const Icon(Icons.add))
                     ],
                   ),
                   const SizedBox(
-                    width: 7.0,
+                    height: 20.0,
                   ),
-                  FloatingActionButton(
-                      onPressed: () {
-                        if (latController.text.isNotEmpty &&
-                            longController.text.isNotEmpty) {
-                          try {
-                            setState(() {
-                              pointList.add(Coordinates(
-                                  latitude: double.parse(
-                                      latController.text.toString()),
-                                  longitude: double.parse(
-                                      longController.text.toString())));
+                  Visibility(
+                    visible: pointList.isNotEmpty,
+                    child: const Text(
+                      "POINTS RECORDED:",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w300,
+                          fontSize: 20.0),
+                    ),
+                  ),
+                  Container(
+                    height: pointList.length*widget.width*0.1,
+                    width: widget.width*0.5,
+                    child: ListView.builder(
+                        itemCount: pointList.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.circle,
+                                color: Colors.white,
+                                size: 15.0,
+                              ),
+                              const SizedBox(
+                                width: 10.0,
+                              ),
+                              Text(
+                                "(${pointList[index].latitude.toStringAsFixed(2)},${pointList[index].longitude.toStringAsFixed(2)})",
+                                style: const TextStyle(color: Colors.white,fontSize: 17.0),
+                              )
+                            ],
+                          );
+                        }),
+                  ),
 
-                            });
-                            latController.clear();
-                            longController.clear();
-                          } catch (e) {
-                            print(e.toString());
-                          }
-                        } else {
-                          if (!Get.isSnackbarOpen) {
-                            Get.showSnackbar(GetSnackBar(
-                              backgroundColor: Colors.red.shade300,
-                              title: "EMPTY FIELDS",
-                              message:
-                              "One or more CoordinateFields are empty",
-                              isDismissible: true,
-                              duration: 5.seconds,
-                            ));
-                          }
-                        }
-                      },
-                      backgroundColor: GalaxyColors.darkBlue.withOpacity(0.4),
-                      child: const Icon(Icons.add))
                 ],
               ),
-              const SizedBox(
-                height: 20.0,
-              ),
-              Visibility(
-                visible: pointList.isNotEmpty,
-                child: const Text(
-                  "POINTS RECORDED:",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w300,
-                      fontSize: 20.0),
-                ),
-              ),
-              Container(
-                height: pointList.length*widget.width*0.1,
-                child: ListView.builder(
-                    itemCount: pointList.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.circle,
-                            color: Colors.white,
-                            size: 15.0,
-                          ),
-                          const SizedBox(
-                            width: 10.0,
-                          ),
-                          Text(
-                            "(${pointList[index].latitude.toStringAsFixed(2)},${pointList[index].longitude.toStringAsFixed(2)})",
-                            style: const TextStyle(color: Colors.white,fontSize: 17.0),
-                          )
-                        ],
-                      );
-                    }),
-              ),
-
-            ],
+            ),
           ),
         ),
       ),

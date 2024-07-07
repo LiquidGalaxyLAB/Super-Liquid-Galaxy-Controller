@@ -242,7 +242,7 @@ class _KmlUploaderState extends State<KmlUploader> {
                       children: [
                         GalaxyButton(
                           height: screenHeight * 0.1,
-                          width: screenWidth * 0.31,
+                          width: screenWidth * 0.315,
                           actionText: "VISUALIZE IN LG",
                           icon: Icons.smart_screen,
                           isLeading: true,
@@ -268,7 +268,7 @@ class _KmlUploaderState extends State<KmlUploader> {
                         ),
                         GalaxyButton(
                           height: screenHeight * 0.1,
-                          width: screenWidth * 0.31,
+                          width: screenWidth * 0.315,
                           actionText: "DOWNLOAD KML",
                           icon: Icons.save_alt_rounded,
                           isLeading: true,
@@ -287,103 +287,119 @@ class _KmlUploaderState extends State<KmlUploader> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: GlassBox(
-                height: double.infinity,
-                width: screenWidth * 0.27,
-                backgroundGradient: LinearGradient(
-                  colors: [
-                    Colors.white.withOpacity(0.2),
-                    Colors.white.withOpacity(0.2)
-                  ],
-                ),
-                child: Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 20.0, vertical: 35.0),
-                  child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        DropdownMenu(
-                          width: screenWidth * 0.2,
-                          onSelected: (label) {
-                            setState(() {
-                              elementIndex = labels.indexOf(label!);
-                              callbackController.callBack!(elementIndex);
-                            });
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10.0, 20.0, 30.0, 20.0),
+                child: Container(
+                  height: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white.withOpacity(0.2),
+                        Colors.white.withOpacity(0.2)
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20.0)
+                  ),
 
-                          },
-                          textStyle:
-                              TextStyle(color: Colors.white, fontSize: 20.0),
-                          leadingIcon: Icon(kmlElements[elementIndex][1]),
-                          trailingIcon: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              VerticalDivider(
-                                width: 2.0,
-                                color: Colors.white,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20.0, vertical: 35.0),
+                    child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            height: screenHeight*0.1,
+                            child: FittedBox(
+                              fit: BoxFit.contain,
+                              child: DropdownMenu(
+                                onSelected: (label) {
+                                  setState(() {
+                                    elementIndex = labels.indexOf(label!);
+                                    callbackController.callBack!(elementIndex);
+                                  });
+
+                                },
+                                textStyle:
+                                    TextStyle(color: Colors.white, fontSize: 20.0),
+                                leadingIcon: Icon(kmlElements[elementIndex][1]),
+                                trailingIcon: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    VerticalDivider(
+                                      width: 2.0,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(
+                                      width: 5.0,
+                                    ),
+                                    Icon(
+                                      Icons.arrow_drop_down_rounded,
+                                      color: Colors.white,
+                                    )
+                                  ],
+                                ),
+                                dropdownMenuEntries: kmlElements
+                                    .map((pair) => DropdownMenuEntry<String>(
+                                        label: pair[0],
+                                        value: pair[0],
+                                        leadingIcon:
+                                            Icon(pair[1], color: Colors.grey)))
+                                    .toList(),
+                                inputDecorationTheme: InputDecorationTheme(
+                                    suffixIconColor: Colors.white,
+                                    filled: true,
+                                    alignLabelWithHint: true,
+                                    floatingLabelBehavior:
+                                        FloatingLabelBehavior.always,
+                                    fillColor: Colors.black.withOpacity(0.5),
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(20.0))),
+                                initialSelection: 'Placemark',
                               ),
-                              SizedBox(
-                                width: 5.0,
-                              ),
-                              Icon(
-                                Icons.arrow_drop_down_rounded,
-                                color: Colors.white,
-                              )
-                            ],
+                            ),
                           ),
-                          dropdownMenuEntries: kmlElements
-                              .map((pair) => DropdownMenuEntry<String>(
-                                  label: pair[0],
-                                  value: pair[0],
-                                  leadingIcon:
-                                      Icon(pair[1], color: Colors.grey)))
-                              .toList(),
-                          inputDecorationTheme: InputDecorationTheme(
-                              suffixIconColor: Colors.white,
-                              filled: true,
-                              alignLabelWithHint: true,
-                              floatingLabelBehavior:
-                                  FloatingLabelBehavior.always,
-                              fillColor: Colors.black.withOpacity(0.5),
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20.0))),
-                          initialSelection: 'Placemark',
-                        ),
-                        Expanded(child: kmlElementOptionsWidget(elementIndex)),
-                        MaterialButton(
-                          minWidth: screenWidth * 0.2,
-                          height: screenHeight * 0.06,
-                          color: GalaxyColors.green.withOpacity(0.4),
-                          onPressed: () {
-                            if (dataController.dataRetriever != null) {
-                              addElementToList(dataController.dataRetriever!());
-                            }
-                          },
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0)),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(
-                                Icons.add_box_rounded,
-                                color: Colors.white,
+                          Expanded(child: kmlElementOptionsWidget(elementIndex)),
+                          MaterialButton(
+                            minWidth: screenWidth * 0.2,
+                            height: screenHeight * 0.06,
+                            color: GalaxyColors.green.withOpacity(0.4),
+                            onPressed: () {
+                              if (dataController.dataRetriever != null) {
+                                addElementToList(dataController.dataRetriever!());
+                              }
+                            },
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0)),
+                            child: Container(
+                              child: const FittedBox(
+                                fit: BoxFit.contain,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Icon(
+                                      Icons.add_box_rounded,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(width: 10.0),
+                                    Text(
+                                      'ADD ELEMENT',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 20.0),
+                                    )
+                                  ],
+                                ),
                               ),
-                              SizedBox(width: 10.0),
-                              Text(
-                                'ADD ELEMENT',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 20.0),
-                              )
-                            ],
-                          ),
-                        )
-                      ]),
+                            ),
+                          )
+                        ]),
+                  ),
                 ),
               ),
             )
