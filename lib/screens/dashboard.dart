@@ -88,9 +88,14 @@ class _DashBoardState extends State<DashBoard> {
                                   height: screenHeight * 0.1,
                                 ),
                                 SizedBox(width: 20),
-                                Image(
-                                  image: AssetImage(Assets.assetsLogotxt),
-                                  height: screenHeight * 0.05,
+                                Container(
+                                  width: screenWidth * 0.4,
+                                  height: screenHeight * 0.1,
+                                  child: FittedBox(
+                                    fit: BoxFit.contain,
+                                    child: Text("SUPER LIQUID GALAXY CONTROLLER",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 30.0),),
+
+                                  ),
                                 ),
                               ],
                             ),

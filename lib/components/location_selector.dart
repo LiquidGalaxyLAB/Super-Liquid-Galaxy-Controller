@@ -9,16 +9,18 @@ import 'package:super_liquid_galaxy_controller/data_class/country_data.dart';
 import 'package:super_liquid_galaxy_controller/screens/location_picker.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:super_liquid_galaxy_controller/utils/tour_controller.dart';
 import '../generated/assets.dart';
 
 class LocationSelector extends StatefulWidget {
   LocationSelector(
-      {super.key, this.height, this.width, this.iconSize, this.searchSize, required this.submitData});
+      {super.key, this.height, this.width, this.iconSize, this.searchSize, required this.submitData,required this.tourController});
 
   double? height;
   double? width;
   double? iconSize;
   double? searchSize;
+  TourController tourController;
   Function(Coordinates,String) submitData;
 
   @override
@@ -29,7 +31,6 @@ class _LocationSelectorState extends State<LocationSelector> {
   late List<CountryData> jsonList;
   late List<dynamic> dataList;
   late String label;
-
   late String selectedCountry;
   late String selectedState;
 
@@ -39,6 +40,7 @@ class _LocationSelectorState extends State<LocationSelector> {
     selectedCountry = "India";
     selectedState = "West Bengal";
     label = "$selectedCountry \n$selectedState";
+    widget.tourController.setSearchAround(Coordinates(latitude: 22.9867569, longitude: 87.854975), label);
     initializeJsonList();
     super.initState();
   }
@@ -286,14 +288,16 @@ class _LocationSelectorState extends State<LocationSelector> {
                     const SizedBox(
                       width: 16.0,
                     ),
-                    Text(
-                      label,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 30.0,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                    Obx((){
+                      return Text(
+                        widget.tourController.label.value,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 30.0,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      );
+                    })
                   ],
                 )),
           ),

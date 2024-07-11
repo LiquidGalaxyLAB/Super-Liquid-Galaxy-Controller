@@ -16,7 +16,7 @@ class LGConnection extends GetxController {
   late String _passwordOrKey;
   late String _numberOfRigs;
   var isConnected = false.obs;
-  late SSHClient? _client;
+  SSHClient? _client;
 
   /*LGConnection._privateConstructor() {
     print("instance created");
@@ -279,7 +279,7 @@ fi
     }
   }
 
-  kmlFileUpload(context, File inputFile, String kmlName) async {
+  kmlFileUpload(File inputFile, String kmlName) async {
     try {
       if(_client == null)
           return;

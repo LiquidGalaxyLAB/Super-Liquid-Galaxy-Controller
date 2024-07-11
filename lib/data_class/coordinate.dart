@@ -1,4 +1,5 @@
 import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as mp;
 
 class Coordinates {
   late double latitude;
@@ -11,6 +12,14 @@ class Coordinates {
   Coordinates.fromLatLng(LatLng point) {
     latitude = point.latitude;
     longitude = point.longitude;
+  }
+
+  Coordinates.fromLatLngMap(mp.LatLng point) {
+    latitude = point.latitude;
+    longitude = point.longitude;
+
+    longitude += 360.0;
+    longitude %= 360.0;
   }
 
   // Override toString for better debugging output

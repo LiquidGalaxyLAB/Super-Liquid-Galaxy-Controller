@@ -91,8 +91,8 @@ class Results {
     this.datasource = json["datasource"] == null ? null : Datasource.fromJson(json["datasource"]);
     this.country = json["country"];
     this.countryCode = json["country_code"];
-    this.lon = json["lon"];
-    this.lat = json["lat"];
+    this.lon = json["lon"]?.toDouble();
+    this.lat = json["lat"]?.toDouble();
     this.distance = json["distance"]?.toDouble();
     this.resultType = json["result_type"];
     this.formatted = json["formatted"];

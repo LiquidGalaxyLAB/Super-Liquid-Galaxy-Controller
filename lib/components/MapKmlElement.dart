@@ -19,13 +19,15 @@ class Mapkmlelement extends StatefulWidget {
       required this.mapMovementController,
       required this.elementIndex,
       required this.handlerCallback(CallbackHandler handler),
-      required this.submitData});
+      required this.submitData,
+      this.hideFullScreen});
 
   MapPosition position;
   MapMovementController mapMovementController;
   int elementIndex;
   final Function handlerCallback;
   Function(KmlElement) submitData;
+  bool? hideFullScreen;
 
   @override
   State<Mapkmlelement> createState() => _MapkmlelementState();
@@ -136,24 +138,27 @@ class _MapkmlelementState extends State<Mapkmlelement> {
           ),
         ),
       ),
-      Align(
-        alignment: Alignment.topRight,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: IconButton(
-            onPressed: () async {
-              print("runs");
-              var kmlElement = await Get.to(() => MapKmlFullscreen(
-                  position: widget.position,
-                  mapMovementController: widget.mapMovementController,
-                  elementIndex: widget.elementIndex,
-                  submitData: widget.submitData));
-              widget.submitData(kmlElement);
-            },
-            icon: const Icon(
-              Icons.fullscreen_rounded,
-              color: Colors.white,
-              size: 50.0,
+      Visibility(
+        visible: !(widget.hideFullScreen ?? false),
+        child: Align(
+          alignment: Alignment.topRight,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: IconButton(
+              onPressed: () async {
+                print("runs");
+                var kmlElement = await Get.to(() => MapKmlFullscreen(
+                    position: widget.position,
+                    mapMovementController: widget.mapMovementController,
+                    elementIndex: widget.elementIndex,
+                    submitData: widget.submitData));
+                widget.submitData(kmlElement);
+              },
+              icon: const Icon(
+                Icons.fullscreen_rounded,
+                color: Colors.white,
+                size: 50.0,
+              ),
             ),
           ),
         ),

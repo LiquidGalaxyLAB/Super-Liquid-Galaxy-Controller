@@ -5,6 +5,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:super_liquid_galaxy_controller/data_class/api_error.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/geo_reversecode_response.dart';
+import 'package:super_liquid_galaxy_controller/data_class/place_details_response.dart';
+import 'package:super_liquid_galaxy_controller/data_class/place_response.dart';
+import 'package:super_liquid_galaxy_controller/screens/test.dart';
+import 'package:super_liquid_galaxy_controller/utils/kmlgenerator.dart';
+
+import '../data_class/kml_element.dart';
 
 class ApiManager extends getx.GetxController {
   late String _placesApiKey;
@@ -21,6 +27,9 @@ class ApiManager extends getx.GetxController {
   static const placesEndPoint = "/places";
   static const geocodeEndPoint = "/geocode/search";
   static const reverseGeoCodeEndPoint = "/geocode/reverse";
+  static const boundariesPartOfEndPoint = "/boundaries/part-of";
+  static const boundariesConsistsOfEndPoint = "/boundaries/consists-of";
+  static const placeDetailsEndPoint = "/place-details";
 
   /*ApiManager._privateConstructor() {
     print("instance created");
@@ -78,6 +87,20 @@ class ApiManager extends getx.GetxController {
     return response;
   }
 
+  Future<Response> getPlaces(String id, String categories) async {
+    await _connectApi(2);
+    var response = await _apiClient.get(placesEndPoint, queryParameters: {
+      'filter': 'place:$id',
+      'apiKey': _placesApiKey.trim(),
+      'categories': categories,
+      'limit': '500'
+    });
+    if (response.statusCode != 200) {
+      handleError(response);
+    }
+    return response;
+  }
+
   Future<Response> getReverseGeoCodeResponse(
       Coordinates point, String searchLevel) async {
     await _connectApi(1);
@@ -97,6 +120,52 @@ class ApiManager extends getx.GetxController {
             'apiKey': _placesApiKey.trim(),
             'format': 'json'
           });
+    if (response.statusCode != 200) {
+      handleError(response);
+    }
+    return response;
+  }
+
+  Future<Response> getBoundariesPartOf(String id) async {
+    await _connectApi(1);
+    //print("hasType: $hasType");
+    var response =
+        await _apiClient.get(boundariesPartOfEndPoint, queryParameters: {
+      'id': id,
+      'apiKey': _placesApiKey.trim(),
+      'geometry': 'geometry_1000',
+      'sublevel': '1'
+    });
+    if (response.statusCode != 200) {
+      handleError(response);
+    }
+    return response;
+  }
+
+  Future<Response> getPlaceDetails(String id) async {
+    await _connectApi(2);
+    //print("hasType: $hasType");
+    var response = await _apiClient.get(placeDetailsEndPoint, queryParameters: {
+      'id': id,
+      'apiKey': _placesApiKey.trim(),
+      'features': 'details.full_geometry'
+    });
+    if (response.statusCode != 200) {
+      handleError(response);
+    }
+    return response;
+  }
+
+  Future<Response> getBoundariesConsistsOf(String id) async {
+    await _connectApi(1);
+    //print("hasType: $hasType");
+    var response =
+        await _apiClient.get(boundariesConsistsOfEndPoint, queryParameters: {
+      'id': id,
+      'apiKey': _placesApiKey.trim(),
+      'geometry': 'geometry_1000',
+      'sublevel': '1'
+    });
     if (response.statusCode != 200) {
       handleError(response);
     }
@@ -136,7 +205,8 @@ class ApiManager extends getx.GetxController {
     }
   }
 
-  Future<String> tryResponseFromPoint(Coordinates searchAroundCoords, bool isCountry) async {
+  Future<String> tryGeoCodeResponseFromPoint(
+      Coordinates searchAroundCoords, bool isCountry) async {
     Response response = await getReverseGeoCodeResponse(
         searchAroundCoords, isCountry ? 'country' : 'state');
     if (response.statusCode != 200) {
@@ -146,11 +216,9 @@ class ApiManager extends getx.GetxController {
 
     if (responseObj.results != null && responseObj.results!.isNotEmpty) {
       return responseObj.results![0].placeId!;
-    }
-    else
-    {
-      Response response2 = await getReverseGeoCodeResponse(
-          searchAroundCoords, 'none');
+    } else {
+      Response response2 =
+          await getReverseGeoCodeResponse(searchAroundCoords, 'none');
       var responseObj2 = GeoReverseCodeResponse.fromJson(response2.data);
       print(responseObj2);
       if (response2.statusCode != 200) {
@@ -158,11 +226,85 @@ class ApiManager extends getx.GetxController {
       }
       if (responseObj2.results != null && responseObj2.results!.isNotEmpty) {
         return responseObj2.results![0].placeId!;
+      } else {
+        return '';
       }
-      else
-        {
-          return '';
-        }
     }
   }
+
+  Future<({String kml,PlaceDetailsResponse? obj})> tryBoundaryResponseForID(
+      String id, Coordinates searchAroundCoords) async {
+    Response response = await getPlaceDetails(id);
+    if (response.statusCode != 200) {
+      return (kml:'',obj: null);
+    }
+
+    var responseObj = PlaceDetailsResponse.fromJson(response.data);
+    print(responseObj);
+    print(responseObj.features?[0].geometry?.polygonList);
+    print(responseObj.features?[0].geometry?.multiPolygonList);
+
+    Response places = await getPlaces(id, 'tourism');
+    if (places.statusCode != 200) {
+      return (kml:'',obj: null);
+    }
+
+    var placeObj = PlaceResponse.fromJson(places.data);
+    print(placeObj);
+    if (responseObj.features != null &&
+        responseObj.features!.isNotEmpty &&
+        responseObj.features![0].geometry != null) {
+      String kml =
+          KMLGenerator.generateBoundaries(responseObj.features![0].geometry!);
+      /*var list = placeObj.features;
+      List<Placemark> coordinates = [];
+      for (final feature in list!) {
+        try {
+          coordinates.add(Placemark(
+              coordinate: feature.geometry!.point!,
+              label: feature.properties!.name!.replaceAll('&', 'and'),
+              description: feature.properties!.addressLine2!.replaceAll('&', 'and')));
+        } catch (e) {
+          print(e);
+          print(feature);
+        }
+      }*/
+      //kml += KMLGenerator.addPlaces(coordinates);
+      //getx.Get.to(() => TestScreen(kml: KMLGenerator.generateKml('69', kml)));
+      return (kml:kml,obj:responseObj);
+    }
+    return (kml:'',obj: null);
+  }
+
+  Future<({String kml,PlaceResponse? obj,List<Placemark> places})> tryPlaceResponseForID(
+      String id, Coordinates searchAroundCoords) async {
+    Response places = await getPlaces(id, 'tourism');
+    if (places.statusCode != 200) {
+      return (kml:'',obj: null,places:<Placemark>[]);
+    }
+    var placeObj = PlaceResponse.fromJson(places.data);
+    //print(placeObj);
+    if (placeObj.features!=null && placeObj.features!.isNotEmpty) {
+      var list = placeObj.features;
+      List<Placemark> coordinates = [];
+      for (final feature in list!) {
+        try {
+          var name = (feature.properties!.name != null)?feature.properties!.name!.replaceAll('&', 'and'):feature.properties!.addressLine1!;
+          coordinates.add(Placemark(
+              coordinate: feature.geometry!.point!,
+              label: name,
+              description: feature.properties!.addressLine2!.replaceAll('&', 'and')));
+        } catch (e) {
+          print(e);
+          print(feature);
+        }
+      }
+      String kml = KMLGenerator.addPlaces(coordinates);
+      //getx.Get.to(() => TestScreen(kml: KMLGenerator.generateKml('69', kml)));
+      return (kml:kml,obj:placeObj,places: coordinates);
+    }
+    return (kml:'',obj: null,places:<Placemark>[]);
+  }
+
+
 }

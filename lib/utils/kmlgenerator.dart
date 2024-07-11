@@ -1,9 +1,12 @@
 import 'dart:math' as Math;
 import 'dart:math';
 
+import 'package:google_maps_flutter/google_maps_flutter.dart' as mp;
 import 'package:latlong2/latlong.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/kml_element.dart';
+import 'package:super_liquid_galaxy_controller/data_class/place_details_response.dart';
+import 'package:super_liquid_galaxy_controller/data_class/place_response.dart' as pr;
 import 'package:super_liquid_galaxy_controller/utils/geo_utils.dart';
 
 class KMLGenerator {
@@ -96,8 +99,8 @@ class KMLGenerator {
       }
     }
 
-    var lookAt = '';
-    lookAt += GeoUtils.calculateLookAt(coordsList, 45);
+    // var lookAt = '';
+    // lookAt += GeoUtils.calculateLookAt(coordsList, 45);
 
     return '''
 <?xml version="1.0" encoding="UTF-8"?>
@@ -156,6 +159,15 @@ class KMLGenerator {
         <color>a1ffaa00</color>
       </PolyStyle>
     </Style>
+    <Style id="boundStyle">
+      <LineStyle>
+        <width>3</width>
+        <color>ffffffff</color>
+      </LineStyle>
+      <PolyStyle>
+        <color>a1aaff00</color>
+      </PolyStyle>
+    </Style>
     <Style id="ps">
       <LineStyle>
         <width>3</width>
@@ -191,14 +203,14 @@ class KMLGenerator {
       double rotatedX = x * Math.cos(angle) - y * Math.sin(angle);
       double rotatedY = x * Math.sin(angle) + y * Math.cos(angle);
 
-      print(
-          "$i -($x,$y), ($rotatedX,$rotatedY) - dist: ${Math.sqrt(rotatedX * rotatedX + rotatedY * rotatedY)}");
+      //print(
+      //    "$i -($x,$y), ($rotatedX,$rotatedY) - dist: ${Math.sqrt(rotatedX * rotatedX + rotatedY * rotatedY)}");
 
       LatLng point = distance.offset(
           center,
           Math.sqrt(rotatedX * rotatedX + rotatedY * rotatedY),
           (Math.atan2(rotatedY, rotatedX) * (180 / Math.pi)));
-      print("$center -> $point");
+      //print("$center -> $point");
 
       footprintPoints.add(point);
     }
@@ -314,24 +326,69 @@ class KMLGenerator {
       LatLng start, LatLng end, double dashLength, double gapLength) {
     final Distance distance = Distance();
     final double totalDistance = distance(start, end);
-    final double segmentLength = dashLength + gapLength;
+    final double segmentLength = dashLength;
     int numSegments = (totalDistance / segmentLength).floor();
     //numSegments = 1;
     List<String> kmlSegments = [];
-
+    print(distance.bearing(end,start));
     for (int i = 0; i < numSegments; i++) {
       // Calculate the start point of the dash
+      var angle = distance.bearing(end,start);
+        if(i%2==0) {
+          angle+=15;
+        } else {
+          angle-=15;
+        }
       LatLng footBottom = distance.offset(
           start, i * segmentLength, distance.bearing(start, end));
-      // Calculate the end point of the dash
-      LatLng footTop =
-          distance.offset(footBottom, dashLength, distance.bearing(start, end));
+      if(i%2==0) {
+        footBottom = distance.offset(
+            footBottom, gapLength/2, distance.bearing(start, end)-90);
+      } else {
+        footBottom = distance.offset(
+            footBottom, gapLength/2, distance.bearing(start, end)+90);
+      }
 
-      print("Line Segment - Bearing: ${distance.bearing(start, end)}");
-      kmlSegments.add(generateFootprintBottomPolygon(footTop, dashLength,
-          gapLength, degToRadian(distance.bearing(start, end))));
-      kmlSegments.add(generateFootprintTopPolygon(footBottom, dashLength / 2,
-          gapLength, degToRadian(distance.bearing(start, end))));
+        // Calculate the end point of the dash
+      LatLng footTop =
+          distance.offset(footBottom, 5000, angle);
+
+
+
+      //print("Line Segment - Bearing: ${distance.bearing(start, end)}");
+      kmlSegments.add(generateFootprintBottomPolygon(footBottom, dashLength/2,
+          gapLength, degToRadian(angle)));
+      kmlSegments.add(generateFootprintTopPolygon(footTop, dashLength,
+          gapLength, degToRadian(angle)));
+
+      i++;
+      angle = distance.bearing(end,start);
+      if(i%2==0) {
+        angle+=15;
+      } else {
+        angle-=15;
+      }
+      footBottom = distance.offset(
+          start, ((i-1) * segmentLength)+(segmentLength*0.75), distance.bearing(start, end));
+      if(i%2==0) {
+        footBottom = distance.offset(
+            footBottom, gapLength/3, distance.bearing(start, end)-90);
+      } else {
+        footBottom = distance.offset(
+            footBottom, gapLength/3, distance.bearing(start, end)+90);
+      }
+
+      // Calculate the end point of the dash
+      footTop =
+      distance.offset(footBottom, 5000, angle);
+
+
+
+      //print("Line Segment - Bearing: ${distance.bearing(start, end)}");
+      kmlSegments.add(generateFootprintBottomPolygon(footBottom, dashLength/2,
+          gapLength, degToRadian(angle)));
+      kmlSegments.add(generateFootprintTopPolygon(footTop, dashLength,
+          gapLength, degToRadian(angle)));
     }
 
     String kml = '';
@@ -591,5 +648,78 @@ class KMLGenerator {
   ''';
 
     return kml;
+  }
+
+  static String generateBoundaries(Geometry geometry) {
+    String kml ='';
+
+    if (geometry.type?.toLowerCase().compareTo("polygon") == 0)
+      {
+        kml+=drawPolygons(geometry);
+      }
+    else
+    if (geometry.type?.toLowerCase().compareTo("multipolygon") == 0)
+    {
+      kml+=drawMultiPolygons(geometry);
+    }
+
+
+    return kml;
+  }
+
+  static String drawPolygons(Geometry geometry) {
+    String polygons = '';
+    var masterList = geometry.polygonList!;
+    List<Coordinates> coords = [];
+    for(List<Coordinates> shape in masterList)
+      {
+        coords.addAll(shape);
+        polygons+=getLinearRing(PolyGon(label: "label", description: "description", coordinates: shape, color: ''));
+      }
+    //polygons+= drawBoundingBoxes(GeoUtils.splitLatLngBounds(GeoUtils.getBoundingBox(coords), 300000));
+    return polygons;
+  }
+
+  static String drawMultiPolygons(Geometry geometry) {
+    String multipolygons = '';
+    var masterList = geometry.multiPolygonList!;
+    List<Coordinates> coords = [];
+    for(List<List<Coordinates>> shape in masterList)
+    {
+      coords.addAll(shape[0]);
+      multipolygons+=getLinearRing(PolyGon(label: "label", description: "description", coordinates: shape[0], color: ''));
+    }
+    //multipolygons+= drawBoundingBoxes(GeoUtils.splitLatLngBounds(GeoUtils.getBoundingBox(coords), 300000));
+    return multipolygons;
+  }
+  
+  static String drawBoundingBoxes(List<mp.LatLngBounds> boundsList)
+  {print('Bounds Length: ${boundsList.length}');
+    String kml ='';
+    for(final bound in boundsList)
+      {List<Coordinates> coords=GeoUtils.getLatLngBoundsPolygon(bound);
+        coords.add(coords[0]);
+        kml+='''<Placemark>
+  <styleUrl>#boundStyle</styleUrl>
+  <Polygon>
+  <extrude>1</extrude>
+  <outerBoundaryIs>
+  <LinearRing>
+  ${getCoordinateList(coords)}
+  </LinearRing>
+  </outerBoundaryIs>
+  </Polygon>
+  </Placemark>''';
+      }
+    return kml;
+  }
+
+  static String addPlaces(List<Placemark> points) {
+    String kml = '';
+    for( final point in points) {
+      kml+=getPlacemark(point);
+    }
+    return kml;
+
   }
 }

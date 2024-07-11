@@ -42,11 +42,13 @@ class _MapKmlFullscreenState extends State<MapKmlFullscreen> {
           position: widget.position,
           mapMovementController: widget.mapMovementController,
           elementIndex: widget.elementIndex,
+          hideFullScreen: true,
           handlerCallback: ((handler) {
           }),
           submitData: (KmlElement element){
             Get.back(result: element);
           }),
+
     ));
   }
 }

@@ -124,50 +124,66 @@ class _SettingsState extends State<Settings> {
               tabs: [
                 Tab(
                   height: screenHeight * 0.1,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 15.0),
-                    child: Row(mainAxisSize: MainAxisSize.min, children: const [
-                      ImageIcon(AssetImage(Assets.iconsConnection), size: 60.0),
-                      SizedBox(
-                        width: 10.0,
+                  child: Container(
+                    //color: Colors.green.withOpacity(0.3),
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 15.0),
+                        child: Row(mainAxisSize: MainAxisSize.min, children: const [
+                          ImageIcon(AssetImage(Assets.iconsConnection), size: 60.0),
+                          SizedBox(
+                            width: 10.0,
+                          ),
+                          Text(
+                            "Connection  ",
+                            style: TextStyle(fontSize: 30.0),
+                          ),
+                        ]),
                       ),
-                      Text(
-                        "Connection  ",
-                        style: TextStyle(fontSize: 30.0),
-                      ),
-                    ]),
+                    ),
                   ),
                 ),
                 Tab(
                   height: screenHeight * 0.1,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 15.0),
-                    child: Row(mainAxisSize: MainAxisSize.min, children: const [
-                      ImageIcon(AssetImage(Assets.iconsSsh), size: 60.0),
-                      SizedBox(
-                        width: 10.0,
+                  child: Container(
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 15.0),
+                        child: Row(mainAxisSize: MainAxisSize.min, children: const [
+                          ImageIcon(AssetImage(Assets.iconsSsh), size: 60.0),
+                          SizedBox(
+                            width: 10.0,
+                          ),
+                          Text(
+                            "SSH Commands  ",
+                            style: TextStyle(fontSize: 30.0),
+                          ),
+                        ]),
                       ),
-                      Text(
-                        "SSH Commands  ",
-                        style: TextStyle(fontSize: 30.0),
-                      ),
-                    ]),
+                    ),
                   ),
                 ),
                 Tab(
                   height: screenHeight * 0.1,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 15.0),
-                    child: Row(mainAxisSize: MainAxisSize.min, children: const [
-                      ImageIcon(AssetImage(Assets.iconsKey), size: 60.0),
-                      SizedBox(
-                        width: 10.0,
+                  child: Container(
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 15.0),
+                        child: Row(mainAxisSize: MainAxisSize.min, children: const [
+                          ImageIcon(AssetImage(Assets.iconsKey), size: 60.0),
+                          SizedBox(
+                            width: 10.0,
+                          ),
+                          Text(
+                            "API Keys  ",
+                            style: TextStyle(fontSize: 30.0),
+                          ),
+                        ]),
                       ),
-                      Text(
-                        "API Keys  ",
-                        style: TextStyle(fontSize: 30.0),
-                      ),
-                    ]),
+                    ),
                   ),
                 ),
               ],

@@ -77,6 +77,7 @@ class MapMovementController extends GetxController {
 
   void moveTo(CameraPosition cameraPosition) async
   {
+    stop();
     await _mapController.animateCamera(
         CameraUpdate.newCameraPosition(cameraPosition));
   }
@@ -103,17 +104,7 @@ class MapMovementController extends GetxController {
   }
 
   void zoomByIndex(int index) {
-    /*switch (index) {
-      case 0:
-        {
-          zoomIn();
-        }
-      case 1:
-        {
-          zoomOut();
-        }
-
-    }*/
+    stop();
     _startZoom(index);
   }
 }

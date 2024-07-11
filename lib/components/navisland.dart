@@ -174,8 +174,8 @@ class NavIsland extends StatelessWidget {
                                     color: Colors.transparent,
                                     child: InkWell(
                                       onTap: () async {
-                                        LatLng start = LatLng(1, 5);
-                                        LatLng end = LatLng(7, 11);
+                                        LatLng start = LatLng(7, 11);
+                                        LatLng end = LatLng(1, 5);
 
                                         double dashLength =
                                             10000.0; // Length of each dash in meters

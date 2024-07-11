@@ -183,6 +183,7 @@ class _TourBuilderState extends State<TourBuilder> {
                             width: screenWidth * 0.25,
                             iconSize: screenHeight * 0.1,
                             searchSize: screenWidth * 0.85,
+                            tourController: tourController,
                             submitData: (Coordinates point, String label) {
                               setSearchAround(point,label);
                             },
@@ -196,7 +197,35 @@ class _TourBuilderState extends State<TourBuilder> {
                     child: Container(
                       height: screenHeight * 0.448,
                       width: screenWidth * 0.93,
-                      child: GridView.builder(
+                      child: Obx(
+                          (){
+                            return ListView.builder(itemBuilder: (_,int index){
+                              return Container(
+                                height: screenHeight*0.13,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    Expanded(
+                                      child: Container(
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Container(
+                                        color: Colors.blue,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              );
+                            },
+                              itemCount: (tourController.placeList.length%2==0)?tourController.placeList.length~/2:((tourController.placeList.length~/2)+1),
+                            );
+                          }
+                      )
+
+
+                      /*GridView.builder(
                           itemCount: 12,
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
@@ -217,7 +246,7 @@ class _TourBuilderState extends State<TourBuilder> {
                                     height: screenHeight*0.15,
                                   ),
                                 ));
-                          }),
+                          })*/,
                     ),
                   )
                 ],

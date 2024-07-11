@@ -1,21 +1,20 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:avatar_glow/avatar_glow.dart';
 import 'package:super_liquid_galaxy_controller/components/autocomplete_locationfield.dart';
 import 'package:super_liquid_galaxy_controller/components/tray_button.dart';
-import 'package:super_liquid_galaxy_controller/data_class/place_suggestion_response.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
+import 'package:super_liquid_galaxy_controller/data_class/place_suggestion_response.dart';
 import 'package:super_liquid_galaxy_controller/generated/assets.dart';
 import 'package:super_liquid_galaxy_controller/utils/autocomplete_controller.dart';
-import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
 import 'package:super_liquid_galaxy_controller/utils/map_movement_controller.dart';
 import 'package:super_liquid_galaxy_controller/utils/speech_controller.dart';
@@ -29,7 +28,7 @@ class MapController extends StatefulWidget {
 
 class MapControllerState extends State<MapController> {
   //final Completer<GoogleMapController> _controller =
- //     Completer<GoogleMapController>();
+  //     Completer<GoogleMapController>();
 
   AutocompleteController textController = AutocompleteController();
   bool locationSet = false;
@@ -100,16 +99,19 @@ class MapControllerState extends State<MapController> {
                 padding: const EdgeInsets.all(8.0),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: AutoCompleteLocationField(
-                    hintText: "Enter Location to search here",
-                    labelText: "",
-                    iconData: Icons.search_rounded,
-                    textInputType: TextInputType.text,
-                    isPassword: false,
-                    fillColor: Colors.white,
-                    textColor: Colors.black,
-                    autocompleteController: textController,
-                    seekTo: goToSearchFeature,
+                  child: Container(
+                    color: Colors.green.withOpacity(0.2),
+                    child: AutoCompleteLocationField(
+                      hintText: "Enter Location to search here",
+                      labelText: "",
+                      iconData: Icons.search_rounded,
+                      textInputType: TextInputType.text,
+                      isPassword: false,
+                      fillColor: Colors.white,
+                      textColor: Colors.black,
+                      autocompleteController: textController,
+                      seekTo: goToSearchFeature,
+                    ),
                   ),
                 )),
           ),
@@ -125,18 +127,19 @@ class MapControllerState extends State<MapController> {
               children: [
                 Container(
                     decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(1.0),
+                        color: Colors.grey.shade800,
                         borderRadius: BorderRadius.circular(20.0),
-                        backgroundBlendMode: BlendMode.screen),
+                        backgroundBlendMode: BlendMode.modulate),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         TrayButton(
                           icon: Assets.iconsMic,
-                          color: voiceCommandActive ?Colors.green:Colors.grey.shade700,
+                          color:
+                              voiceCommandActive ? Colors.green : Colors.grey,
                           text: "VOICE \n COMMANDS",
                           iconSize: screenHeight * 0.07,
-                          action: (){
+                          action: () {
                             setState(() {
                               voiceCommandActive = !voiceCommandActive;
                             });
@@ -150,119 +153,240 @@ class MapControllerState extends State<MapController> {
                                 : Colors.red,
                             text: "SYNC TO \n  LG",
                             iconSize: screenHeight * 0.07,
-                            action: (){
+                            action: () {
                               bootLGClient();
                             },
                           );
                         }),
                         TrayButton(
                           icon: Assets.iconsNearbypoi,
-                          color: Colors.black,
+                          color: Colors.grey,
                           text: "NEARBY \n POIs",
                           iconSize: screenHeight * 0.07,
                         ),
                       ],
-                    )
-                ),
+                    )),
               ],
             ),
           ),
         ),
-        Padding(
+        /*Padding(
           padding: const EdgeInsets.all(16.0),
           child: Visibility(
             visible: voiceCommandActive,
             child: Align(
-              alignment: Alignment.bottomLeft,
-              child: Obx((){
-                print('mapTest: command word ui ${speechController.commandWord.value}');
-                return Row(
-                  children: [
-                    AvatarGlow(
-                      glowColor: Colors.white,
-                      glowShape: BoxShape.circle,
-                      animate: speechController.isListening.value,
-                      curve: Curves.fastOutSlowIn,
+                alignment: Alignment.bottomCenter,
+                child: Obx((){
+                  //print('mapTest: command word ui ${speechController.commandWord.value}');
+                  return Container(
+                    width: screenWidth*0.4,
+                    height: screenHeight*0.125,
+                    decoration: BoxDecoration(
+                        color: Colors.grey.shade800,
+                        borderRadius: BorderRadius.circular(20.0),
+                        backgroundBlendMode: BlendMode.modulate),
+                    child: FittedBox(
+                      fit: BoxFit.contain,
                       child: Material(
-                        elevation: 8.0,
-                        shape: CircleBorder(),
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(20.0),
-                          onTapUp: (TapUpDetails tapdetails) {
-                            print('up: ${tapdetails.kind}');
-                            speechController.stopListening();
-                          },
-                          onTapDown: (TapDownDetails details) {
-                            print('down: ${details.kind}');
-                            speechController.startListening();
-                          },
-                          onTapCancel: () {
-                            print('cancel');
-                            speechController.stopListening();
-                          },
-                          child: Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: CircleAvatar(
-                              backgroundColor: Colors.white,
-                              backgroundImage: AssetImage(Assets.iconsMic),
-                              radius: screenHeight *0.05,
-                            ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                child: AvatarGlow(
+                                  glowColor: Colors.white,
+                                  glowShape: BoxShape.circle,
+                                  animate: speechController.isListening.value,
+                                  curve: Curves.fastOutSlowIn,
+                                  child: Material(
+                                    elevation: 8.0,
+                                    shape: CircleBorder(),
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                      onTapUp: (TapUpDetails tapdetails) {
+                                        print('up: ${tapdetails.kind}');
+                                        speechController.stopListening();
+                                      },
+                                      onTapDown: (TapDownDetails details) {
+                                        print('down: ${details.kind}');
+                                        speechController.startListening();
+                                      },
+                                      onTapCancel: () {
+                                        print('cancel');
+                                        speechController.stopListening();
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.all(6.0),
+                                        child: CircleAvatar(
+                                          backgroundColor: Colors.grey.shade700,
+                                          radius: screenHeight * 0.05,
+                                          child: ImageIcon(
+                                            AssetImage(Assets.iconsMic),
+                                            color: Colors.white,
+                                            size: screenHeight * 0.07,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(width: 20.0,),
+
+                              Flexible(
+                                child: Container(
+                                  color: Colors.green,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: [
+                                      Material(
+                                        color: Colors.transparent,
+                                        child: Center(
+                                          child: Text(
+                                            speechController.commandWord.value,
+                                            style: const TextStyle(
+                                                fontSize: 25.0,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Material(
+                                        color: Colors.transparent,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Center(child: Text(speechController.wordsString.value,style: const TextStyle(color: Colors.grey,fontSize: 12.0),),),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
                           ),
                         ),
                       ),
                     ),
+                  );
+                }
 
-                    SizedBox(width: screenWidth*0.07,),
+                )
+            ),
+          ),
+        )*/
 
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Material(
-                          color: Colors.transparent,
-                          child: Container(
-                            height: screenHeight*0.06,
-                            width: screenWidth*0.2,
-                            decoration: const BoxDecoration(
-                                color: Colors.grey,
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
-                                backgroundBlendMode: BlendMode.screen),
-                            child: Center(
-                              child: Text(
-                                speechController.commandWord.value,
-                                style: const TextStyle(
-                                    fontSize: 25.0,
-                                    fontWeight: FontWeight.bold
+        Visibility(
+          visible: voiceCommandActive,
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Container(
+                height: screenHeight * 0.125,
+                width: screenWidth * 0.35,
+                decoration: BoxDecoration(
+                    color: Colors.grey.shade800,
+                    borderRadius: BorderRadius.circular(20.0),
+                    backgroundBlendMode: BlendMode.modulate),
+                child: Material(
+                  color: Colors.transparent,
+                  child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Obx(() {
+                        return Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Container(
+                                child: FittedBox(
+                              fit: BoxFit.contain,
+                              child: AvatarGlow(
+                                glowColor: Colors.white,
+                                glowShape: BoxShape.circle,
+                                animate: speechController.isListening.value,
+                                curve: Curves.fastOutSlowIn,
+                                child: Material(
+                                  elevation: 8.0,
+                                  shape: CircleBorder(),
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                    onTapUp: (TapUpDetails tapdetails) {
+                                      print('up: ${tapdetails.kind}');
+                                      speechController.stopListening();
+                                    },
+                                    onTapDown: (TapDownDetails details) {
+                                      print('down: ${details.kind}');
+                                      speechController.startListening();
+                                    },
+                                    onTapCancel: () {
+                                      print('cancel');
+                                      speechController.stopListening();
+                                    },
+                                    child: Padding(
+                                      padding: EdgeInsets.all(6.0),
+                                      child: CircleAvatar(
+                                        backgroundColor: Colors.grey.shade800,
+                                        radius: screenHeight * 0.05,
+                                        child: ImageIcon(
+                                          const AssetImage(Assets.iconsMic),
+                                          color: Colors.white,
+                                          size: screenHeight * 0.07,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
+                            )),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Container(
+                                    child: Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    Expanded(
+                                      flex: 7,
+                                      child: Container(
+                                        child: FittedBox(
+                                          fit: BoxFit.contain,
+                                          child: Text(
+                                            speechController.commandWord.value,
+                                            style: const TextStyle(
+                                                fontSize: 25.0,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Container(
+                                        child: FittedBox(
+                                          fit: BoxFit.contain,
+                                          child: Text(
+                                            speechController.wordsString.value.isEmpty?"Word Queue Empty. Try Saying something!":speechController.wordsString.value,
+                                            style: const TextStyle(
+                                                color: Colors.grey, fontSize: 12.0),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                )),
+                              ),
                             ),
-                          ),
-                        ),
-                        Container(
-                          color: Colors.grey,
-                          width: screenWidth*0.2,
-                          height: 2.0,
-                        ),
-                        Container(
-                          width: screenWidth*0.2,
-                          decoration: const BoxDecoration(
-                              color: Colors.grey,
-                              backgroundBlendMode: BlendMode.screen),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Center(child: Text(speechController.wordsString.value,style: const TextStyle(color: Colors.black,fontSize: 12.0),),),
-                            ),
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                );
-              }
-
-              )
+                          ],
+                        );
+                      })),
+                ),
+              ),
             ),
           ),
         )
@@ -368,19 +492,16 @@ class MapControllerState extends State<MapController> {
           ],
         ),
       );
-    }
-    else
-      {
-        if (!Get.isSnackbarOpen) {
-          Get.showSnackbar(GetSnackBar(
-            backgroundColor: Colors.green.shade300,
-            title: "CONNECTED!",
-            message: "Your Maps controller is now connected to the LG rig.",
-            isDismissible: true,
-            duration: 5.seconds,
-          ));
-
-        }
+    } else {
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(GetSnackBar(
+          backgroundColor: Colors.green.shade300,
+          title: "CONNECTED!",
+          message: "Your Maps controller is now connected to the LG rig.",
+          isDismissible: true,
+          duration: 5.seconds,
+        ));
       }
+    }
   }
 }

@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:super_liquid_galaxy_controller/components/MapKmlElement.dart';
 import 'package:super_liquid_galaxy_controller/components/galaxy_button.dart';
 import 'package:super_liquid_galaxy_controller/components/glassbox.dart';
@@ -258,7 +259,7 @@ class _KmlUploaderState extends State<KmlUploader> {
                             //String kml = KMLGenerator.generateCustomKml('slave_1', kmlList);
                             print("made successfully");
                             await sshClient.kmlFileUpload(
-                                context, file!, filename);
+                                file!, filename);
                             print("uploaded successfully");
                             await sshClient.runKml(filename);
 
@@ -275,7 +276,7 @@ class _KmlUploaderState extends State<KmlUploader> {
                           onTap: () async {
                             //await sshClient.clearKml();
                             String kml = KMLGenerator.generateCustomKml('slave_1', kmlList);
-                            saveStringToExternalStorageWithProgress(kml, 'custom_kml', 'kml', (progress){
+                            saveStringToExternalStorageWithProgress(kml, 'custom_kml_ID_${generateRandomString(7)}', 'kml', (progress){
                               print(progress);
                             });
                           },
@@ -467,10 +468,23 @@ class _KmlUploaderState extends State<KmlUploader> {
         }
     }
   }
+
   Future<void> saveStringToExternalStorageWithProgress(
       String content, String filename, String extension, Function(double) onProgress) async {
     // Request storage permissions
-    if (await Permission.manageExternalStorage.request().isGranted) {
+    String response = await getAndroidVersion();
+    bool isAbove13 = false;
+    if(response.compareTo('')==0)
+       {
+         print('Failed to fetch android version');
+       }
+    else
+      {
+        if(int.tryParse(response)!>=13) {
+          isAbove13 = true;
+        }
+      }
+    if ( isAbove13 || await Permission.storage.request().isGranted) {
       // Get the external storage directory
       Directory? directory = await getExternalStorageDirectory();
       if (directory != null) {
@@ -502,6 +516,18 @@ class _KmlUploaderState extends State<KmlUploader> {
       print('Storage permission denied');
     }
 
+  }
+
+  Future<String> getAndroidVersion() async {
+    if (Platform.isAndroid) {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      return androidInfo.version.release;
+    }
+    else
+      {
+        return "unsupported";
+      }
   }
 
   void showSuccessSnackbar(String message) {
