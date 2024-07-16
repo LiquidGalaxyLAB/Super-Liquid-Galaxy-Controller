@@ -51,7 +51,6 @@ class GalaxyButton extends StatelessWidget {
                         ] : [
                           Icon(icon,size: 45,color: Colors.white,),
                           Text(actionText,style: const TextStyle(color: Colors.white,fontWeight: FontWeight.w400,fontSize: 25),),
-
                         ],
                       ),
                     ),

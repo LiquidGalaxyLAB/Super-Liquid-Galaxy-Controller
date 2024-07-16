@@ -308,6 +308,7 @@ fi
 
 
   Future<bool> moveTo(MapPosition position) async {
+    print(position);
     if(_client==null)
       {
         await reConnectToLG();
@@ -317,6 +318,8 @@ fi
       }
 
     try {
+      print(position);
+      print(position.toLookAt(int.parse(_numberOfRigs)).generateLinearString());
       await _client!.execute(
           'echo "flytoview=${position.toLookAt(int.parse(_numberOfRigs)).generateLinearString()}" > /tmp/query.txt');
       return true;

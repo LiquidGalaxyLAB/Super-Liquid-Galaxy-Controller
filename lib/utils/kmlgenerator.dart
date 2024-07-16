@@ -5,7 +5,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart' as mp;
 import 'package:latlong2/latlong.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/kml_element.dart';
+import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_details_response.dart';
+import 'package:super_liquid_galaxy_controller/data_class/place_info.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_response.dart' as pr;
 import 'package:super_liquid_galaxy_controller/utils/geo_utils.dart';
 
@@ -66,6 +68,72 @@ class KMLGenerator {
   </Polygon>
   </Placemark>''';
 
+  static String testLookAtKML(String id, List<KmlElement> list, MapPosition position) {
+    var visList = '';
+    List<Coordinates> coordsList = [];
+    for (final item in list) {
+      switch (item.index) {
+        case 0:
+          {
+            Placemark element = item.elementData;
+            visList += getPlacemark(element);
+            coordsList.add(element.coordinate);
+          }
+        case 1:
+          {
+            LineString element = item.elementData;
+            visList += getLineString(element);
+            coordsList.addAll(element.coordinates);
+          }
+        case 2:
+          {
+            PolyGon element = item.elementData;
+            element.coordinates.add(element.coordinates[0]);
+            visList += getLinearRing(element);
+            coordsList.addAll(element.coordinates);
+          }
+        default:
+          {
+            Placemark element = item.elementData;
+            visList += getPlacemark(element);
+            coordsList.add(element.coordinate);
+          }
+      }
+    }
+    visList += position.toLookAt(int.parse("3")).generateLinearString();
+    print(position.toLookAt(int.parse("3")).generateLinearString());
+    // var lookAt = '';
+    // lookAt += GeoUtils.calculateLookAt(coordsList, 45);
+
+    return '''
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+  <Document id="$id">
+  <Style id="lineStyle">
+      <LineStyle>
+        <color>7fffffff</color>
+        <width>4</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>7f00ff00</color>
+      </PolyStyle>
+    </Style>
+    <Style id="polyStyle">
+      <LineStyle>
+        <width>3</width>
+        <color>ffff5500</color>
+      </LineStyle>
+      <PolyStyle>
+        <color>a1ffaa00</color>
+      </PolyStyle>
+    </Style>
+  ${visList}
+  </Document>
+</kml>
+    ''';
+  }
+
+
   static String generateCustomKml(String id, List<KmlElement> list) {
     var visList = '';
     List<Coordinates> coordsList = [];
@@ -97,6 +165,8 @@ class KMLGenerator {
             coordsList.add(element.coordinate);
           }
       }
+
+
     }
 
     // var lookAt = '';
@@ -676,7 +746,7 @@ class KMLGenerator {
         coords.addAll(shape);
         polygons+=getLinearRing(PolyGon(label: "label", description: "description", coordinates: shape, color: ''));
       }
-    //polygons+= drawBoundingBoxes(GeoUtils.splitLatLngBounds(GeoUtils.getBoundingBox(coords), 300000));
+    // polygons+= drawBoundingBoxes(GeoUtils.splitLatLngBounds(GeoUtils.getBoundingBox(coords), 300000));
     return polygons;
   }
 
@@ -689,8 +759,49 @@ class KMLGenerator {
       coords.addAll(shape[0]);
       multipolygons+=getLinearRing(PolyGon(label: "label", description: "description", coordinates: shape[0], color: ''));
     }
-    //multipolygons+= drawBoundingBoxes(GeoUtils.splitLatLngBounds(GeoUtils.getBoundingBox(coords), 300000));
+    // multipolygons+= drawBoundingBoxes(GeoUtils.splitLatLngBounds(GeoUtils.getBoundingBox(coords), 300000));
     return multipolygons;
+  }
+
+  static List<Coordinates> getAllCoordsList(Geometry geometry) {
+    List<Coordinates> coords =[];
+
+    if (geometry.type?.toLowerCase().compareTo("polygon") == 0)
+    {
+      coords.addAll(getPolygonList(geometry));
+    }
+    else
+    if (geometry.type?.toLowerCase().compareTo("multipolygon") == 0)
+    {
+      coords.addAll(getMultiPolygonList(geometry));
+    }
+
+
+    return coords;
+  }
+
+  static List<Coordinates> getPolygonList(Geometry geometry) {
+    var masterList = geometry.polygonList!;
+    List<Coordinates> coords = [];
+    for(List<Coordinates> shape in masterList)
+    {
+      coords.addAll(shape);
+      //polygons+=getLinearRing(PolyGon(label: "label", description: "description", coordinates: shape, color: ''));
+    }
+    // polygons+= drawBoundingBoxes(GeoUtils.splitLatLngBounds(GeoUtils.getBoundingBox(coords), 300000));
+    return coords;
+  }
+
+  static List<Coordinates> getMultiPolygonList(Geometry geometry) {
+    var masterList = geometry.multiPolygonList!;
+    List<Coordinates> coords = [];
+    for(List<List<Coordinates>> shape in masterList)
+    {
+      coords.addAll(shape[0]);
+      //multipolygons+=getLinearRing(PolyGon(label: "label", description: "description", coordinates: shape[0], color: ''));
+    }
+    // multipolygons+= drawBoundingBoxes(GeoUtils.splitLatLngBounds(GeoUtils.getBoundingBox(coords), 300000));
+    return coords;
   }
   
   static String drawBoundingBoxes(List<mp.LatLngBounds> boundsList)
@@ -714,10 +825,10 @@ class KMLGenerator {
     return kml;
   }
 
-  static String addPlaces(List<Placemark> points) {
+  static String addPlaces(List<PlaceInfo> points) {
     String kml = '';
     for( final point in points) {
-      kml+=getPlacemark(point);
+      kml+=getPlacemark(Placemark(coordinate: point.coordinate, label: point.label, description: point.address));
     }
     return kml;
 

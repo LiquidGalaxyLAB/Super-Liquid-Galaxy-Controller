@@ -29,6 +29,19 @@ class Assets {
   static const String lottieConnected = 'assets/lottie/connected.lottie';
   static const String lottieConnectionfailed = 'assets/lottie/connectionfailed.lottie';
   static const String lottieFailedconnection = 'assets/lottie/failedconnection.lottie';
+  static const String lottieLoadingFailed = 'assets/lottie/loading_failed.lottie';
+  static const String lottieLoadingPlaces = 'assets/lottie/loading_places.lottie';
+  static const String lottieLoadingspinner = 'assets/lottie/loadingspinner.lottie';
+  static const String placeIconsArchaeology = 'assets/place_icons/archaeology.png';
+  static const String placeIconsCastle = 'assets/place_icons/castle.png';
+  static const String placeIconsChapel = 'assets/place_icons/chapel.png';
+  static const String placeIconsGate = 'assets/place_icons/gate.png';
+  static const String placeIconsObelisk = 'assets/place_icons/obelisk.png';
+  static const String placeIconsShrine = 'assets/place_icons/shrine.png';
+  static const String placeIconsSights = 'assets/place_icons/sights.png';
+  static const String placeIconsStrategy = 'assets/place_icons/strategy.png';
+  static const String placeIconsTemple = 'assets/place_icons/temple.png';
+  static const String placeIconsTombstone = 'assets/place_icons/tombstone.png';
   static const String svgOpenMouth = 'assets/svg/open_mouth.svg';
 
 }

@@ -5,5 +5,6 @@ class GalaxyColors {
   static const green = Color(0xFF088C15);
   static const yellow = Color(0xFF8E7F00);
   static const darkBlue = Color(0xFF263EB9);
+  static const prussianBlue = Color(0xFF00288E);
   static const lightgrey = Color(0xFF575757);
 }

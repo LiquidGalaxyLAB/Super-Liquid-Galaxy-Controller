@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:latlong2/latlong.dart' as ll;
 import '../data_class/coordinate.dart';
@@ -57,8 +58,166 @@ class GeoUtils {
     return R * c;
   }
 
+  static CameraPosition getOptimalCameraPosition(List<LatLng> coordinates, Size mapSize) {
+    if (coordinates.isEmpty) {
+      return const CameraPosition(target: LatLng(0, 0), zoom: 0);
+    }
+
+    var coords = <Coordinates>[];
+    for(final point in coordinates) {
+      coords.add(Coordinates.fromLatLngMap(point));
+    }
+    LatLngBounds bounds = getBoundingBox(coords);
+
+    // Calculate the center of the bounds
+    double centerLat = (bounds.northeast.latitude + bounds.southwest.latitude) / 2;
+    double centerLng = (bounds.northeast.longitude + bounds.southwest.longitude) / 2;
+    LatLng center = LatLng(centerLat, centerLng);
+
+    // Calculate the zoom level considering tilt
+    double latRange = bounds.northeast.latitude - bounds.southwest.latitude;
+    double lngRange = bounds.northeast.longitude - bounds.southwest.longitude;
+
+    double maxRange = max(latRange, lngRange);
+
+    double tilt = 45.0;
+
+    // Adjust the maxRange based on tilt
+    double tiltFactor = cos(tilt * pi / 180); // Assuming tilt of 45 degrees
+    maxRange = maxRange / tiltFactor;
+
+    double scale = mapSize.width / 256 / (2 * pi) * pow(2, 20); // 256 is the tile size, 20 is max zoom level
+
+    double zoom = (log(scale / maxRange) / log(2)).floorToDouble();
+
+    // Adjust the zoom level if it's too high or too low
+    zoom = zoom.clamp(0, 20);
+
+    // Set the tilt
+
+
+    return CameraPosition(
+      target: center,
+      zoom: zoom,
+      tilt: tilt,
+    );
+  }
+
+  static double log2(num x) => log(x) / log(2);
+
+  static CameraPosition getOptimalCameraPosition1(List<LatLng> coordinates, Size mapSize) {
+    if (coordinates.isEmpty) {
+      return const CameraPosition(target: LatLng(0, 0), zoom: 0);
+    }
+
+    var coords = <Coordinates>[];
+    for (final point in coordinates) {
+      coords.add(Coordinates.fromLatLngMap(point));
+    }
+    LatLngBounds bounds = getBoundingBox(coords);
+
+    // Constants for Earth's radius in meters and equatorial circumference
+    const double earthRadius = 6378137;
+    const double equatorialCircumference = 2 * pi * earthRadius;
+
+    // Calculate the center of the bounds
+    double centerLat = (bounds.northeast.latitude + bounds.southwest.latitude) / 2;
+    double centerLng = (bounds.northeast.longitude + bounds.southwest.longitude) / 2;
+    LatLng center = LatLng(centerLat, centerLng);
+
+    // Calculate the lat/lng distance
+    double latDiff = bounds.northeast.latitude - bounds.southwest.latitude;
+    double lngDiff = bounds.northeast.longitude - bounds.southwest.longitude;
+
+    // Calculate the distance in meters
+    double latDistance = latDiff * (equatorialCircumference / 360);
+    double lngDistance = lngDiff * (equatorialCircumference / 360) * cos(center.latitude * pi / 180);
+
+    // Determine the maximum distance
+    double maxDistance = max(latDistance, lngDistance);
+
+    // Print debug information
+    print('Bounds: $bounds');
+    print('Center: $center');
+    print('Latitude Distance: $latDistance');
+    print('Longitude Distance: $lngDistance');
+    print('Max Distance: $maxDistance');
+
+    // Calculate zoom level
+    double zoomLevel = log2(256 * (mapSize.width / maxDistance)) - 8;
+
+    // Print zoom level before clamping
+    print('Calculated Zoom Level: $zoomLevel');
+
+    // Ensure zoom level is within bounds
+    zoomLevel = zoomLevel.clamp(0, 21).toDouble();
+
+    // Print final zoom level
+    print('Clamped Zoom Level: $zoomLevel');
+
+    // Create CameraPosition
+    return CameraPosition(
+      target: center,
+      zoom: zoomLevel,
+      tilt: 45,
+    );
+  }
+
+  static CameraPosition getBoundsZoomLevel(List<LatLng> coordinates, Size mapDim) {
+
+    if (coordinates.isEmpty) {
+      return const CameraPosition(target: LatLng(0, 0), zoom: 0);
+    }
+
+    var coords = <Coordinates>[];
+    for (final point in coordinates) {
+      coords.add(Coordinates.fromLatLngMap(point));
+    }
+    LatLngBounds bounds = getBoundingBox(coords);
+
+    double centerLat = (bounds.northeast.latitude + bounds.southwest.latitude) / 2;
+    double centerLng = (bounds.northeast.longitude + bounds.southwest.longitude) / 2;
+    LatLng center = LatLng(centerLat, centerLng);
+
+    const WORLD_DIM = Size(256, 256);
+    const ZOOM_MAX = 21;
+
+    double latRad(double lat) {
+      var sinV = sin(lat * pi / 180);
+      var radX2 = log((1 + sinV) / (1 - sinV)) / 2;
+      return max(min(radX2, pi), -pi) / 2;
+    }
+
+    int zoom(mapPx, worldPx, fraction) {
+      return (log(mapPx / worldPx / fraction) / ln2).floor();
+    }
+
+    var ne = bounds.northeast;
+    var sw = bounds.southwest;
+
+    var latFraction = (latRad(ne.latitude) - latRad(sw.latitude)) / pi;
+
+    print(latFraction);
+    latFraction = max(0.001,latFraction);
+
+    var lngDiff = ne.longitude - sw.longitude;
+    var lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
+
+    print(lngFraction);
+    lngFraction = max(0.001, lngFraction);
+
+    var latZoom = zoom(mapDim.height, WORLD_DIM.height, latFraction);
+    var lngZoom = zoom(mapDim.width, WORLD_DIM.width, lngFraction);
+
+    var zoomV = min(latZoom.toDouble(), min(lngZoom.toDouble(), ZOOM_MAX.toDouble()));
+
+    return CameraPosition(target: center,zoom: zoomV, tilt: 30.0);
+  }
+
+
+
   // Calculate the <LookAt> element
-  static String calculateLookAt(List<Coordinates> coords, double tiltAngle) {
+  /*static String calculateLookAt(List<Coordinates> coords, double tiltAngle) {
     // Calculate center point
     var center = calculateGeographicCenter(coords);
     double centerLat = center.latitude;
@@ -86,7 +245,7 @@ class GeoUtils {
         <range>$range</range>
     </LookAt>
     ''';
-  }
+  }*/
 
   static LatLngBounds getBoundingBox(List<Coordinates> coordinatesList) {
     if (coordinatesList.isEmpty) {
@@ -118,6 +277,8 @@ class GeoUtils {
     print(LatLngBounds(southwest: southwest,northeast:  northeast));
     return LatLngBounds(southwest: southwest,northeast:  northeast);
   }
+
+
 
   static List<LatLngBounds> splitLatLngBounds(LatLngBounds bounds, double maxDistance) {
     final distance = ll.Distance();

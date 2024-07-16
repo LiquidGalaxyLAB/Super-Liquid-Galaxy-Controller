@@ -2,21 +2,25 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:device_info_plus/device_info_plus.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:super_liquid_galaxy_controller/components/MapKmlElement.dart';
 import 'package:super_liquid_galaxy_controller/components/galaxy_button.dart';
 import 'package:super_liquid_galaxy_controller/components/glassbox.dart';
 import 'package:super_liquid_galaxy_controller/components/kml_elements/linestring.dart';
 import 'package:super_liquid_galaxy_controller/components/kml_elements/placemark.dart';
 import 'package:super_liquid_galaxy_controller/components/kml_elements/polygon.dart';
+import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/screens/test.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
+import 'package:super_liquid_galaxy_controller/utils/geo_utils.dart';
 import 'package:super_liquid_galaxy_controller/utils/kmlgenerator.dart';
 import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
+
 import '../data_class/kml_element.dart';
 import '../data_class/map_position.dart';
 import '../generated/assets.dart';
@@ -230,7 +234,7 @@ class _KmlUploaderState extends State<KmlUploader> {
                         handlerCallback: ((handler) {
                           callbackController = handler;
                         }),
-                        submitData: (KmlElement data){
+                        submitData: (KmlElement data) {
                           setState(() {
                             loadElement = data;
                             dataController.dataSetter!(data);
@@ -252,18 +256,27 @@ class _KmlUploaderState extends State<KmlUploader> {
                             String filename = generateRandomString(7);
                             await sshClient.connectToLG();
                             //await sshClient.clearKml();
-                            File? file = await sshClient.makeFile(filename,
-                                KMLGenerator.generateCustomKml('slave_1', kmlList));
+                            File? file = await sshClient.makeFile(
+                                filename,
+                                KMLGenerator.generateCustomKml(
+                                    'slave_1', kmlList));
 
+                            MapPosition position =
+                                MapPosition.fromCameraPosition(
+                                    GeoUtils.getBoundsZoomLevel(
+                                        getCoordsList(kmlList),
+                                        MediaQuery.of(context).size));
                             //Get.to(()=>TestScreen(kml: KMLGenerator.generateCustomKml('slave_1', kmlList)));
                             //String kml = KMLGenerator.generateCustomKml('slave_1', kmlList);
+
                             print("made successfully");
-                            await sshClient.kmlFileUpload(
-                                file!, filename);
+                            await sshClient.kmlFileUpload(file!, filename);
                             print("uploaded successfully");
                             await sshClient.runKml(filename);
+                            print("ran kml successfully");
+                            await sshClient.moveTo(position);
+                            print("Moved");
 
-                            //Get.to(()=> TestScreen(kml: kml));
                           },
                           backgroundColor: GalaxyColors.blue.withOpacity(0.4),
                         ),
@@ -275,8 +288,12 @@ class _KmlUploaderState extends State<KmlUploader> {
                           isLeading: true,
                           onTap: () async {
                             //await sshClient.clearKml();
-                            String kml = KMLGenerator.generateCustomKml('slave_1', kmlList);
-                            saveStringToExternalStorageWithProgress(kml, 'custom_kml_ID_${generateRandomString(7)}', 'kml', (progress){
+                            String kml = KMLGenerator.generateCustomKml(
+                                'slave_1', kmlList);
+                            saveStringToExternalStorageWithProgress(
+                                kml,
+                                'custom_kml_ID_${generateRandomString(7)}',
+                                'kml', (progress) {
                               print(progress);
                             });
                           },
@@ -294,18 +311,16 @@ class _KmlUploaderState extends State<KmlUploader> {
                 child: Container(
                   height: double.infinity,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.white.withOpacity(0.2),
-                        Colors.white.withOpacity(0.2)
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(20.0)
-                  ),
-
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.white.withOpacity(0.2),
+                          Colors.white.withOpacity(0.2)
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(20.0)),
                   child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20.0, vertical: 35.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0, vertical: 35.0),
                     child: Column(
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -313,7 +328,7 @@ class _KmlUploaderState extends State<KmlUploader> {
                         children: [
                           Container(
                             width: double.infinity,
-                            height: screenHeight*0.1,
+                            height: screenHeight * 0.1,
                             child: FittedBox(
                               fit: BoxFit.contain,
                               child: DropdownMenu(
@@ -322,10 +337,9 @@ class _KmlUploaderState extends State<KmlUploader> {
                                     elementIndex = labels.indexOf(label!);
                                     callbackController.callBack!(elementIndex);
                                   });
-
                                 },
-                                textStyle:
-                                    TextStyle(color: Colors.white, fontSize: 20.0),
+                                textStyle: TextStyle(
+                                    color: Colors.white, fontSize: 20.0),
                                 leadingIcon: Icon(kmlElements[elementIndex][1]),
                                 trailingIcon: const Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -358,19 +372,22 @@ class _KmlUploaderState extends State<KmlUploader> {
                                         FloatingLabelBehavior.always,
                                     fillColor: Colors.black.withOpacity(0.5),
                                     border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(20.0))),
+                                        borderRadius:
+                                            BorderRadius.circular(20.0))),
                                 initialSelection: 'Placemark',
                               ),
                             ),
                           ),
-                          Expanded(child: kmlElementOptionsWidget(elementIndex)),
+                          Expanded(
+                              child: kmlElementOptionsWidget(elementIndex)),
                           MaterialButton(
                             minWidth: screenWidth * 0.2,
                             height: screenHeight * 0.06,
                             color: GalaxyColors.green.withOpacity(0.4),
                             onPressed: () {
                               if (dataController.dataRetriever != null) {
-                                addElementToList(dataController.dataRetriever!());
+                                addElementToList(
+                                    dataController.dataRetriever!());
                               }
                             },
                             shape: RoundedRectangleBorder(
@@ -380,7 +397,8 @@ class _KmlUploaderState extends State<KmlUploader> {
                                 fit: BoxFit.contain,
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
                                   children: [
                                     Icon(
                                       Icons.add_box_rounded,
@@ -469,22 +487,19 @@ class _KmlUploaderState extends State<KmlUploader> {
     }
   }
 
-  Future<void> saveStringToExternalStorageWithProgress(
-      String content, String filename, String extension, Function(double) onProgress) async {
+  Future<void> saveStringToExternalStorageWithProgress(String content,
+      String filename, String extension, Function(double) onProgress) async {
     // Request storage permissions
     String response = await getAndroidVersion();
     bool isAbove13 = false;
-    if(response.compareTo('')==0)
-       {
-         print('Failed to fetch android version');
-       }
-    else
-      {
-        if(int.tryParse(response)!>=13) {
-          isAbove13 = true;
-        }
+    if (response.compareTo('') == 0) {
+      print('Failed to fetch android version');
+    } else {
+      if (int.tryParse(response)! >= 13) {
+        isAbove13 = true;
       }
-    if ( isAbove13 || await Permission.storage.request().isGranted) {
+    }
+    if (isAbove13 || await Permission.storage.request().isGranted) {
       // Get the external storage directory
       Directory? directory = await getExternalStorageDirectory();
       if (directory != null) {
@@ -515,7 +530,6 @@ class _KmlUploaderState extends State<KmlUploader> {
     } else {
       print('Storage permission denied');
     }
-
   }
 
   Future<String> getAndroidVersion() async {
@@ -523,11 +537,43 @@ class _KmlUploaderState extends State<KmlUploader> {
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       return androidInfo.version.release;
+    } else {
+      return "unsupported";
     }
-    else
-      {
-        return "unsupported";
+  }
+
+  static List<LatLng> getCoordsList(List<KmlElement> list) {
+    List<LatLng> coordsList = [];
+    for (final item in list) {
+      switch (item.index) {
+        case 0:
+          {
+            Placemark element = item.elementData;
+            coordsList.add(element.coordinate.toLatLngMap(element.coordinate));
+          }
+        case 1:
+          {
+            LineString element = item.elementData;
+            coordsList.addAll(element.coordinates.map((Coordinates point) {
+              return point.toLatLngMap(point);
+            }));
+          }
+        case 2:
+          {
+            PolyGon element = item.elementData;
+            element.coordinates.add(element.coordinates[0]);
+            coordsList.addAll(element.coordinates.map((Coordinates point) {
+              return point.toLatLngMap(point);
+            }));
+          }
+        default:
+          {
+            Placemark element = item.elementData;
+            coordsList.add(element.coordinate.toLatLngMap(element.coordinate));
+          }
       }
+    }
+    return coordsList;
   }
 
   void showSuccessSnackbar(String message) {

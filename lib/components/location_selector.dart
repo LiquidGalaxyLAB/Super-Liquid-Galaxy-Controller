@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:super_liquid_galaxy_controller/components/galaxytextfield.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/country_data.dart';
@@ -34,6 +35,8 @@ class _LocationSelectorState extends State<LocationSelector> {
   late String selectedCountry;
   late String selectedState;
 
+  var isLoading = false;
+
 
   @override
   void initState() {
@@ -61,7 +64,7 @@ class _LocationSelectorState extends State<LocationSelector> {
                 builder: (context) {
                   return StatefulBuilder(
                       builder: (BuildContext context,
-                          StateSetter setModalState) {
+                          StateSetter setModalState){
                         return SingleChildScrollView(
                           child: Padding(
                             padding: EdgeInsets.only(
@@ -106,6 +109,9 @@ class _LocationSelectorState extends State<LocationSelector> {
                                         var country = dataList[index];
                                         return InkWell(
                                             onTap: () {
+                                              setState(() {
+                                                isLoading = true;
+                                              });
                                               Get.back(result: country);
                                             },
                                             child: Padding(
@@ -210,6 +216,9 @@ class _LocationSelectorState extends State<LocationSelector> {
                                     StateData sta = dataList[index];
                                     return InkWell(
                                         onTap: () {
+                                          setState(() {
+                                            isLoading = true;
+                                          });
                                           Get.back(result: sta);
                                         },
                                         child: Padding(
@@ -248,9 +257,15 @@ class _LocationSelectorState extends State<LocationSelector> {
                 isScrollControlled: true);
             if (stateData == null) {
               selectedState = "";
+              setState(() {
+                isLoading = true;
+              });
               setLabelFromName();
               return;
             }
+            setState(() {
+              isLoading = true;
+            });
             selectedState = stateData.name!;
             setLabelFromName();
             /*List<CountryData> dataList = await getResponse();
@@ -268,14 +283,31 @@ class _LocationSelectorState extends State<LocationSelector> {
                     InkWell(
                       borderRadius: BorderRadius.circular(20.0),
                       onTap: () async {
-
                         Coordinates coordinate = await Get.to(()=> LocationPicker());
                         setLabelFromPoint(coordinate);
                       },
-                      child: ImageIcon(
-                        const AssetImage(Assets.iconsPlaceMarker),
-                        color: Colors.white,
-                        size: widget.iconSize ?? 65.0,
+                      child: Stack(
+                        children:[ Visibility(
+                          visible: !isLoading,
+                          child: ImageIcon(
+                            const AssetImage(Assets.iconsPlaceMarker),
+                            color: Colors.white,
+                            size: widget.iconSize ?? 65.0,
+                          ),
+                        ),
+
+                          Visibility(
+                            visible: isLoading,
+                            child: Lottie.asset(
+                              Assets.lottieLoadingspinner,
+                              decoder: customDecoder,
+                              repeat: true,
+                              width: widget.iconSize ?? 65.0,
+                              height: widget.iconSize ?? 65.0
+                            ),
+                          ),
+
+                        ]
                       ),
                     ),
                     Container(
@@ -324,6 +356,11 @@ class _LocationSelectorState extends State<LocationSelector> {
   }
 
   void setLabelFromPoint(Coordinates point) async {
+    setState(() {
+      isLoading = true;
+    });
+    widget.tourController.isLoading.value = true;
+    widget.tourController.isError.value = false;
     var out = await placemarkFromCoordinates(point.latitude, point.longitude);
     print(out);
 
@@ -347,9 +384,14 @@ class _LocationSelectorState extends State<LocationSelector> {
       selectedState = likelyPoint.administrativeArea!;
       setState(() {
         label = "$selectedCountry \n$selectedState";
+        isLoading = false;
+        print("point3");
+
       });
     }
     else {
+      widget.tourController.isError.value = true;
+      widget.tourController.isLoading.value = false;
       if (!Get.isSnackbarOpen) {
         Get.showSnackbar(GetSnackBar(
           backgroundColor: Colors.red.shade300,
@@ -360,6 +402,11 @@ class _LocationSelectorState extends State<LocationSelector> {
         ));
       }
     }
+    setState(() {
+      isLoading = false;
+      print("point2");
+
+    });
     widget.submitData(point,label);
   }
 
@@ -367,23 +414,61 @@ class _LocationSelectorState extends State<LocationSelector> {
   void setLabelFromName() async {
     setState(() {
       label = "$selectedCountry \n$selectedState";
+      widget.tourController.label.value = "$selectedCountry \n$selectedState";
+      isLoading=false;
+      print("point1");
     });
-    var out = await locationFromAddress("$selectedState,$selectedCountry");
-    print(out);
-    if (out.isNotEmpty) {
-      widget.submitData(
-          Coordinates(latitude: out[0].latitude, longitude: out[0].longitude), label);
+    try {
+      widget.tourController.isLoading.value = true;
+      widget.tourController.isError.value = false;
+      var out = await locationFromAddress("$selectedState,$selectedCountry").timeout(Duration(seconds: 10), onTimeout: (){
+        throw Exception("Location fetch timeout...");
+      });
+      print(out);
+      if (out.isNotEmpty) {
+        print(out);
+        widget.submitData(
+            Coordinates(latitude: out[0].latitude, longitude: out[0].longitude), label);
+      }
+      else {
+        print("object");
+        widget.tourController.isError.value = true;
+        widget.tourController.isLoading.value = false;
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(GetSnackBar(
+            backgroundColor: Colors.red.shade300,
+            title: "Location Error",
+            message: "Could not Geocode area",
+            isDismissible: true,
+            duration: 3.seconds,
+          ));
+        }
+      }
     }
-    else {
+    catch(e)
+    {
+      print("here");
+      widget.tourController.isError.value = true;
+      widget.tourController.isLoading.value = false;
       if (!Get.isSnackbarOpen) {
         Get.showSnackbar(GetSnackBar(
           backgroundColor: Colors.red.shade300,
           title: "Location Error",
-          message: "Could not geocode area",
+          message: "Could not Geocode area. Error: $e",
           isDismissible: true,
           duration: 3.seconds,
         ));
       }
     }
+
+
+  }
+
+  Future<LottieComposition?> customDecoder(List<int> bytes) {
+    return LottieComposition.decodeZip(bytes, filePicker: (files) {
+      return files.firstWhere(
+            (f) => f.name.startsWith('animations/') && f.name.endsWith('.json'),
+      );
+    });
   }
 }

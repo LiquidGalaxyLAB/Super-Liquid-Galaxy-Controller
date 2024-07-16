@@ -272,12 +272,27 @@ class Historic {
 
 class WikiAndMedia {
   String? image;
+  String? wikidata;
+  String? wikipedia;
+  String? wikiTitle;
+  String? wikiLang;
 
   WikiAndMedia({this.image});
 
   WikiAndMedia.fromJson(Map<String, dynamic> json) {
     if(json["image"] is String)
       this.image = json["image"];
+    if(json['wikidata'] is String)
+      this.wikidata = json["wikidata"];
+    if(json['wikipedia'] is String)
+      this.wikipedia = json["wikipedia"];
+
+    if(wikipedia != null)
+      {
+        wikiTitle = wikipedia!.substring(wikipedia!.lastIndexOf(':'));
+        wikiLang = wikipedia!.substring(0, wikipedia!.indexOf(':'));
+      }
+
   }
 
   Map<String, dynamic> toJson() {

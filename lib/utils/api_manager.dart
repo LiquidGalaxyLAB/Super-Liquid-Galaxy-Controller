@@ -6,7 +6,8 @@ import 'package:super_liquid_galaxy_controller/data_class/api_error.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/geo_reversecode_response.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_details_response.dart';
-import 'package:super_liquid_galaxy_controller/data_class/place_response.dart';
+import 'package:super_liquid_galaxy_controller/data_class/place_info.dart';
+import 'package:super_liquid_galaxy_controller/data_class/place_response.dart' as pr;
 import 'package:super_liquid_galaxy_controller/screens/test.dart';
 import 'package:super_liquid_galaxy_controller/utils/kmlgenerator.dart';
 
@@ -48,8 +49,8 @@ class ApiManager extends getx.GetxController {
     print({"places_api": _placesApiKey});
     final options = BaseOptions(
         baseUrl: (version == 1) ? geoApifyV1BaseUrl : geoApifyV2BaseUrl,
-        connectTimeout: const Duration(seconds: 5),
-        receiveTimeout: const Duration(seconds: 7),
+        connectTimeout: const Duration(seconds: 7),
+        receiveTimeout: const Duration(seconds: 10),
         validateStatus: (status) {
           if (status != null) {
             return status < 500;
@@ -58,7 +59,7 @@ class ApiManager extends getx.GetxController {
           }
         });
     _apiClient = Dio(options);
-    print({"places_api": _placesApiKey});
+    //print({"places_api": _placesApiKey});
     // await _testApiKey();
     return isConnected.value;
   }
@@ -232,11 +233,11 @@ class ApiManager extends getx.GetxController {
     }
   }
 
-  Future<({String kml,PlaceDetailsResponse? obj})> tryBoundaryResponseForID(
+  Future<({String kml,PlaceDetailsResponse? obj,List<Coordinates>? coords})> tryBoundaryResponseForID(
       String id, Coordinates searchAroundCoords) async {
     Response response = await getPlaceDetails(id);
     if (response.statusCode != 200) {
-      return (kml:'',obj: null);
+      return (kml:'',obj: null,coords: null);
     }
 
     var responseObj = PlaceDetailsResponse.fromJson(response.data);
@@ -246,16 +247,18 @@ class ApiManager extends getx.GetxController {
 
     Response places = await getPlaces(id, 'tourism');
     if (places.statusCode != 200) {
-      return (kml:'',obj: null);
+      return (kml:'',obj: null,coords: null);
     }
 
-    var placeObj = PlaceResponse.fromJson(places.data);
+    var placeObj = pr.PlaceResponse.fromJson(places.data);
     print(placeObj);
     if (responseObj.features != null &&
         responseObj.features!.isNotEmpty &&
         responseObj.features![0].geometry != null) {
       String kml =
           KMLGenerator.generateBoundaries(responseObj.features![0].geometry!);
+
+      List<Coordinates> coords = KMLGenerator.getAllCoordsList(responseObj.features![0].geometry!);
       /*var list = placeObj.features;
       List<Placemark> coordinates = [];
       for (final feature in list!) {
@@ -271,29 +274,26 @@ class ApiManager extends getx.GetxController {
       }*/
       //kml += KMLGenerator.addPlaces(coordinates);
       //getx.Get.to(() => TestScreen(kml: KMLGenerator.generateKml('69', kml)));
-      return (kml:kml,obj:responseObj);
+      return (kml:kml,obj:responseObj,coords:coords);
     }
-    return (kml:'',obj: null);
+    return (kml:'',obj: null,coords: null);
   }
 
-  Future<({String kml,PlaceResponse? obj,List<Placemark> places})> tryPlaceResponseForID(
+  Future<({String kml,pr.PlaceResponse? obj,List<PlaceInfo> places})> tryPlaceResponseForID(
       String id, Coordinates searchAroundCoords) async {
     Response places = await getPlaces(id, 'tourism');
     if (places.statusCode != 200) {
-      return (kml:'',obj: null,places:<Placemark>[]);
+      return (kml:'',obj: null,places:<PlaceInfo>[]);
     }
-    var placeObj = PlaceResponse.fromJson(places.data);
+    var placeObj = pr.PlaceResponse.fromJson(places.data);
     //print(placeObj);
     if (placeObj.features!=null && placeObj.features!.isNotEmpty) {
       var list = placeObj.features;
-      List<Placemark> coordinates = [];
+      List<PlaceInfo> coordinates = [];
       for (final feature in list!) {
         try {
-          var name = (feature.properties!.name != null)?feature.properties!.name!.replaceAll('&', 'and'):feature.properties!.addressLine1!;
-          coordinates.add(Placemark(
-              coordinate: feature.geometry!.point!,
-              label: name,
-              description: feature.properties!.addressLine2!.replaceAll('&', 'and')));
+          // var name = (feature.properties!.name != null)?feature.properties!.name!.replaceAll('&', 'and'):feature.properties!.addressLine1!;
+          coordinates.add(getPlaceInfo(feature));
         } catch (e) {
           print(e);
           print(feature);
@@ -303,7 +303,28 @@ class ApiManager extends getx.GetxController {
       //getx.Get.to(() => TestScreen(kml: KMLGenerator.generateKml('69', kml)));
       return (kml:kml,obj:placeObj,places: coordinates);
     }
-    return (kml:'',obj: null,places:<Placemark>[]);
+    return (kml:'',obj: null,places:<PlaceInfo>[]);
+  }
+
+  PlaceInfo getPlaceInfo(pr.Features feature) {
+    var name = (feature.properties!.name != null)?feature.properties!.name!.replaceAll('&', 'and'):feature.properties!.addressLine1!;
+    var category = 'default';
+    if(feature.properties!.categories != null && feature.properties!.categories!.isNotEmpty)
+      {
+        category = feature.properties!.categories![feature.properties!.categories!.length - 1];
+        category = category.substring(category.lastIndexOf('.')+1);
+      }
+    PlaceInfo place = PlaceInfo(coordinate: Coordinates(latitude: feature.properties!.lat!, longitude: feature.properties!.lon!), label: '',name: name, address: feature.properties!.addressLine2!, category: category);
+    if(feature.properties!.wikiAndMedia != null && feature.properties!.wikiAndMedia!.wikidata != null)
+      {
+        place.wikiMediaTag = feature.properties!.wikiAndMedia!.wikidata;
+      }
+    if(feature.properties!.wikiAndMedia != null && feature.properties!.wikiAndMedia!.wikipedia != null)
+    {
+      place.wikipediaLang = feature.properties!.wikiAndMedia!.wikiLang;
+      place.wikipediaTitle = feature.properties!.wikiAndMedia!.wikiTitle;
+    }
+    return place;
   }
 
 

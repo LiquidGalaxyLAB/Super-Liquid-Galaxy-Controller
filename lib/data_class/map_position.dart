@@ -5,11 +5,11 @@ import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/look_at.dart';
 
 class MapPosition {
-  double latitude;
-  double longitude;
-  double bearing;
-  double tilt;
-  double zoom;
+  late double latitude;
+  late double longitude;
+  late double bearing;
+  late double tilt;
+  late double zoom;
 
   MapPosition({
     required this.latitude,
@@ -18,6 +18,14 @@ class MapPosition {
     required this.tilt,
     required this.zoom,
   });
+
+  MapPosition.fromCameraPosition(CameraPosition cameraPosition) {
+    latitude = cameraPosition.target.latitude;
+    longitude = cameraPosition.target.longitude;
+    bearing = cameraPosition.bearing;
+    tilt = cameraPosition.tilt;
+    zoom = 591657550.500000 / pow(2, cameraPosition.zoom);
+  }
 
   // Override toString for better debugging output
   @override

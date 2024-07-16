@@ -10,6 +10,7 @@ import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
 import 'package:super_liquid_galaxy_controller/utils/map_movement_controller.dart';
 import 'package:super_liquid_galaxy_controller/utils/speech_controller.dart';
 import 'package:super_liquid_galaxy_controller/utils/tour_controller.dart';
+import 'package:super_liquid_galaxy_controller/utils/wikidatafetcher.dart';
 
 AndroidMapRenderer mapRenderer = AndroidMapRenderer.platformDefault;
 
@@ -21,6 +22,7 @@ void main() {
   Get.lazyPut(() => SpeechController(),fenix: true);
   Get.lazyPut(() => MapMovementController(),fenix: true);
   Get.lazyPut(() => TourController(),fenix: true);
+  Get.lazyPut(() => WikiDataFetcher(), fenix:  true);
 
   LGConnection client = Get.find();
   client.connectToLG();

@@ -22,6 +22,11 @@ class Coordinates {
     longitude %= 360.0;
   }
 
+  mp.LatLng toLatLngMap(Coordinates point)
+  {
+    return mp.LatLng(point.latitude, point.longitude);
+  }
+
   // Override toString for better debugging output
   @override
   String toString() {
