@@ -7,4 +7,6 @@ class GalaxyColors {
   static const darkBlue = Color(0xFF263EB9);
   static const prussianBlue = Color(0xFF00288E);
   static const lightgrey = Color(0xFF575757);
+  static const purple = Color(0xFF6E57FB);
+
 }

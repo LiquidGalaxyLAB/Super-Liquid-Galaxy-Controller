@@ -163,7 +163,7 @@ class TourController extends getx.GetxController {
         text = text.trim();
         if(text.length >= maxLength)
           {
-            text=text.replaceRange(maxLength, text.length,  '...');
+            text=text.replaceRange(maxLength,text.length,'...');
           }
         else
           {
@@ -176,19 +176,10 @@ class TourController extends getx.GetxController {
     placeList.removeLast();
     masterList.clear();
     masterList.addAll(placeList);
-    /*int counter =0;
-    String indexes  ='';
-    for(final place in masterList)
-      {
-        print('${place.label.trim()} - ${place.wikipediaTitle}');
-      }
-    print(indexes);
-    print('count: $counter');*/
 
     // WikiDataFetcher wikiDataFetcher = getx.Get.find();
-    // wikiDataFetcher.setData(masterList[3]);
+    // wikiDataFetcher.setData(masterList[5]);
     // wikiDataFetcher.getInfo();
-
   }
 
   void filterList(String query)

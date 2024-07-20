@@ -8,6 +8,7 @@ import 'package:super_liquid_galaxy_controller/components/galaxytextfield.dart';
 import 'package:super_liquid_galaxy_controller/components/location_selector.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/generated/assets.dart';
+import 'package:super_liquid_galaxy_controller/screens/place_view.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 import 'package:super_liquid_galaxy_controller/utils/tour_controller.dart';
 
@@ -25,6 +26,7 @@ class _TourBuilderState extends State<TourBuilder> {
   late double screenWidth;
   late TourController tourController;
   TextEditingController queryController = TextEditingController();
+  ScrollController queryScrollController = ScrollController();
 
   List<String> tourismCategories = [
     "city_gate",
@@ -228,7 +230,7 @@ class _TourBuilderState extends State<TourBuilder> {
                                   textInputType: TextInputType.text,
                                   fillColor:
                                       GalaxyColors.lightgrey.withOpacity(0.25),
-                                  onTextChanged: (query){
+                                  onTextChanged: (query) {
                                     tourController.filterList(query);
                                   },
                                   focusColor: Colors.white,
@@ -253,199 +255,234 @@ class _TourBuilderState extends State<TourBuilder> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
-                      width: screenWidth*0.93,
-                      height: screenHeight*0.35,
+                      width: screenWidth * 0.93,
+                      height: screenHeight * 0.35,
                       child: Obx(() {
                         return Stack(children: [
                           Visibility(
-                            visible: tourController.placeList.isNotEmpty && !tourController.isLoading.value && !tourController.isError.value,
-                            child: ListView.builder(
-                              itemBuilder: (_, int index) {
-                                print(tourController.placeList.length);
-                                return Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Container(
-                                    height: screenHeight * 0.13,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      children: [
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Container(
-                                              height: screenHeight * 0.13,
-                                              decoration: BoxDecoration(
-                                                  color: GalaxyColors.prussianBlue
-                                                      .withOpacity(0.3),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          20.0)),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(horizontal: 30.0),
-                                                child: Row(
-                                                  children: [
-                                                    Expanded(
-                                                        flex: 1,
-                                                        child: Container(
-                                                            child: FittedBox(
-                                                                fit: BoxFit
-                                                                    .contain,
-                                                                child:
-                                                                    Padding(
-                                                                      padding: const EdgeInsets.all(5.0),
-                                                                      child: ImageIcon(
-                                                                                                                                        AssetImage(
-                                                                      assetPaths[(tourismCategories.contains(tourController.placeList[2 * index].category))
-                                                                          ? (tourismCategories.indexOf(tourController
-                                                                              .placeList[2 *
-                                                                                  index]
-                                                                              .category))
-                                                                          : (tourismCategories.length -
-                                                                              1)],
-                                                                                                                                        ),
-                                                                                                                                        color: Colors
-                                                                        .white,
-                                                                                                                                      ),
-                                                                    )))),
-                                                    SizedBox(
-                                                      width: 8.0,
-                                                    ),
-                                                    Expanded(
-                                                        flex: 6,
-                                                        child: Container(
-                                                            child: FittedBox(
-                                                                fit: BoxFit
-                                                                    .contain,
-                                                                child: Padding(
-                                                                  padding: const EdgeInsets
-                                                                      .symmetric(
-                                                                      horizontal:
-                                                                          8.0,
-                                                                      vertical:
-                                                                          5.0),
-                                                                  child: Text(
-                                                                    tourController
-                                                                        .placeList[2 *
-                                                                            index]
-                                                                        .label,
-                                                                    style:
-                                                                        TextStyle(
-                                                                      color: Colors
-                                                                          .white,
-                                                                    ),
-                                                                  ),
-                                                                ))))
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Visibility(
-                                          visible: ((index !=
-                                                  ((tourController.placeList
-                                                                  .length %
-                                                              2 ==
-                                                          0)
-                                                      ? tourController.placeList
-                                                                  .length ~/
-                                                              2 -
-                                                          1
-                                                      : ((tourController
-                                                              .placeList
-                                                              .length ~/
-                                                          2)))) ||
-                                              tourController.placeList.length %
-                                                      2 ==
-                                                  0),
-                                          child: Expanded(
+                            visible: tourController.placeList.isNotEmpty &&
+                                !tourController.isLoading.value &&
+                                !tourController.isError.value,
+                            child: Scrollbar(
+                              thumbVisibility: true,
+                              thickness: 5.0,
+                              controller: queryScrollController,
+                              radius: Radius.circular(20.0),
+                              child: ListView.builder(
+                                controller: queryScrollController,
+                                itemBuilder: (_, int index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                      height: screenHeight * 0.13,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: [
+                                          Expanded(
                                             child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
+                                              padding: const EdgeInsets.all(8.0),
                                               child: Container(
+                                                height: screenHeight * 0.13,
                                                 decoration: BoxDecoration(
-                                                    color: GalaxyColors.prussianBlue
+                                                    color: GalaxyColors
+                                                        .prussianBlue
                                                         .withOpacity(0.3),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             20.0)),
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(horizontal: 30.0),
-                                                  child: Row(
-                                                    children: [
-                                                      Expanded(
-                                                          flex: 1,
-                                                          child: Container(
-                                                              child: FittedBox(
-                                                                  fit: BoxFit
-                                                                      .contain,
-                                                                  child:
-                                                                      Padding(
-                                                                        padding: const EdgeInsets.all(5.0),
-                                                                        child: ImageIcon(
-                                                                                                                                            AssetImage(
-                                                                        ((index != ((tourController.placeList.length % 2 == 0) ? tourController.placeList.length ~/ 2 - 1 : ((tourController.placeList.length ~/ 2)))) ||
-                                                                                tourController.placeList.length % 2 ==
-                                                                                    0)
-                                                                            ? assetPaths[(tourismCategories.contains(tourController.placeList[2 * index + 1].category))
-                                                                                ? (tourismCategories.indexOf(tourController.placeList[2 * index + 1].category))
-                                                                                : (tourismCategories.length - 1)]
-                                                                            : assetPaths[assetPaths.length - 1],
-                                                                                                                                            ),
-                                                                                                                                            color: Colors
-                                                                          .white,
-                                                                                                                                          ),
-                                                                      )))),
-                                                      SizedBox(
-                                                        width: 8.0,
-                                                      ),
-                                                      Expanded(
-                                                          flex: 6,
-                                                          child: Container(
-                                                              child: FittedBox(
-                                                                  fit: BoxFit
-                                                                      .contain,
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: const EdgeInsets
-                                                                        .symmetric(
-                                                                        horizontal:
-                                                                            12.0,
-                                                                        vertical:
-                                                                            5.0),
-                                                                    child: Text(
-                                                                      ((index != ((tourController.placeList.length % 2 == 0) ? tourController.placeList.length ~/ 2 - 1 : ((tourController.placeList.length ~/ 2)))) ||
-                                                                              tourController.placeList.length % 2 ==
-                                                                                  0)
-                                                                          ? tourController
-                                                                              .placeList[2 * index + 1]
-                                                                              .label
-                                                                          : 'Blah',
-                                                                      style: TextStyle(
-                                                                          color:
-                                                                              Colors.white),
-                                                                    ),
-                                                                  ))))
-                                                    ],
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    Get.to(() => PlaceView(
+                                                        place: tourController.placeList[2*index]));
+                                                  },
+                                                  borderRadius:
+                                                      BorderRadius.circular(20.0),
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 30.0),
+                                                    child: Row(
+                                                      children: [
+                                                        Expanded(
+                                                            flex: 1,
+                                                            child: Container(
+                                                                child: FittedBox(
+                                                                    fit: BoxFit
+                                                                        .contain,
+                                                                    child:
+                                                                        Padding(
+                                                                      padding:
+                                                                          const EdgeInsets
+                                                                              .all(
+                                                                              5.0),
+                                                                      child:
+                                                                          ImageIcon(
+                                                                        AssetImage(
+                                                                          assetPaths[(tourismCategories.contains(tourController.placeList[2 * index].category))
+                                                                              ? (tourismCategories.indexOf(tourController.placeList[2 * index].category))
+                                                                              : (tourismCategories.length - 1)],
+                                                                        ),
+                                                                        color: Colors
+                                                                            .white,
+                                                                      ),
+                                                                    )))),
+                                                        SizedBox(
+                                                          width: 8.0,
+                                                        ),
+                                                        Expanded(
+                                                            flex: 6,
+                                                            child: Container(
+                                                                child: FittedBox(
+                                                                    fit: BoxFit
+                                                                        .contain,
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .symmetric(
+                                                                          horizontal:
+                                                                              8.0,
+                                                                          vertical:
+                                                                              5.0),
+                                                                      child: Text(
+                                                                        tourController
+                                                                            .placeList[2 *
+                                                                                index]
+                                                                            .label,
+                                                                        style:
+                                                                            TextStyle(
+                                                                          color: Colors
+                                                                              .white,
+                                                                        ),
+                                                                      ),
+                                                                    ))))
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        )
-                                      ],
+                                          Visibility(
+                                            visible: ((index !=
+                                                    ((tourController.placeList
+                                                                    .length %
+                                                                2 ==
+                                                            0)
+                                                        ? tourController.placeList
+                                                                    .length ~/
+                                                                2 -
+                                                            1
+                                                        : ((tourController
+                                                                .placeList
+                                                                .length ~/
+                                                            2)))) ||
+                                                tourController.placeList.length %
+                                                        2 ==
+                                                    0),
+                                            child: Expanded(
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                      color: GalaxyColors
+                                                          .prussianBlue
+                                                          .withOpacity(0.3),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20.0)),
+                                                  child: InkWell(
+                                                    onTap: (){
+                                                      if((index != ((tourController.placeList.length % 2 == 0) ? tourController.placeList.length ~/ 2 - 1 : ((tourController.placeList.length ~/ 2)))) ||
+                                                          tourController.placeList.length % 2 ==
+                                                              0)
+                                                          {
+                                                            Get.to(()=> PlaceView(place: tourController
+                                                                .placeList[2 * index + 1]));
+                                                          }
+                              
+                                                    },
+                                                    child: Padding(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 30.0),
+                                                      child: Row(
+                                                        children: [
+                                                          Expanded(
+                                                              flex: 1,
+                                                              child: Container(
+                                                                  child: FittedBox(
+                                                                      fit: BoxFit
+                                                                          .contain,
+                                                                      child:
+                                                                          Padding(
+                                                                        padding:
+                                                                            const EdgeInsets
+                                                                                .all(
+                                                                                5.0),
+                                                                        child:
+                                                                            ImageIcon(
+                                                                          AssetImage(
+                                                                            ((index != ((tourController.placeList.length % 2 == 0) ? tourController.placeList.length ~/ 2 - 1 : ((tourController.placeList.length ~/ 2)))) || tourController.placeList.length % 2 == 0)
+                                                                                ? assetPaths[(tourismCategories.contains(tourController.placeList[2 * index + 1].category))
+                                                                                    ? (tourismCategories.indexOf(tourController.placeList[2 * index + 1].category))
+                                                                                    : (tourismCategories.length - 1)]
+                                                                                : assetPaths[assetPaths.length - 1],
+                                                                          ),
+                                                                          color: Colors
+                                                                              .white,
+                                                                        ),
+                                                                      )))),
+                                                          SizedBox(
+                                                            width: 8.0,
+                                                          ),
+                                                          Expanded(
+                                                              flex: 6,
+                                                              child: Container(
+                                                                  child: FittedBox(
+                                                                      fit: BoxFit
+                                                                          .contain,
+                                                                      child:
+                                                                          Padding(
+                                                                        padding: const EdgeInsets
+                                                                            .symmetric(
+                                                                            horizontal:
+                                                                                12.0,
+                                                                            vertical:
+                                                                                5.0),
+                                                                        child: Text(
+                                                                          ((index != ((tourController.placeList.length % 2 == 0) ? tourController.placeList.length ~/ 2 - 1 : ((tourController.placeList.length ~/ 2)))) ||
+                                                                                  tourController.placeList.length % 2 ==
+                                                                                      0)
+                                                                              ? tourController
+                                                                                  .placeList[2 * index + 1]
+                                                                                  .label
+                                                                              : 'Blah',
+                                                                          style: TextStyle(
+                                                                              color:
+                                                                                  Colors.white),
+                                                                        ),
+                                                                      ))))
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
-                              itemCount:
-                                  ((tourController.placeList.length % 2 == 0)
-                                      ? tourController.placeList.length ~/ 2
-                                      : ((tourController.placeList.length ~/
-                                              2) +
-                                          1)),
+                                  );
+                                },
+                                itemCount:
+                                    ((tourController.placeList.length % 2 == 0)
+                                        ? tourController.placeList.length ~/ 2
+                                        : ((tourController.placeList.length ~/
+                                                2) +
+                                            1)),
+                              ),
                             ),
                           ),
                           Visibility(
@@ -465,14 +502,18 @@ class _TourBuilderState extends State<TourBuilder> {
                                       width: 8.0,
                                     ),
                                     Text("Places are Loading...",
-                                        style: TextStyle(color: Colors.white, fontSize: 35.0))
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 35.0))
                                   ],
                                 ),
                               ),
                             ),
                           ),
                           Visibility(
-                            visible: (tourController.isError.value || tourController.placeList.isEmpty) && !tourController.isLoading.value,
+                            visible: (tourController.isError.value ||
+                                    tourController.placeList.isEmpty) &&
+                                !tourController.isLoading.value,
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Center(
@@ -487,8 +528,13 @@ class _TourBuilderState extends State<TourBuilder> {
                                     SizedBox(
                                       width: 8.0,
                                     ),
-                                    Text(tourController.isError.value?"Error occured while fetching places":"No Places found to visit here",
-                                        style: TextStyle(color: Colors.white, fontSize: 35.0))
+                                    Text(
+                                        tourController.isError.value
+                                            ? "Error occured while fetching places"
+                                            : "No Places found to visit here",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 35.0))
                                   ],
                                 ),
                               ),

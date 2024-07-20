@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:get/get.dart';
+import 'package:super_liquid_galaxy_controller/data_class/image_info.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_info.dart';
+import 'package:super_liquid_galaxy_controller/data_class/wiki_imagedata.dart';
 import 'package:super_liquid_galaxy_controller/data_class/wikidata.dart';
 
-class WikiDataFetcher extends GetxController {
+class WikiDataFetcher {
   late PlaceInfo? placeData;
   late String? wikiTag;
   late String? wikiTitle;
@@ -24,6 +25,23 @@ class WikiDataFetcher extends GetxController {
   bool _connectToApi() {
     final options = BaseOptions(
         baseUrl: baseWikiUrl,
+        connectTimeout: const Duration(seconds: 5),
+        receiveTimeout: const Duration(seconds: 7),
+        validateStatus: (status) {
+          if (status != null) {
+            return status < 500;
+          } else {
+            return false;
+          }
+        });
+    _apiClient = Dio(options);
+    // await _testApiKey();
+    return isConnected;
+  }
+
+  bool _connectToApiWithLang(String lang) {
+    final options = BaseOptions(
+        baseUrl: 'https://$lang.wikipedia.org',
         connectTimeout: const Duration(seconds: 5),
         receiveTimeout: const Duration(seconds: 7),
         validateStatus: (status) {
@@ -61,35 +79,190 @@ class WikiDataFetcher extends GetxController {
     }
   }
 
-  void getInfo() async {
-    _connectToApi();
+  Future<String?> fetchImageUrl(String fileName) async
+  {
     try {
+      var response = await _apiClient.get(endpoint, queryParameters: {
+        'action': 'query',
+        'format': 'json',
+        'titles': 'File:$fileName',
+        'prop': 'imageinfo',
+        'redirects':'',
+        'iiprop':'url',
+        'iiurlheight':'1024',
+        'iiurlwidth':'1024'
+      });
+
+      if (response.statusCode == 200) {
+        isConnected = true;
+        print(response.data);
+        ImageInfo info = ImageInfo.fromJson(response.data);
+        print("URL ${info.query?.pages?.pageInfo?.imageLink}");
+        return info.query?.pages?.pageInfo?.imageLink;
+      } else {
+        //var error = ApiErrorResponse.fromJson(response.data);
+        isConnected = false;
+        //print('${error.error} - ${error.message}');
+      }
+    } catch (e) {
+      print(e);
+      isConnected = false;
+    }
+    return null;
+  }
+
+  Future<({String? fileName, String? url})> fetchImage(String label) async {
+    //_connectToApi();
+    String decodeTitle = Uri.decodeFull(label);
+    try {
+      var response = await _apiClient.get(endpoint, queryParameters: {
+        'action': 'query',
+        'format': 'json',
+        'titles': decodeTitle,
+        'prop': 'pageimages',
+        'redirects': ''
+      });
+
+      if (response.statusCode == 200) {
+        isConnected = true;
+        WikiImageData data = WikiImageData.fromJson(response.data);
+        print(response.data);
+        print("image data response :${data.query?.pages?.pageInfo?.pageimage}");
+        if (data.query?.pages?.pageInfo?.pageimage != null) {
+          String? url = await fetchImageUrl(data.query!.pages!.pageInfo!.pageimage!);
+          if(url != null) {
+            return (fileName: data.query!.pages!.pageInfo!.pageimage!, url: url);
+          }
+        }
+      } else {
+        isConnected = false;
+      }
+    } catch (e) {
+      print(e);
+      isConnected = false;
+    }
+    return (fileName: null, url: null);
+  }
+
+  Future<String?> getImages() async {
+    if (wikiLang != null) {
+      _connectToApiWithLang(wikiLang!.trim());
+    } else {
+      _connectToApi();
+    }
+    //_connectToApi();
+    List<String> titles = [];
+    List<String> links = [];
+    if (wikiTitle != null) {
+      links.add(wikiTitle!);
+      titles.add(wikiTitle!.replaceAll('_', ' '));
+    }
+    String label = placeData!.name.trim();
+    var out = await wikiQuery(label);
+
+    if (out.t != null && out.l != null) {
+      titles.addAll(out.t!);
+      links.addAll(out.l!);
+    }
+
+    print('image $titles');
+    print('image $links');
+
+    if (titles.isNotEmpty) {
+      print("t1 $titles");
+      int matchIndex = mostMatchingString(label, titles);
+      var out = await fetchImage(links[matchIndex]);
+      print(out);
+      return out.url;
+    }
+    else {
+      List<String> labelParts = getLinearCombinations(label);
+      print(labelParts);
+
+      titles = [];
+      for (final labelPart in labelParts) {
+        var out = await wikiQuery(labelPart);
+        var t = out.t;
+        var l = out.l;
+        if (t != null && l != null) {
+          titles.addAll(t);
+          links.addAll(l);
+        }
+      }
+      if (titles.isNotEmpty) {
+        print("t2 $titles");
+        int matchIndex = mostMatchingString(label, titles);
+        var out = await fetchImage(links[matchIndex]);
+        print(out);
+        return out.url;
+      }
+
+    }
+    return null;
+  }
+
+  Future<String?> getInfo() async {
+    if (wikiLang != null) {
+      _connectToApiWithLang(wikiLang!.trim());
+    } else {
+      _connectToApi();
+    }
+
+    try {
+      print("Searching Title: $wikiTitle, $wikiLang");
+      wikiTitle?.replaceAll(' ', '_');
       if (wikiTitle != null) {
         var response = await _apiClient.get(endpoint, queryParameters: {
           'action': 'query',
           'format': 'json',
           'titles': wikiTitle,
           'prop': 'extracts',
-          'explaintext': '1'
+          'explaintext': '1',
+          'redirects': ''
         });
-
+        print(response);
         if (response.statusCode != 200) {
           print("statusCode: ${response.statusCode}");
-          return;
+          //throw Exception("Could not find Information");
         }
         WikiData data = WikiData.fromJson(response.data);
-        //print(data.query!.pages!.pageInfo!.extract);
+        return data.query?.pages?.pageInfo?.extract;
       } else {
         String? title = await tryForDataFromTitle(placeData!.name.trim());
+        print("tryFordataFromTitle: $title");
+        if (title != null) {
+          print("2nd try from list Searching Title: $title");
+          String decodeTitle = Uri.decodeFull(title);
+          print("Decoded $decodeTitle");
+          var response = await _apiClient.get(endpoint, queryParameters: {
+            'action': 'query',
+            'format': 'json',
+            'titles': decodeTitle.trim(),
+            'prop': 'extracts',
+            'explaintext': '1',
+            'redirects': ''
+          });
+          print(response);
+          if (response.statusCode != 200) {
+            print("statusCode: ${response.statusCode}");
+            //throw Exception("Could not find Information");
+          }
+          WikiData data = WikiData.fromJson(response.data);
+          return data.query?.pages?.pageInfo?.extract;
+        } else {
+          throw Exception("Could not find Information");
+          return null;
+        }
         print(title);
       }
     } catch (e) {
       print(e);
       isConnected = false;
+      return null;
     }
   }
 
-  Future<List<String>?> wikiQuery(String query) async {
+  Future<({List<String>? t, List<String>? l})> wikiQuery(String query) async {
     _connectToApi();
     try {
       var response = await _apiClient.get(endpoint, queryParameters: {
@@ -101,21 +274,26 @@ class WikiDataFetcher extends GetxController {
 
       if (response.statusCode != 200) {
         print("statusCode: ${response.statusCode}");
-        return null;
+        return (t: null, l: null);
       }
       //print(response.data);
       List<dynamic> responseList = response.data;
       List<String> titles = [];
+      List<String> links = [];
 
+      for (dynamic link1 in responseList[1]) {
+        String title = link1.toString();
+        titles.add(title);
+      }
       for (dynamic link1 in responseList[3]) {
         String link = link1.toString();
-        titles.add(link.substring(link.lastIndexOf("/") + 1));
+        links.add(link.substring(link.lastIndexOf("/") + 1));
       }
 
-      return titles;
+      return (t: titles, l: links);
     } catch (e) {
       print(e);
-      return null;
+      return (t: null, l: null);
     }
   }
 
@@ -149,25 +327,31 @@ class WikiDataFetcher extends GetxController {
         } else if (s1[i - 1] == s2[j - 1]) {
           dp[i][j] = dp[i - 1][j - 1];
         } else {
-          dp[i][j] = 1 + [dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]].reduce((a, b) => a < b ? a : b);
+          dp[i][j] = 1 +
+              [dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]]
+                  .reduce((a, b) => a < b ? a : b);
         }
       }
     }
     return dp[m][n];
   }
 
-  String mostMatchingString(String input, List<String> candidates) {
-    String bestMatch =candidates[0];
+  int mostMatchingString(String input, List<String> candidates) {
+    String bestMatch = candidates[0];
+    int minIndex = 0;
     int minDistance = levenshteinDistance(input, candidates[0]);
-    for (String candidate in candidates) {
+    for (var item in candidates.indexed) {
+      int index = item.$1;
+      String candidate = item.$2;
       int distance = levenshteinDistance(input, candidate);
       if (distance < minDistance) {
         minDistance = distance;
         bestMatch = candidate;
+        minIndex = index;
       }
     }
 
-    return bestMatch;
+    return minIndex;
   }
 
   List<String> getLinearCombinations(String label) {
@@ -184,25 +368,39 @@ class WikiDataFetcher extends GetxController {
   }
 
   Future<String?> tryForDataFromTitle(String label) async {
-    List<String>? titles = await wikiQuery(label);
-    if(titles != null && titles.isNotEmpty){
+    var out = await wikiQuery(label);
+
+    List<String>? titles = [];
+    List<String>? links = [];
+
+    if (out.t != null && out.l != null) {
+      titles.addAll(out.t!);
+      links.addAll(out.l!);
+    }
+    if (titles != null && titles.isNotEmpty) {
+      // List<String>? titles = [];    print(titles);
       print(titles);
-      return mostMatchingString(label, titles);
+      int matchIndex = mostMatchingString(label, titles);
+      return links[matchIndex];
     }
     List<String> labelParts = getLinearCombinations(label);
     print(labelParts);
 
     titles = [];
-    for(final labelPart in labelParts)
-      {
-        List<String>? out = await wikiQuery(labelPart);
-        if(out != null) {
-          titles.addAll(out);
-        }
+    for (final labelPart in labelParts) {
+      var out = await wikiQuery(labelPart);
+      var t = out.t;
+      var l = out.l;
+      if (t != null && l != null) {
+        titles.addAll(t);
+        links.addAll(l);
       }
-    if(titles.isNotEmpty) {
+    }
+    if (titles.isNotEmpty) {
       print(titles);
-      return mostMatchingString(label, titles);
+      print(links);
+      int matchIndex = mostMatchingString(label, titles);
+      return links[matchIndex];
     }
     return null;
   }

@@ -7,6 +7,8 @@ class PlaceInfo {
   String category;
   String name;
 
+  String? imageLink;
+  String? description;
   String? wikiMediaTag;
   String? wikipediaLang;
   String? wikipediaTitle;
@@ -16,7 +18,9 @@ class PlaceInfo {
     required this.label,
     required this.address,
     required this.category,
-    required this.name
+    required this.name,
+    this.description,
+    this.imageLink
   });
   @override
   String toString() {

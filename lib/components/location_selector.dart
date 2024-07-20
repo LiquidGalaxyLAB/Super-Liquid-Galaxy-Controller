@@ -421,7 +421,7 @@ class _LocationSelectorState extends State<LocationSelector> {
     try {
       widget.tourController.isLoading.value = true;
       widget.tourController.isError.value = false;
-      var out = await locationFromAddress("$selectedState,$selectedCountry").timeout(Duration(seconds: 10), onTimeout: (){
+      var out = await locationFromAddress("$selectedState,$selectedCountry").timeout(Duration(seconds: 25), onTimeout: (){
         throw Exception("Location fetch timeout...");
       });
       print(out);
