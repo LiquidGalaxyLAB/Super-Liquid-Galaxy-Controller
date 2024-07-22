@@ -19,12 +19,12 @@ import 'package:super_liquid_galaxy_controller/screens/test.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 import 'package:super_liquid_galaxy_controller/utils/geo_utils.dart';
 import 'package:super_liquid_galaxy_controller/utils/kmlgenerator.dart';
-import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
+import 'package:super_liquid_galaxy_controller/controllers/lg_connection.dart';
 
 import '../data_class/kml_element.dart';
 import '../data_class/map_position.dart';
 import '../generated/assets.dart';
-import '../utils/map_movement_controller.dart';
+import '../controllers/map_movement_controller.dart';
 
 class KmlUploader extends StatefulWidget {
   const KmlUploader({super.key});

@@ -14,10 +14,10 @@ import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_suggestion_response.dart';
 import 'package:super_liquid_galaxy_controller/generated/assets.dart';
-import 'package:super_liquid_galaxy_controller/utils/autocomplete_controller.dart';
-import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
-import 'package:super_liquid_galaxy_controller/utils/map_movement_controller.dart';
-import 'package:super_liquid_galaxy_controller/utils/speech_controller.dart';
+import 'package:super_liquid_galaxy_controller/controllers/autocomplete_controller.dart';
+import 'package:super_liquid_galaxy_controller/controllers/lg_connection.dart';
+import 'package:super_liquid_galaxy_controller/controllers/map_movement_controller.dart';
+import 'package:super_liquid_galaxy_controller/controllers/speech_controller.dart';
 
 class MapController extends StatefulWidget {
   const MapController({super.key});

@@ -10,7 +10,7 @@ import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/generated/assets.dart';
 import 'package:super_liquid_galaxy_controller/screens/place_view.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
-import 'package:super_liquid_galaxy_controller/utils/tour_controller.dart';
+import 'package:super_liquid_galaxy_controller/controllers/tour_controller.dart';
 
 import '../components/glassbox.dart';
 
@@ -291,9 +291,17 @@ class _TourBuilderState extends State<TourBuilder> {
                                                         BorderRadius.circular(
                                                             20.0)),
                                                 child: InkWell(
-                                                  onTap: () {
-                                                    Get.to(() => PlaceView(
+                                                  onTap: () async {
+                                                    var output = await Get.to(() => PlaceView(
                                                         place: tourController.placeList[2*index]));
+                                                    if(output != null)
+                                                    {
+                                                      print(output);
+                                                    }
+                                                    tourController.runKml(tourController.kml);
+                                                    if(tourController.lookAtPosition != null) {
+                                                      tourController.zoomToLocation(tourController.lookAtPosition!);
+                                                    }
                                                   },
                                                   borderRadius:
                                                       BorderRadius.circular(20.0),
@@ -392,15 +400,22 @@ class _TourBuilderState extends State<TourBuilder> {
                                                           BorderRadius.circular(
                                                               20.0)),
                                                   child: InkWell(
-                                                    onTap: (){
+                                                    onTap: () async {
                                                       if((index != ((tourController.placeList.length % 2 == 0) ? tourController.placeList.length ~/ 2 - 1 : ((tourController.placeList.length ~/ 2)))) ||
                                                           tourController.placeList.length % 2 ==
                                                               0)
                                                           {
-                                                            Get.to(()=> PlaceView(place: tourController
+                                                            var output = await Get.to(()=> PlaceView(place: tourController
                                                                 .placeList[2 * index + 1]));
+                                                            if(output != null)
+                                                              {
+                                                                print(output);
+                                                              }
+                                                            tourController.runKml(tourController.kml);
+                                                            if(tourController.lookAtPosition != null) {
+                                                              tourController.zoomToLocation(tourController.lookAtPosition!);
+                                                            }
                                                           }
-                              
                                                     },
                                                     child: Padding(
                                                       padding: const EdgeInsets

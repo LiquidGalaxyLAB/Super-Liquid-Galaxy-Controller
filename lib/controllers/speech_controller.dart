@@ -2,7 +2,7 @@ import 'dart:collection';
 
 import 'package:get/get.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:super_liquid_galaxy_controller/utils/map_movement_controller.dart';
+import 'package:super_liquid_galaxy_controller/controllers/map_movement_controller.dart';
 
 class SpeechController extends GetxController {
   var isListening = false.obs;

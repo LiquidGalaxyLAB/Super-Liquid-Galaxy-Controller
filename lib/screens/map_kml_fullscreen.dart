@@ -4,7 +4,7 @@ import 'package:super_liquid_galaxy_controller/components/MapKmlElement.dart';
 import 'package:super_liquid_galaxy_controller/data_class/kml_element.dart';
 
 import '../data_class/map_position.dart';
-import '../utils/map_movement_controller.dart';
+import '../controllers/map_movement_controller.dart';
 
 class MapKmlFullscreen extends StatefulWidget {
   MapKmlFullscreen(

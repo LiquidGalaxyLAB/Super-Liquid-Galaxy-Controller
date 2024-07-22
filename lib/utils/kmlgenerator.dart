@@ -194,10 +194,52 @@ class KMLGenerator {
         <color>a1ffaa00</color>
       </PolyStyle>
     </Style>
+    <Style id="main">
+    <IconStyle>
+             <color>ff00ff00</color>
+                         <Icon>
+                <href>http://maps.google.com/mapfiles/kml/pal3/icon21.png</href>
+             </Icon>
+          </IconStyle>
+</Style>
   ${visList}
   </Document>
 </kml>
     ''';
+  }
+
+  static String getPOIKML(PlaceInfo mainPoi, List<PlaceInfo> nearbyPois)
+  {
+    String kml = '';
+    kml += '''<Placemark>
+  <styleUrl>#main</styleUrl>
+  <name>${mainPoi.name}</name>
+  <description>
+  ${mainPoi.description?.substring(0,150)}
+  </description>
+  <Point>
+  <coordinates>${mainPoi.coordinate.longitude},${mainPoi.coordinate.latitude}</coordinates>
+  </Point>
+  </Placemark>''';
+
+    for(final poi in nearbyPois)
+      {
+        if(poi.coordinate == mainPoi.coordinate) {
+          continue;
+        }
+        kml+='''<Placemark>
+  <styleUrl>#nearby</styleUrl>
+  <name>${poi.name}</name>
+  <description>
+  ADDRESS: ${poi.address} \nLOCATION- Lat: ${poi.coordinate.latitude.toStringAsFixed(5)}, Long: ${poi.coordinate.longitude.toStringAsFixed(5)}
+   </description>
+  <Point>
+  <coordinates>${poi.coordinate.longitude},${poi.coordinate.latitude}</coordinates>
+  </Point>
+  </Placemark>''';
+      }
+
+    return kml;
   }
 
   static String generateKml(String id, String kml) {
@@ -247,6 +289,24 @@ class KMLGenerator {
         <color>ffffffff</color>
       </PolyStyle>
     </Style>
+    <Style id="main">
+    <IconStyle>
+             <color>ff00ff00</color>
+             <Icon>
+                <href>http://maps.google.com/mapfiles/kml/paddle/ylw-circle.png</href>
+             </Icon>
+             <scale>2.5</scale>
+    </IconStyle>
+    </Style>
+    <Style id="nearby">
+    <IconStyle>
+             <color>ff00ff00</color>
+             <Icon>
+                <href>http://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href>
+             </Icon>
+             <scale>1.1</scale>
+    </IconStyle>
+</Style>
   $kml
   </Document>
 </kml>
@@ -833,4 +893,11 @@ class KMLGenerator {
     return kml;
 
   }
+
+  static String orbitLookAtLinear(MapPosition position) =>
+      '<gx:duration>2</gx:duration><gx:flyToMode>smooth</gx:flyToMode><LookAt><longitude>${position.longitude}</longitude><latitude>${position.latitude}</latitude><range>${position.zoom}</range><tilt>${position.tilt}</tilt><heading>${position.bearing}</heading><gx:altitudeMode>relativeToGround</gx:altitudeMode></LookAt>';
+
+  static String lookAtLinearInstant(MapPosition position) =>
+      '<gx:duration>0.5</gx:duration><gx:flyToMode>smooth</gx:flyToMode><LookAt><longitude>${position.longitude}</longitude><latitude>${position.latitude}</latitude><range>${position.zoom}</range><tilt>${position.tilt}</tilt><heading>${position.bearing}</heading><gx:altitudeMode>relativeToGround</gx:altitudeMode></LookAt>';
+
 }

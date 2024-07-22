@@ -10,7 +10,7 @@ import 'package:super_liquid_galaxy_controller/data_class/country_data.dart';
 import 'package:super_liquid_galaxy_controller/screens/location_picker.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:super_liquid_galaxy_controller/utils/tour_controller.dart';
+import 'package:super_liquid_galaxy_controller/controllers/tour_controller.dart';
 import '../generated/assets.dart';
 
 class LocationSelector extends StatefulWidget {

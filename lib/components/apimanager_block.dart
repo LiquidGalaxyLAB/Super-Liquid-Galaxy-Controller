@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:super_liquid_galaxy_controller/utils/api_manager.dart';
+import 'package:super_liquid_galaxy_controller/controllers/api_manager.dart';
 import '../generated/assets.dart';
 import 'custom_dialog.dart';
 import 'galaxytextfield.dart';

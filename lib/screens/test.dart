@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:super_liquid_galaxy_controller/utils/speech_controller.dart';
+import 'package:super_liquid_galaxy_controller/controllers/speech_controller.dart';
 
 class TestScreen extends StatefulWidget {
   const TestScreen({super.key, required this.kml});

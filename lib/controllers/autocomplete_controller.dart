@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:super_liquid_galaxy_controller/data_class/place_suggestion_response.dart';
-import 'package:super_liquid_galaxy_controller/utils/api_manager.dart';
+import 'package:super_liquid_galaxy_controller/controllers/api_manager.dart';
 import 'package:get/get.dart';
 
 const Duration debounceDuration = Duration(milliseconds: 250);

@@ -10,7 +10,7 @@ import 'package:super_liquid_galaxy_controller/data_class/kml_element.dart';
 import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
 import 'package:super_liquid_galaxy_controller/screens/map_kml_fullscreen.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
-import 'package:super_liquid_galaxy_controller/utils/map_movement_controller.dart';
+import 'package:super_liquid_galaxy_controller/controllers/map_movement_controller.dart';
 
 class Mapkmlelement extends StatefulWidget {
   Mapkmlelement(

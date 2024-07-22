@@ -198,13 +198,13 @@ class GeoUtils {
     var latFraction = (latRad(ne.latitude) - latRad(sw.latitude)) / pi;
 
     print(latFraction);
-    latFraction = max(0.001,latFraction);
+    latFraction = max(0.000001,latFraction);
 
     var lngDiff = ne.longitude - sw.longitude;
     var lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
 
     print(lngFraction);
-    lngFraction = max(0.001, lngFraction);
+    lngFraction = max(0.000001, lngFraction);
 
     var latZoom = zoom(mapDim.height, WORLD_DIM.height, latFraction);
     var lngZoom = zoom(mapDim.width, WORLD_DIM.width, lngFraction);

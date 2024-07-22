@@ -7,8 +7,8 @@ import 'package:super_liquid_galaxy_controller/generated/assets.dart';
 import 'package:super_liquid_galaxy_controller/tabs/apikey_tab.dart';
 import 'package:super_liquid_galaxy_controller/tabs/connection_tab.dart';
 import 'package:super_liquid_galaxy_controller/tabs/sshcommands_tab.dart';
-import 'package:super_liquid_galaxy_controller/utils/api_manager.dart';
-import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
+import 'package:super_liquid_galaxy_controller/controllers/api_manager.dart';
+import 'package:super_liquid_galaxy_controller/controllers/lg_connection.dart';
 
 //ignore_for_file: prefer_const_constructors
 //ignore_for_file: prefer_const_literals

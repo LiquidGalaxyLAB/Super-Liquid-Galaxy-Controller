@@ -88,6 +88,23 @@ class ApiManager extends getx.GetxController {
     return response;
   }
 
+
+
+  Future<Response> getNearbyPlaces(Coordinates point) async {
+    await _connectApi(2);
+    var response = await _apiClient.get(placesEndPoint, queryParameters: {
+      'filter': 'circle:${point.longitude},${point.latitude},50000',
+      'bias':'proximity:${point.longitude},${point.latitude}',
+      'apiKey': _placesApiKey.trim(),
+      'categories': 'commercial,tourism,entertainment,leisure,building',
+      'limit': '50'
+    });
+    if (response.statusCode != 200) {
+      handleError(response);
+    }
+    return response;
+  }
+
   Future<Response> getPlaces(String id, String categories) async {
     await _connectApi(2);
     var response = await _apiClient.get(placesEndPoint, queryParameters: {
@@ -306,6 +323,33 @@ class ApiManager extends getx.GetxController {
     return (kml:'',obj: null,places:<PlaceInfo>[]);
   }
 
+  Future<({String kml,pr.PlaceResponse? obj,List<PlaceInfo> places})> tryPlaceResponseForCoordinates(
+      Coordinates coords) async {
+    Response places = await getNearbyPlaces(coords);
+    if (places.statusCode != 200) {
+      return (kml:'',obj: null,places:<PlaceInfo>[]);
+    }
+    var placeObj = pr.PlaceResponse.fromJson(places.data);
+    //print(placeObj);
+    if (placeObj.features!=null && placeObj.features!.isNotEmpty) {
+      var list = placeObj.features;
+      List<PlaceInfo> coordinates = [];
+      for (final feature in list!) {
+        try {
+          // var name = (feature.properties!.name != null)?feature.properties!.name!.replaceAll('&', 'and'):feature.properties!.addressLine1!;
+          coordinates.add(getPlaceInfo(feature));
+        } catch (e) {
+          print(e);
+          print(feature);
+        }
+      }
+      String kml = KMLGenerator.addPlaces(coordinates);
+      //getx.Get.to(() => TestScreen(kml: KMLGenerator.generateKml('69', kml)));
+      return (kml:kml,obj:placeObj,places: coordinates);
+    }
+    return (kml:'',obj: null,places:<PlaceInfo>[]);
+  }
+
   PlaceInfo getPlaceInfo(pr.Features feature) {
     var name = (feature.properties!.name != null)?feature.properties!.name!.replaceAll('&', 'and'):feature.properties!.addressLine1!;
     var category = 'default';
@@ -326,6 +370,7 @@ class ApiManager extends getx.GetxController {
     }
     return place;
   }
+
 
 
 }

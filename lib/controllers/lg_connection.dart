@@ -1,5 +1,6 @@
 import 'dart:io';
-
+import '../utils/balloongenerator.dart';
+import '../utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dartssh2/dartssh2.dart';
@@ -306,6 +307,43 @@ fi
     }
   }
 
+  Future<bool> cleanBalloon() async {
+    try {
+      if(_client==null)
+      {
+        await reConnectToLG();
+        if(isConnected.value==false) {
+          return false;
+        }
+      }
+
+      await _client?.run(
+          "echo '${BalloonGenerator.blankBalloon()}' > /var/www/html/kml/slave_${int.parse(_numberOfRigs).rightMostRig}.kml");
+      return true;
+    } catch (error) {
+      print(error);
+      return false;
+    }
+  }
+
+  Future<bool> flyToInstantWithoutSaving(MapPosition position) async {
+    try {
+      if(_client==null)
+      {
+        await reConnectToLG();
+        if(isConnected.value==false) {
+          return false;
+        }
+      }
+      await _client?.run(
+          'echo "flytoview=${KMLGenerator.lookAtLinearInstant(position)}" > /tmp/query.txt');
+      return true;
+    } catch (error) {
+      print(error);
+      return false;
+    }
+  }
+
 
   Future<bool> moveTo(MapPosition position) async {
     print(position);
@@ -352,6 +390,23 @@ fi
     {
       print("error : $e");
     }
+  }
+  Future<bool> flyToOrbit(MapPosition position) async {
+    try {
+      if(_client==null)
+      {
+        await reConnectToLG();
+        if(isConnected.value==false) {
+          return false;
+        }
+      }
+      await _client?.run(
+          'echo "flytoview=${KMLGenerator.orbitLookAtLinear(position)}" > /tmp/query.txt');
+      return true;
+    } catch (error) {
+      print(error);
+      return false;
+      }
   }
 
 }

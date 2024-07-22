@@ -8,12 +8,12 @@ import 'package:super_liquid_galaxy_controller/screens/dashboard.dart';
 import 'package:super_liquid_galaxy_controller/screens/maps_controller.dart';
 import 'package:super_liquid_galaxy_controller/screens/place_view.dart';
 import 'package:super_liquid_galaxy_controller/screens/splashscreen.dart';
-import 'package:super_liquid_galaxy_controller/utils/api_manager.dart';
-import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
-import 'package:super_liquid_galaxy_controller/utils/map_movement_controller.dart';
-import 'package:super_liquid_galaxy_controller/utils/poi_controller.dart';
-import 'package:super_liquid_galaxy_controller/utils/speech_controller.dart';
-import 'package:super_liquid_galaxy_controller/utils/tour_controller.dart';
+import 'package:super_liquid_galaxy_controller/controllers/api_manager.dart';
+import 'package:super_liquid_galaxy_controller/controllers/lg_connection.dart';
+import 'package:super_liquid_galaxy_controller/controllers/map_movement_controller.dart';
+import 'package:super_liquid_galaxy_controller/controllers/poi_controller.dart';
+import 'package:super_liquid_galaxy_controller/controllers/speech_controller.dart';
+import 'package:super_liquid_galaxy_controller/controllers/tour_controller.dart';
 import 'package:super_liquid_galaxy_controller/utils/wikidatafetcher.dart';
 
 AndroidMapRenderer mapRenderer = AndroidMapRenderer.platformDefault;

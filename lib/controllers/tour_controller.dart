@@ -9,15 +9,15 @@ import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_details_response.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_info.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_response.dart';
-import 'package:super_liquid_galaxy_controller/utils/api_manager.dart';
+import 'package:super_liquid_galaxy_controller/controllers/api_manager.dart';
 import 'package:super_liquid_galaxy_controller/utils/geo_utils.dart';
-import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
+import 'package:super_liquid_galaxy_controller/controllers/lg_connection.dart';
 import 'package:super_liquid_galaxy_controller/utils/wikidatafetcher.dart';
 
 import '../data_class/coordinate.dart';
 import '../data_class/kml_element.dart';
 import '../screens/test.dart';
-import 'kmlgenerator.dart';
+import '../utils/kmlgenerator.dart';
 
 class TourController extends getx.GetxController {
   late ApiManager apiClient;
@@ -26,6 +26,8 @@ class TourController extends getx.GetxController {
   PlaceDetailsResponse? boundaryPlace;
   var label = ''.obs;
   PlaceResponse? places;
+  String kml = "";
+  MapPosition? lookAtPosition;
   List<PlaceInfo> masterList = <PlaceInfo>[];
   getx.RxList<PlaceInfo> placeList = <PlaceInfo>[].obs;
   final isLoading = false.obs;
@@ -114,12 +116,13 @@ class TourController extends getx.GetxController {
         if (boundaryPlace != null) {
           kmlResponse = KMLGenerator.generateKml('69', kmlResponse);
         }
-
+        kml = kmlResponse;
         //getx.Get.to(()=>TestScreen(kml: kmlResponse));
         await runKml(kmlResponse);
         if (context != null) {
           var position = MapPosition.fromCameraPosition(
               GeoUtils.getBoundsZoomLevel(coords, getScreenSize(context!)));
+          lookAtPosition = position;
           await connectionClient.moveTo(position);
         }
         adjustPlaceMarks();
@@ -152,6 +155,11 @@ class TourController extends getx.GetxController {
     const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz_';
     return List.generate(len, (index) => _chars[r.nextInt(_chars.length)])
         .join();
+  }
+
+  Future<void> zoomToLocation(MapPosition position) async {
+    print("Location state level");
+    await connectionClient.moveTo(position);
   }
 
   void adjustPlaceMarks() {

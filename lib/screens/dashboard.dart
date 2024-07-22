@@ -7,8 +7,8 @@ import 'package:super_liquid_galaxy_controller/components/navisland.dart';
 import 'package:super_liquid_galaxy_controller/components/planet_selector.dart';
 import 'package:super_liquid_galaxy_controller/generated/assets.dart';
 import 'package:super_liquid_galaxy_controller/screens/settings.dart';
-import 'package:super_liquid_galaxy_controller/utils/api_manager.dart';
-import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
+import 'package:super_liquid_galaxy_controller/controllers/api_manager.dart';
+import 'package:super_liquid_galaxy_controller/controllers/lg_connection.dart';
 import 'package:lottie/lottie.dart';
 
 import '../components/connection_flag.dart';

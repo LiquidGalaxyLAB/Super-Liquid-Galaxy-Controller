@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:super_liquid_galaxy_controller/components/galaxy_button.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
-import 'package:super_liquid_galaxy_controller/utils/lg_connection.dart';
+import 'package:super_liquid_galaxy_controller/controllers/lg_connection.dart';
 import 'package:get/get.dart';
 //ignore_for_file: prefer_const_constructors
 //ignore_for_file: prefer_const_literals
