@@ -7,6 +7,8 @@ class PlaceInfo {
   String category;
   String name;
 
+  String? state;
+  String? country;
   String? imageLink;
   String? description;
   String? wikiMediaTag;
@@ -20,7 +22,9 @@ class PlaceInfo {
     required this.category,
     required this.name,
     this.description,
-    this.imageLink
+    this.imageLink,
+    this.state,
+    this.country
   });
   @override
   String toString() {

@@ -30,6 +30,7 @@ class Assets {
   static const String iconsTest = 'assets/icons/test.jpeg';
   static const String iconsTravel = 'assets/icons/travel.png';
   static const String iconsVoices = 'assets/icons/voices.png';
+  static const String lottieAddplaces = 'assets/lottie/addplaces.lottie';
   static const String lottieConnected = 'assets/lottie/connected.lottie';
   static const String lottieConnectionfailed = 'assets/lottie/connectionfailed.lottie';
   static const String lottieFailedconnection = 'assets/lottie/failedconnection.lottie';
@@ -38,6 +39,7 @@ class Assets {
   static const String lottieLoadingPlaces = 'assets/lottie/loading_places.lottie';
   static const String lottieLoadingspinner = 'assets/lottie/loadingspinner.lottie';
   static const String lottieOrbit = 'assets/lottie/orbit.lottie';
+  static const String lottieOrbitBlack = 'assets/lottie/orbit_black.lottie';
   static const String lottieVoice = 'assets/lottie/voice.lottie';
   static const String placeIconsArchaeology = 'assets/place_icons/archaeology.png';
   static const String placeIconsCastle = 'assets/place_icons/castle.png';

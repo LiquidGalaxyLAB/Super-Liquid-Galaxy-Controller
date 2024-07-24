@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class CustomDialog extends StatelessWidget {
-  final Text content;
-  final Text title;
+  final Widget content;
+  final Widget title;
   final Color firstColor;
   final Color secondColor;
   final Widget headerIcon;

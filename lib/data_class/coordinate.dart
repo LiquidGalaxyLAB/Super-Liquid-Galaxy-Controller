@@ -14,6 +14,11 @@ class Coordinates {
     longitude = point.longitude;
   }
 
+  LatLng toLatLng(Coordinates point)
+  {
+    return LatLng(point.latitude, point.longitude);
+  }
+
   Coordinates.fromLatLngMap(mp.LatLng point) {
     latitude = point.latitude;
     longitude = point.longitude;

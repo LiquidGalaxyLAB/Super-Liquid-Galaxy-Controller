@@ -2,14 +2,15 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:super_liquid_galaxy_controller/components/custom_dialog.dart';
+import 'package:lottie/lottie.dart';
+import 'package:super_liquid_galaxy_controller/components/galaxytextfield.dart';
 import 'package:super_liquid_galaxy_controller/components/navisland.dart';
 import 'package:super_liquid_galaxy_controller/components/planet_selector.dart';
-import 'package:super_liquid_galaxy_controller/generated/assets.dart';
-import 'package:super_liquid_galaxy_controller/screens/settings.dart';
 import 'package:super_liquid_galaxy_controller/controllers/api_manager.dart';
 import 'package:super_liquid_galaxy_controller/controllers/lg_connection.dart';
-import 'package:lottie/lottie.dart';
+import 'package:super_liquid_galaxy_controller/generated/assets.dart';
+import 'package:super_liquid_galaxy_controller/screens/settings.dart';
+import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 
 import '../components/connection_flag.dart';
 import '../components/glassbox.dart';
@@ -30,28 +31,24 @@ class _DashBoardState extends State<DashBoard> {
   late LGConnection connectionClient;
   late ApiManager apiClient;
 
+  TextEditingController keyController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     log("ui", "dashboard-built");
     initializeLGClient();
     initializeApiClient();
-
   }
 
   @override
   Widget build(BuildContext context) {
-    screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
-    screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
+    screenHeight = MediaQuery.of(context).size.height;
+    screenWidth = MediaQuery.of(context).size.width;
 
     return SafeArea(
         child: Scaffold(
+            resizeToAvoidBottomInset: false,
             body: Container(
               height: double.infinity,
               width: double.infinity,
@@ -78,8 +75,7 @@ class _DashBoardState extends State<DashBoard> {
                         mainAxisSize: MainAxisSize.max,
                         children: [
                           Padding(
-                            padding:
-                            EdgeInsets.symmetric(
+                            padding: EdgeInsets.symmetric(
                                 vertical: 12.0, horizontal: 20.0),
                             child: Row(
                               children: [
@@ -93,30 +89,158 @@ class _DashBoardState extends State<DashBoard> {
                                   height: screenHeight * 0.1,
                                   child: FittedBox(
                                     fit: BoxFit.contain,
-                                    child: Text("SUPER LIQUID GALAXY CONTROLLER",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 30.0),),
-
+                                    child: Text(
+                                      "SUPER LIQUID GALAXY CONTROLLER",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 30.0),
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          Padding(
-                            padding:
-                            EdgeInsets.symmetric(
-                                vertical: 12.0, horizontal: 20.0),
-                            child: GlassBox(
-                              height: screenHeight * 0.1,
-                              width: screenHeight * 0.1,
-                              child: Icon(
-                                Icons.settings,
-                                size: screenHeight*0.07,
-                                color: Colors.white,
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 20.0),
+                                child: GlassBox(
+                                  height: screenHeight * 0.1,
+                                  width: screenHeight * 0.3,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(7.0),
+                                    child: FittedBox(
+                                      fit: BoxFit.contain,
+                                      child: Obx(() {
+                                        return Container(
+                                          height: screenHeight * 0.1,
+                                          width: screenHeight * 0.3,
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Expanded(
+                                                flex: 3,
+                                                child: FittedBox(
+                                                  fit: BoxFit.contain,
+                                                  child: Icon(
+                                                    Icons
+                                                        .cleaning_services_sharp,
+                                                    size: screenHeight * 0.07,
+                                                    color: connectionClient
+                                                            .isConnected.value
+                                                        ? GalaxyColors.blue
+                                                        : Colors.red,
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 12.0,
+                                              ),
+                                              Expanded(
+                                                flex: 10,
+                                                child: FittedBox(
+                                                  fit: BoxFit.contain,
+                                                  child: Text(
+                                                    "CLEAR KML",
+                                                    style: TextStyle(
+                                                        color: connectionClient
+                                                                .isConnected
+                                                                .value
+                                                            ? GalaxyColors.blue
+                                                            : Colors.red,
+                                                        fontSize:
+                                                            screenHeight * 0.07,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        );
+                                      }),
+                                    ),
+                                  ),
+                                  onTap: () async {
+                                    /*log("gesture", "settings tapped");
+                                    await Get.to(() => Settings());*/
+
+                                    if (!connectionClient.isConnected.value) {
+                                      retryConnectionOrShowError();
+                                      return;
+                                    }
+                                    showAlertMessage(
+                                        "Warning!",
+                                        "This will clear all KMLs on the LG rig",
+                                        connectionClient.clearKml);
+                                  },
+                                ),
                               ),
-                              onTap: () async {
-                                log("gesture", "settings tapped");
-                                await Get.to(() => Settings());
-                              },
-                            ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 20.0),
+                                child: GlassBox(
+                                  height: screenHeight * 0.1,
+                                  width: screenHeight * 0.1,
+                                  child: Icon(
+                                    Icons.settings,
+                                    size: screenHeight * 0.07,
+                                    color: Colors.white,
+                                  ),
+                                  onTap: () async {
+                                    log("gesture", "settings tapped");
+                                    var out = await checkCredentials();
+                                    if (!out.isPassWordGuarded) {
+                                      await Get.to(() => Settings());
+                                    } else {
+                                      keyController.clear();
+                                      String result = await Get.defaultDialog(
+                                          title: "ENTER PASSWORD USED",
+                                          content: Container(
+                                              width: screenWidth * 0.5,
+                                              child: GalaxyTextField(
+                                                hintText: "",
+                                                labelText: "Password",
+                                                controller: keyController,
+                                                iconData:
+                                                    Icons.password_rounded,
+                                                textInputType:
+                                                    TextInputType.text,
+                                                isPassword: true,
+                                                labelColor: Colors.grey,
+                                              ),
+                                          ),
+                                        buttonColor: Colors.white,
+                                        textConfirm: "ENTER",
+                                        confirmTextColor: Colors.green,
+                                        textCancel: "CANCEL",
+                                        cancelTextColor: Colors.red,
+                                        onConfirm: (){
+                                            Get.back(result: keyController.text);
+                                        },
+                                        onCancel: (){
+                                            Get.back(result: '');
+                                        }
+                                      );
+
+                                      if(result.compareTo(out.password)==0)
+                                        {
+                                          await Get.to(() => Settings());
+                                        }
+                                      else
+                                        {
+                                          if(!(result.compareTo('')==0)) {
+                                            showErrorSnackBar();
+                                          }
+                                        }
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
                           )
                         ],
                       ),
@@ -133,15 +257,15 @@ class _DashBoardState extends State<DashBoard> {
                                 children: [
                                   Obx(() {
                                     return ConnectionFlag(
-                                      status: connectionClient.isConnected.value,
-                                      backgroundColor: Colors.white.withOpacity(
-                                          0.0),
+                                      status:
+                                          connectionClient.isConnected.value,
+                                      backgroundColor:
+                                          Colors.white.withOpacity(0.0),
                                       selectedText: 'LG CONNECTED',
                                       unSelectedText: 'LG NOT CONNECTED',
                                       fontSize: 15.0,
                                     );
-                                  }
-                                  ),
+                                  }),
                                 ],
                               )),
                           SizedBox(width: 20),
@@ -154,14 +278,13 @@ class _DashBoardState extends State<DashBoard> {
                                   Obx(() {
                                     return ConnectionFlag(
                                       status: apiClient.isConnected.value,
-                                      backgroundColor: Colors.white.withOpacity(
-                                          0.0),
+                                      backgroundColor:
+                                          Colors.white.withOpacity(0.0),
                                       selectedText: 'API CONNECTED',
                                       unSelectedText: 'API NOT CONNECTED',
                                       fontSize: 15.0,
                                     );
-                                  }
-                                  ),
+                                  }),
                                 ],
                               )),
                         ],
@@ -172,11 +295,18 @@ class _DashBoardState extends State<DashBoard> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: screenHeight*0.15, vertical: screenHeight*0.1),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenHeight * 0.15,
+                            vertical: screenHeight * 0.1),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [PlanetSelector(height: screenHeight*0.2,width: screenWidth*0.4,)],
+                          children: [
+                            PlanetSelector(
+                              height: screenHeight * 0.2,
+                              width: screenWidth * 0.4,
+                            )
+                          ],
                         ),
                       ),
                     ],
@@ -189,10 +319,8 @@ class _DashBoardState extends State<DashBoard> {
                       Padding(
                         padding: const EdgeInsets.all(25.0),
                         child: NavIsland(
-
                             height: screenHeight * 0.6,
-                            width: screenWidth * 0.3
-                          ),
+                            width: screenWidth * 0.3),
                       )
                     ],
                   )
@@ -209,6 +337,7 @@ class _DashBoardState extends State<DashBoard> {
     connectionClient = Get.find();
     await connectionClient.connectToLG();
   }
+
   void initializeApiClient() async {
     apiClient = Get.find();
     await apiClient.testApiKey();
@@ -217,7 +346,6 @@ class _DashBoardState extends State<DashBoard> {
   void _reload() {
     setState(() {});
   }
-
 
   //test
 
@@ -248,11 +376,76 @@ class _DashBoardState extends State<DashBoard> {
   Future<LottieComposition?> customDecoder(List<int> bytes) {
     return LottieComposition.decodeZip(bytes, filePicker: (files) {
       return files.firstWhere(
-            (f) => f.name.startsWith('animations/') && f.name.endsWith('.json'),
+        (f) => f.name.startsWith('animations/') && f.name.endsWith('.json'),
       );
     });
   }
 
+  showAlertMessage(String title, String content, Function action) {
+    Get.dialog(
+      AlertDialog(
+        title: Text(
+          title,
+          style: TextStyle(color: Colors.red),
+        ),
+        content: Text(content),
+        actions: [
+          TextButton(
+            child: const Text(
+              "CANCEL",
+              style: TextStyle(color: Colors.black),
+            ),
+            onPressed: () => Get.back(),
+          ),
+          TextButton(
+            child: const Text(
+              "CONTINUE",
+              style: TextStyle(color: Colors.red),
+            ),
+            onPressed: () async {
+              await action();
+              Get.back();
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
+  void retryConnectionOrShowError() {
+    //await connectionClient.reConnectToLG();
+    if (!connectionClient.connectStatus()) {
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(GetSnackBar(
+          backgroundColor: Colors.red.shade300,
+          title: "Connection Error",
+          message: "Unable to connect to Liquid Galaxy rig",
+          isDismissible: true,
+          duration: 3.seconds,
+        ));
+      }
+    }
+  }
 
+  Future<({bool isPassWordGuarded, String password})> checkCredentials() async {
+    var detailsMap = await connectionClient.getStoredDetails();
+    if (detailsMap["username"].toString().compareTo('') == 0 &&
+        detailsMap["pass"].toString().compareTo('') == 0) {
+      return (isPassWordGuarded: false, password: '');
+    } else {
+      return (isPassWordGuarded: true, password: detailsMap["pass"].toString());
+    }
+  }
+
+  void showErrorSnackBar() {
+    if (!Get.isSnackbarOpen) {
+      Get.showSnackbar(GetSnackBar(
+        backgroundColor: Colors.red.shade300,
+        title: "INCORRECT PASSWORD",
+        message: "Use the password that was used for the Liquid Galaxy rig.",
+        isDismissible: true,
+        duration: 5.seconds,
+      ));
+    }
+  }
 }

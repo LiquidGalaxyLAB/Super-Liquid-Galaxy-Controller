@@ -3,6 +3,7 @@ import 'dart:math';
 import '../generated/assets.dart';
 class Constants {
   static double appBarHeight = 80;
+  static int zoomInDuration = 15;
   static double tabBarWidthDivider = 5;
   static double splashAspectRatio = 2864 / 3000;
   static double lgZoomScale = 130000000.0;
@@ -82,3 +83,4 @@ extension RigCalculator on num {
   double get rightMostRig => (this ~/ 2 +1);
   double get leftMostRig => (this ~/ 2 +2);
 }
+

@@ -208,6 +208,22 @@ class KMLGenerator {
     ''';
   }
 
+  static String getTourPOIKML(PlaceInfo mainPoi)
+  {
+    String kml = '';
+    kml += '''<Placemark>
+  <styleUrl>#main</styleUrl>
+  <name>${mainPoi.name}</name>
+  <description>
+  ${mainPoi.description?.substring(0,Math.min(mainPoi.description!.length-1, 150))}
+  </description>
+  <Point>
+  <coordinates>${mainPoi.coordinate.longitude},${mainPoi.coordinate.latitude}</coordinates>
+  </Point>
+  </Placemark>''';
+    return kml;
+  }
+
   static String getPOIKML(PlaceInfo mainPoi, List<PlaceInfo> nearbyPois)
   {
     String kml = '';
@@ -289,6 +305,18 @@ class KMLGenerator {
         <color>ffffffff</color>
       </PolyStyle>
     </Style>
+    <Style id="road">
+		<LineStyle>
+			<color>ff474747</color>
+			<width>20</width>
+		</LineStyle>
+	</Style>
+	<Style id="roaddash">
+		<LineStyle>
+			<color>ff00ffff</color>
+			<width>3</width>
+		</LineStyle>
+	</Style>
     <Style id="main">
     <IconStyle>
              <color>ff00ff00</color>
@@ -452,6 +480,8 @@ class KMLGenerator {
     return kml;
   }
 
+  //MAIN FOOTPRINT FUNCTION BELOW
+
   static String generatefootPrintLine(
       LatLng start, LatLng end, double dashLength, double gapLength) {
     final Distance distance = Distance();
@@ -460,7 +490,7 @@ class KMLGenerator {
     int numSegments = (totalDistance / segmentLength).floor();
     //numSegments = 1;
     List<String> kmlSegments = [];
-    print(distance.bearing(end,start));
+    //print(distance.bearing(end,start));
     for (int i = 0; i < numSegments; i++) {
       // Calculate the start point of the dash
       var angle = distance.bearing(end,start);
@@ -481,7 +511,7 @@ class KMLGenerator {
 
         // Calculate the end point of the dash
       LatLng footTop =
-          distance.offset(footBottom, 5000, angle);
+          distance.offset(footBottom, dashLength/2, angle);
 
 
 
@@ -510,7 +540,7 @@ class KMLGenerator {
 
       // Calculate the end point of the dash
       footTop =
-      distance.offset(footBottom, 5000, angle);
+      distance.offset(footBottom, dashLength/2, angle);
 
 
 
@@ -525,7 +555,7 @@ class KMLGenerator {
     kml += kmlSegments.join();
     //kml += '</Folder>';
 
-    return generateKml('69', kml);
+    return kml;
   }
 
   static double transformAngle(double angle) {
@@ -633,7 +663,51 @@ class KMLGenerator {
     kml += kmlSegments.join();
     //kml += '</Folder>';
 
-    return generateKml('69', kml);
+    return kml;
+  }
+
+  static String generateRoadTrack(LatLng start, LatLng end, double dashLength, double gapLength)
+  {
+    String kml = '';
+    final Distance distance = Distance(calculator: Haversine());
+    final double totalDistance = distance(start, end);
+    final double segmentLength = dashLength + gapLength;
+    final int numSegments = (totalDistance / segmentLength).floor();
+    kml+= '''
+    <Placemark>
+    <styleUrl>#road</styleUrl>
+      <LineString>
+      <tessellate>1</tessellate>
+        <coordinates>
+          ${start.longitude},${start.latitude},100
+          ${end.longitude},${end.latitude},100
+        </coordinates>
+      </LineString>
+    </Placemark>
+    ''';
+
+    for (int i = 0; i < numSegments; i++) {
+      LatLng dashStart = distance.offset(
+          start, i * segmentLength, distance.bearing(start, end));
+      LatLng dashEnd =
+      distance.offset(dashStart, dashLength, distance.bearing(start, end));
+
+      kml+= '''
+    <Placemark>
+    <styleUrl>#roaddash</styleUrl>
+      <LineString>
+      <tessellate>1</tessellate>
+        <coordinates>
+          ${dashStart.longitude},${dashStart.latitude},100
+          ${dashEnd.longitude},${dashEnd.latitude},100
+        </coordinates>
+      </LineString>
+    </Placemark>
+    ''';
+    }
+
+    return kml;
+
   }
 
   static double smoothCurve(double x) {
@@ -684,7 +758,7 @@ class KMLGenerator {
     kml += kmlSegments.join();
     //kml += '</Folder>';
 
-    return generateKml('69', kml);
+    return kml;
   }
 
   static generateFootprints(
@@ -899,5 +973,50 @@ class KMLGenerator {
 
   static String lookAtLinearInstant(MapPosition position) =>
       '<gx:duration>0.5</gx:duration><gx:flyToMode>smooth</gx:flyToMode><LookAt><longitude>${position.longitude}</longitude><latitude>${position.latitude}</latitude><range>${position.zoom}</range><tilt>${position.tilt}</tilt><heading>${position.bearing}</heading><gx:altitudeMode>relativeToGround</gx:altitudeMode></LookAt>';
+
+  static String addTourPaths(PlaceInfo place1, PlaceInfo place2) {
+    String kml ='';
+    final distance = Distance();
+    final length = distance.distance(place1.coordinate.toLatLng(place1.coordinate), place2.coordinate.toLatLng(place2.coordinate));
+    print("${place1.name} - ${place2.name} : ${length}");
+    if(length < 10000)
+    {
+      kml += generatefootPrintLine(
+          place2.coordinate.toLatLng(place2.coordinate),
+          place1.coordinate.toLatLng(place1.coordinate), length/10, length/20);
+      return kml;
+    }
+    if(length > 2000000)
+      {
+        kml+= generateAirplaneTrack(place1.coordinate.toLatLng(place1.coordinate),
+            place2.coordinate.toLatLng(place2.coordinate), 10000, 5000);
+        return kml;
+      }
+
+    if(place1.state != null && place2.state != null)
+      {
+
+
+        if(place1.state!.compareTo(place2.state!)==0) {
+          kml += generatefootPrintLine(
+              place2.coordinate.toLatLng(place2.coordinate),
+              place1.coordinate.toLatLng(place1.coordinate), 5000, 2500);
+          return kml;
+        }
+      }
+    if(place1.country != null && place2.country != null)
+      {
+        if(place1.country!.compareTo(place2.country!)==0)
+          {
+            kml += generateRoadTrack(place1.coordinate.toLatLng(place1.coordinate),
+                place2.coordinate.toLatLng(place2.coordinate), 10000, 5000);
+            return kml;
+          }
+      }
+
+    kml+= generateAirplaneTrack(place1.coordinate.toLatLng(place1.coordinate),
+        place2.coordinate.toLatLng(place2.coordinate), 10000, 5000);
+    return kml;
+  }
 
 }
