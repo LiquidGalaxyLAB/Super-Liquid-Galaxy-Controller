@@ -382,6 +382,30 @@ class GeoUtils {
     ];
   }
 
+  static int getScore(Coordinates targetCoords, Coordinates submittedCoords) {
+    const distanceCalculator = ll.Distance();
+
+    final distance = distanceCalculator.as(ll.LengthUnit.Kilometer, targetCoords.toLatLng(targetCoords), submittedCoords.toLatLng(submittedCoords));
+    print(distance);
+    const scale = 3755;
+    if(distance > scale) {
+      return 0;
+    }
+    double fraction = ((scale-distance)/scale);
+    print("fraction $fraction");
+
+    return (fraction*500).floor();
+  }
+
+  static int getDistance(Coordinates targetCoords, Coordinates submittedCoords)
+  {
+    const distanceCalculator = ll.Distance();
+
+    final distance = distanceCalculator.as(ll.LengthUnit.Kilometer, targetCoords.toLatLng(targetCoords), submittedCoords.toLatLng(submittedCoords));
+
+    return distance.toInt();
+  }
+
 
 }
 

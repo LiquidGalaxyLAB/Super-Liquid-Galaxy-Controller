@@ -231,7 +231,7 @@ class KMLGenerator {
   <styleUrl>#main</styleUrl>
   <name>${mainPoi.name}</name>
   <description>
-  ${mainPoi.description?.substring(0,150)}
+  ${mainPoi.description?.substring(0,min(150,mainPoi.description!.length-1))}
   </description>
   <Point>
   <coordinates>${mainPoi.coordinate.longitude},${mainPoi.coordinate.latitude}</coordinates>
@@ -379,14 +379,14 @@ class KMLGenerator {
       <styleUrl>#ps</styleUrl>
         <Polygon>
         <extrude>2</extrude>
-        <altitudeMode>relativeToGround</altitudeMode>
+        <tessellate>1</tessellate>
           <outerBoundaryIs>
             <LinearRing>
               <coordinates>
   ''';
 
     for (LatLng point in footprintPoints) {
-      kml += '${point.longitude},${point.latitude},100 ';
+      kml += '${point.longitude},${point.latitude},0 ';
     }
 
     kml += '''
@@ -459,14 +459,14 @@ class KMLGenerator {
       <styleUrl>#ps</styleUrl>
         <Polygon>
         <extrude>2</extrude>
-        <altitudeMode>relativeToGround</altitudeMode>
+        <tessellate>1</tessellate>
           <outerBoundaryIs>
             <LinearRing>
               <coordinates>
   ''';
 
     for (LatLng point in footprintPoints) {
-      kml += '${point.longitude},${point.latitude},100 ';
+      kml += '${point.longitude},${point.latitude},0 ';
     }
 
     kml += '''

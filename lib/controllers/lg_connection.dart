@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:super_liquid_galaxy_controller/screens/test.dart';
+
 import '../utils/balloongenerator.dart';
 import '../utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -103,7 +105,9 @@ class LGConnection extends GetxController {
       });
       print("IP: $_host , port: $_port");
       isConnected.value =true;
+      await showLogos();
       return true;
+
     } on SocketException catch (e) {
       print('Failed to connect: $e');
       isConnected.value=false;
@@ -176,12 +180,15 @@ class LGConnection extends GetxController {
       print("Refresh error");
     }
   }
+
+
   Future<void> renderInSlave(int slaveNo, String kml) async {
     try {
+      print("render:$kml");
       if(_client==null) {
         return;
       }
-      await _client!.run("echo '$kml' > /var/www/html/kml/slave_$slaveNo.kml");
+      await _client!.run("echo '${kml.trim()}' > /var/www/html/kml/slave_$slaveNo.kml");
       print("balloon sent");
       await setRefresh();
       print("refresh sent");
@@ -220,6 +227,7 @@ class LGConnection extends GetxController {
           return;
         await _client!.execute(
             'sshpass -p $_passwordOrKey ssh -t lg$i "echo $_passwordOrKey | sudo -S poweroff"');
+
       } catch (e) {
         // ignore: avoid_print
         print(e);
@@ -308,6 +316,7 @@ fi
   }
 
   Future<bool> cleanBalloon() async {
+    print("Cleaning balloons");
     try {
       if(_client==null)
       {
@@ -321,7 +330,7 @@ fi
           "echo '${BalloonGenerator.blankBalloon()}' > /var/www/html/kml/slave_${int.parse(_numberOfRigs).rightMostRig}.kml");
       return true;
     } catch (error) {
-      print(error);
+      print("clean error : $error");
       return false;
     }
   }
@@ -343,7 +352,37 @@ fi
       return false;
     }
   }
+  Future<bool> changePlanet(int index) async {
+    String command = '';
+    switch (index) {
+      case 0:
+            command = "echo 'planet=earth' > /tmp/query.txt";
+        break;
+      case 1:
 
+            command = "echo 'planet=moon' > /tmp/query.txt";
+
+        break;
+      case 2:
+            command = "echo 'planet=mars' > /tmp/query.txt";
+        break;
+    }
+    try {
+      if(_client==null)
+      {
+        await reConnectToLG();
+        if(isConnected.value==false) {
+          return false;
+        }
+      }
+
+      await _client?.run(command);
+      return true;
+    } catch (error) {
+      print(error);
+      return false;
+    }
+  }
 
   Future<bool> moveTo(MapPosition position) async {
     print(position);
@@ -372,6 +411,17 @@ fi
         return;
       }
       await _client?.run('echo "playtour=Orbit" > /tmp/query.txt');
+    } catch (error) {
+      print("failed: ${error.toString()}");
+    }
+  }
+  showLogos() async {
+    Get.to(()=>TestScreen(kml: BalloonGenerator.screenOverlayImage(Constants.logosUrl, Constants.splashAspectRatio)));
+    try {
+      if(_client==null) {
+        return;
+      }
+      await _client?.run("echo '${BalloonGenerator.screenOverlayImage(Constants.logosUrl, Constants.splashAspectRatio)}' > /var/www/html/kml/slave_${int.parse(_numberOfRigs).leftMostRig}.kml");
     } catch (error) {
       print("failed: ${error.toString()}");
     }

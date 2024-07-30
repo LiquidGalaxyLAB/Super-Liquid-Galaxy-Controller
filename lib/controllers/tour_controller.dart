@@ -10,6 +10,7 @@ import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_details_response.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_info.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_response.dart';
+import 'package:super_liquid_galaxy_controller/utils/balloongenerator.dart';
 import 'package:super_liquid_galaxy_controller/utils/constants.dart';
 import 'package:super_liquid_galaxy_controller/utils/geo_utils.dart';
 
@@ -24,6 +25,8 @@ class TourController extends getx.GetxController {
   var label = ''.obs;
   PlaceResponse? places;
   String kml = "";
+  String tourKml = "";
+  String tourBalloon = "";
   MapPosition? lookAtPosition;
   List<PlaceInfo> masterList = <PlaceInfo>[];
   getx.RxList<PlaceInfo> placeList = <PlaceInfo>[].obs;
@@ -118,6 +121,7 @@ class TourController extends getx.GetxController {
       }
       placeList.addAll(listPlaces);
       masterList.addAll(listPlaces);
+      adjustPlaceMarks();
       kmlResponse += output.kml;
       if (kmlResponse.compareTo('') == 0) {
         return;
@@ -137,19 +141,34 @@ class TourController extends getx.GetxController {
         }
         kml = kmlResponse;
         //getx.Get.to(()=>TestScreen(kml: kmlResponse));
-        await runKml(kmlResponse);
+        //await runKml(kmlResponse);
         if (context != null) {
           var position = MapPosition.fromCameraPosition(
               GeoUtils.getBoundsZoomLevel(coords, getScreenSize(context!)));
           lookAtPosition = position;
-          await connectionClient.moveTo(position);
+          //await connectionClient.moveTo(position);
+        }
+
+        //tourBalloon = BalloonGenerator.listBalloon(placeList, connectionClient.rigCount().rightMostRig.toInt());
+        if(lookAtPosition!=null && connectionClient.isConnected.value) {
+          tourBalloon = BalloonGenerator.listBalloonForTours(placeList, connectionClient.rigCount().rightMostRig.toInt(),lookAtPosition!);
+        }
+        else{
+          tourBalloon = BalloonGenerator.listBalloonForTours(placeList, 3,lookAtPosition!);
         }
         adjustPlaceMarks();
       }
-    } catch (e) {
+    }on FormatException {
+      rethrow;
+    }
+    catch (e) {
+      print("error here: ${e}");
       isLoading.value = false;
       isError.value = true;
     }
+
+      await setTourKMLs();
+
   }
 
   Future<void> runKml(String kmlResponse) async {
@@ -223,6 +242,7 @@ class TourController extends getx.GetxController {
     isTouring.value = !isTouring.value;
     if (isTouring.value) {
       String kml = createTourKml();
+      tourKml = kml;
       await runKml(kml);
       await runTour(tourList.value);
     } else {
@@ -246,6 +266,37 @@ class TourController extends getx.GetxController {
     return KMLGenerator.generateKml('69', kml);
   }
 
+  Future<void> setTourKMLs() async {
+    print("Tour p1");
+    if (lookAtPosition != null) {
+      await zoomToLocation(lookAtPosition!);
+      if(tourBalloon == "" && connectionClient.isConnected.value)
+        {
+          tourBalloon = BalloonGenerator.listBalloonForTours(placeList, connectionClient.rigCount().rightMostRig.toInt(),MapPosition(latitude: placeList.first.coordinate.latitude, longitude: placeList.first.coordinate.longitude, bearing: 0.0, tilt: 45, zoom: 5));
+        }
+    }
+    print("Tour p2");
+    try {
+      await connectionClient.cleanBalloon();
+      int rigCount = 0;
+      try{
+        rigCount=connectionClient.rigCount().rightMostRig.toInt();
+      }catch(e)
+    {
+      rigCount=3;
+    }
+    print("Tour p3");
+      await connectionClient.renderInSlave(rigCount, tourBalloon);
+    }
+    catch(e)
+    {
+      print("$e");
+    }
+    await runKml(kml);
+
+
+  }
+
   Future<void> zoomToPoi(PlaceInfo place) async {
     //print("loc");
     MapPosition position = MapPosition.fromCameraPosition(
@@ -253,15 +304,16 @@ class TourController extends getx.GetxController {
             [place.coordinate.toLatLngMap(place.coordinate)],
             getx.Get.context!.size!));
     await connectionClient.flyToInstantWithoutSaving(position);
-    await connectionClient.cleanBalloon();
+    //await connectionClient.cleanBalloon();
     print("location req done");
     print(position);
   }
 
   runTour(List<PlaceInfo> listPoi) async {
-    List<LatLng> coordsList = [];
+    List<LatLng> cc = [];
     for (final place in listPoi) {
-      coordsList.add(place.coordinate.toLatLngMap(place.coordinate));
+      print("now running ${place.name}");
+      cc.add(place.coordinate.toLatLngMap(place.coordinate));
       if (!isTouring.value) {
         return;
       }
@@ -275,14 +327,9 @@ class TourController extends getx.GetxController {
               [place.coordinate.toLatLngMap(place.coordinate)],
               getx.Get.context!.size!));
       await Future.delayed(Duration(seconds: Constants.zoomInDuration));
-      await startOrbit(position);
+      await startOrbit(position, place);
 
-      MapPosition zoomPosition = MapPosition.fromCameraPosition(
-          GeoUtils.getBoundsZoomLevel(
-              coordsList,
-              getx.Get.context!.size!));
-      await connectionClient.flyToInstantWithoutSaving(zoomPosition);
-      isTouring.value = false;
+      //await runKml(tourKml);
       // for (int i = 0; i <= 4; i++) {
       //   print("orbit$i");
       //   await startOrbit(position);
@@ -291,14 +338,19 @@ class TourController extends getx.GetxController {
       //   }
       //}
     }
-
-
+    print("pois done");
+    MapPosition zoomPosition = MapPosition.fromCameraPosition(
+        GeoUtils.getBoundsZoomLevel(cc, getx.Get.context!.size!));
+    await connectionClient.flyToInstantWithoutSaving(zoomPosition);
+    isTouring.value = false;
 
     //await runTour(listPoi);
   }
 
-  Future<void> startOrbit(MapPosition position) async {
+  Future<void> startOrbit(MapPosition position, PlaceInfo place) async {
     position.tilt = 60.0;
+    String placeKml = KMLGenerator.getTourPOIKML(place);
+    await runKml(KMLGenerator.generateKml('69', placeKml));
     for (int i = 0; i <= 360; i += 17) {
       if (!isTouring.value) {
         return;
@@ -313,7 +365,7 @@ class TourController extends getx.GetxController {
           zoom: position.zoom));
       await Future.delayed(const Duration(milliseconds: 1000));
     }
-
+    await runKml(tourKml);
     return;
     //startOrbit(position);
   }

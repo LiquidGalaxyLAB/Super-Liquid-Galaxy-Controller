@@ -19,6 +19,7 @@ class _TestScreenState extends State<TestScreen> {
   void initState() {
     //controller.text = widget.kml;
     super.initState();
+    print(widget.kml);
     //speechController = Get.find();
     controller.text = widget.kml;
   }

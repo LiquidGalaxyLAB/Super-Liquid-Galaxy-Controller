@@ -10,16 +10,16 @@ import 'package:super_liquid_galaxy_controller/controllers/poi_controller.dart';
 import '../generated/assets.dart';
 import '../utils/constants.dart';
 
-class PlaceView extends StatefulWidget {
-  PlaceView({super.key, required this.place});
+class PlaceViewPoi extends StatefulWidget {
+  PlaceViewPoi({super.key, required this.place});
 
   PlaceInfo place;
 
   @override
-  State<PlaceView> createState() => _PlaceViewState();
+  State<PlaceViewPoi> createState() => _PlaceViewPoiState();
 }
 
-class _PlaceViewState extends State<PlaceView> with TickerProviderStateMixin {
+class _PlaceViewPoiState extends State<PlaceViewPoi> with TickerProviderStateMixin {
   late double screenHeight;
   late double screenWidth;
   late PoiController poiController;
@@ -323,7 +323,7 @@ class _PlaceViewState extends State<PlaceView> with TickerProviderStateMixin {
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       Expanded(
-                        flex: 7,
+                        flex: 12,
                         child: Container(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
@@ -420,7 +420,6 @@ class _PlaceViewState extends State<PlaceView> with TickerProviderStateMixin {
                                                                                 ),
                                                                               )))),
                                                                   Expanded(
-
                                                                       flex: 6,
                                                                       child: Container(
                                                                           child: FittedBox(
@@ -485,7 +484,6 @@ class _PlaceViewState extends State<PlaceView> with TickerProviderStateMixin {
                                 Expanded(
                                   child: MaterialButton(
                                     onPressed: () {
-
                                       poiController.orbitButtonPressed();
                                     },
                                     color:
@@ -611,7 +609,7 @@ class _PlaceViewState extends State<PlaceView> with TickerProviderStateMixin {
                                     ),
                                   ),
                                 ),
-                                SizedBox(
+                                /*SizedBox(
                                   height: 12.0,
                                 ),
                                 Expanded(
@@ -654,7 +652,7 @@ class _PlaceViewState extends State<PlaceView> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ),
-                                )
+                                )*/
                               ],
                             ),
                           ),

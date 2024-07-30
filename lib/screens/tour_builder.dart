@@ -600,7 +600,8 @@ class _TourBuilderState extends State<TourBuilder>
                                                           .addToTourList(
                                                               placeOutput);
                                                     }
-                                                    tourController.runKml(
+                                                    await tourController.setTourKMLs();
+                                                    /*tourController.runKml(
                                                         tourController.kml);
                                                     if (tourController
                                                             .lookAtPosition !=
@@ -608,7 +609,7 @@ class _TourBuilderState extends State<TourBuilder>
                                                       tourController.zoomToLocation(
                                                           tourController
                                                               .lookAtPosition!);
-                                                    }
+                                                    }*/
                                                   },
                                                   borderRadius:
                                                       BorderRadius.circular(
@@ -736,6 +737,7 @@ class _TourBuilderState extends State<TourBuilder>
                                                                     .placeList[2 *
                                                                         index +
                                                                     1]));
+                                                        await tourController.connectionClient.cleanBalloon();
                                                         if (output != null) {
                                                           print(output);
                                                           PlaceInfo
@@ -745,7 +747,7 @@ class _TourBuilderState extends State<TourBuilder>
                                                               .addToTourList(
                                                                   placeOutput);
                                                         }
-                                                        tourController.runKml(
+                                                        /*tourController.runKml(
                                                             tourController.kml);
                                                         if (tourController
                                                                 .lookAtPosition !=
@@ -754,7 +756,9 @@ class _TourBuilderState extends State<TourBuilder>
                                                               .zoomToLocation(
                                                                   tourController
                                                                       .lookAtPosition!);
-                                                        }
+                                                        }*/
+
+                                                        await tourController.setTourKMLs();
                                                       }
                                                     },
                                                     child: Padding(

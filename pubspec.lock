@@ -235,6 +235,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_timer_countdown:
+    dependency: "direct dev"
+    description:
+      name: flutter_timer_countdown
+      sha256: "0c73e1593ad7949c007752199a17e7ed50bb581568743dbc32f061f49873219e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.7"
   flutter_tts:
     dependency: "direct dev"
     description:
@@ -472,6 +480,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  linear_timer:
+    dependency: "direct dev"
+    description:
+      name: linear_timer
+      sha256: d8707448e9464c7436565791406b9b73a785ce09c5c3dd870b8c5cd9755355d5
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   lints:
     dependency: transitive
     description:
@@ -712,6 +728,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  popup_menu:
+    dependency: "direct dev"
+    description:
+      name: popup_menu
+      sha256: a6d7f39669cd010818063233f287822d4fcfcdc1d872b4bae72d9f3caf848e3a
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   proj4dart:
     dependency: transitive
     description:

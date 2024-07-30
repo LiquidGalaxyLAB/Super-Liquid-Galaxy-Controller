@@ -2,14 +2,17 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:super_liquid_galaxy_controller/controllers/lg_connection.dart';
+import 'package:super_liquid_galaxy_controller/screens/geoquest.dart';
 import 'package:super_liquid_galaxy_controller/screens/kml_builder.dart';
 import 'package:super_liquid_galaxy_controller/screens/maps_controller.dart';
+import 'package:super_liquid_galaxy_controller/screens/poi_exploration.dart';
 import 'package:super_liquid_galaxy_controller/screens/test.dart';
 import 'package:super_liquid_galaxy_controller/screens/tour_builder.dart';
-import 'package:super_liquid_galaxy_controller/utils/kmlgenerator.dart';
+import 'package:super_liquid_galaxy_controller/utils/balloongenerator.dart';
 
 import '../generated/assets.dart';
+import '../utils/constants.dart';
 
 //ignore_for_file: prefer_const_constructors
 //ignore_for_file: prefer_const_literals
@@ -20,6 +23,8 @@ class NavIsland extends StatelessWidget {
   double height;
   double width;
   Widget? child;
+
+  int i =0;
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +85,9 @@ class NavIsland extends StatelessWidget {
                     Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          Get.to(() => PoiExploration());
+                        },
                         borderRadius: BorderRadius.circular(15),
                         child: Container(
                           width: double.infinity,
@@ -174,25 +181,25 @@ class NavIsland extends StatelessWidget {
                                     color: Colors.transparent,
                                     child: InkWell(
                                       onTap: () async {
-                                        LatLng start = LatLng(7, 11);
-                                        LatLng end = LatLng(1, 5);
+                                        Get.to(()=>GeoQuest());
+                                        /*i++;
+                                        try {
+                                          LGConnection connection = Get.find();
+                                          await connection.cleanBalloon();
+                                          await connection.renderInSlave(2,(i%2==0)?Constants.testKml:Constants.testKml1);
+                                        } catch (e) {
+                                          if (!Get.isSnackbarOpen) {
+                                            Get.showSnackbar(GetSnackBar(
+                                              backgroundColor:
+                                                  Colors.red.shade300,
+                                              title: "Error",
+                                              message: "$e",
+                                              isDismissible: true,
+                                              duration: 5.seconds,
+                                            ));
+                                          }
+                                        }*/
 
-                                        double dashLength =
-                                            10000.0; // Length of each dash in meters
-                                        double gapLength =
-                                            5000.0; // Length of gap between dashes in meters
-
-                                        String kmlOutput =
-                                            KMLGenerator.generatefootPrintLine(
-                                                end,
-                                                start,
-                                                dashLength,
-                                                gapLength);
-                                        print(kmlOutput.length);
-
-                                        print(kmlOutput);
-                                        Get.to(
-                                            () => TestScreen(kml: kmlOutput));
                                       },
                                       borderRadius: BorderRadius.circular(15),
                                       child: Container(
@@ -274,7 +281,6 @@ class NavIsland extends StatelessWidget {
                                             Expanded(
                                                 child: Container(
                                                     height: double.infinity,
-
                                                     child: FittedBox(
                                                       fit: BoxFit.fitWidth,
                                                       child: Padding(
@@ -334,7 +340,6 @@ class NavIsland extends StatelessWidget {
                                             Expanded(
                                                 child: Container(
                                                     height: double.infinity,
-
                                                     child: FittedBox(
                                                         fit: BoxFit.fitWidth,
                                                         child: Padding(

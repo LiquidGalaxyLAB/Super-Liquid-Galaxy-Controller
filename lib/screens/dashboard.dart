@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:popup_menu/popup_menu.dart';
 import 'package:super_liquid_galaxy_controller/components/galaxytextfield.dart';
 import 'package:super_liquid_galaxy_controller/components/navisland.dart';
 import 'package:super_liquid_galaxy_controller/components/planet_selector.dart';
@@ -30,7 +31,8 @@ class _DashBoardState extends State<DashBoard> {
   late double screenWidth;
   late LGConnection connectionClient;
   late ApiManager apiClient;
-
+  GlobalKey widgetKey = GlobalKey();
+  int selectedIndex = 0;
   TextEditingController keyController = TextEditingController();
 
   @override
@@ -200,42 +202,37 @@ class _DashBoardState extends State<DashBoard> {
                                       String result = await Get.defaultDialog(
                                           title: "ENTER PASSWORD USED",
                                           content: Container(
-                                              width: screenWidth * 0.5,
-                                              child: GalaxyTextField(
-                                                hintText: "",
-                                                labelText: "Password",
-                                                controller: keyController,
-                                                iconData:
-                                                    Icons.password_rounded,
-                                                textInputType:
-                                                    TextInputType.text,
-                                                isPassword: true,
-                                                labelColor: Colors.grey,
-                                              ),
+                                            width: screenWidth * 0.5,
+                                            child: GalaxyTextField(
+                                              hintText: "",
+                                              labelText: "Password",
+                                              controller: keyController,
+                                              iconData: Icons.password_rounded,
+                                              textInputType: TextInputType.text,
+                                              isPassword: true,
+                                              labelColor: Colors.grey,
+                                            ),
                                           ),
-                                        buttonColor: Colors.white,
-                                        textConfirm: "ENTER",
-                                        confirmTextColor: Colors.green,
-                                        textCancel: "CANCEL",
-                                        cancelTextColor: Colors.red,
-                                        onConfirm: (){
-                                            Get.back(result: keyController.text);
-                                        },
-                                        onCancel: (){
+                                          buttonColor: Colors.white,
+                                          textConfirm: "ENTER",
+                                          confirmTextColor: Colors.green,
+                                          textCancel: "CANCEL",
+                                          cancelTextColor: Colors.red,
+                                          onConfirm: () {
+                                            Get.back(
+                                                result: keyController.text);
+                                          },
+                                          onCancel: () {
                                             Get.back(result: '');
-                                        }
-                                      );
+                                          });
 
-                                      if(result.compareTo(out.password)==0)
-                                        {
-                                          await Get.to(() => Settings());
+                                      if (result.compareTo(out.password) == 0) {
+                                        await Get.to(() => Settings());
+                                      } else {
+                                        if (!(result.compareTo('') == 0)) {
+                                          showErrorSnackBar();
                                         }
-                                      else
-                                        {
-                                          if(!(result.compareTo('')==0)) {
-                                            showErrorSnackBar();
-                                          }
-                                        }
+                                      }
                                     }
                                   },
                                 ),
@@ -303,8 +300,12 @@ class _DashBoardState extends State<DashBoard> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             PlanetSelector(
+                              key: widgetKey,
                               height: screenHeight * 0.2,
                               width: screenWidth * 0.4,
+                              onPressed: () {
+                                menu(widgetKey);
+                              },
                             )
                           ],
                         ),
@@ -336,6 +337,7 @@ class _DashBoardState extends State<DashBoard> {
   void initializeLGClient() async {
     connectionClient = Get.find();
     await connectionClient.connectToLG();
+    await connectionClient.showLogos();
   }
 
   void initializeApiClient() async {
@@ -447,5 +449,146 @@ class _DashBoardState extends State<DashBoard> {
         duration: 5.seconds,
       ));
     }
+  }
+
+  void menu(GlobalKey key) {
+    PopupMenu menu = PopupMenu(
+      context: context,
+      config: MenuConfig(
+        type: MenuType.list,
+        itemWidth: screenWidth*0.3,
+        itemHeight: screenHeight*0.1,
+        backgroundColor: Colors.white.withOpacity(0.5),
+        lineColor: Colors.grey,
+        maxColumn: 1,
+        highlightColor: Colors.black
+      ),
+      items: [
+        MenuItem(
+            title: '   Earth',
+            image: Image.asset(
+              Assets.iconsEarth,
+              height: screenHeight*0.07,
+              width: screenHeight*0.07,
+
+            ),
+        textStyle: TextStyle(fontSize: screenHeight*0.04, color: selectedIndex!=0? Colors.grey.shade800:Colors.black)
+        ),
+        MenuItem(
+            title: '   Moon',
+            image: Image.asset(
+              Assets.iconsMoon,
+              height: screenHeight*0.07,
+              width: screenHeight*0.07,
+            ),
+            textStyle: TextStyle(fontSize: screenHeight*0.04,color: selectedIndex!=1? Colors.grey.shade800:Colors.black)
+        ),
+        MenuItem(
+            title: '   Mars',
+            image: Image.asset(
+              Assets.iconsMars,
+              height: screenHeight*0.07,
+              width: screenHeight*0.07,
+            ),
+            textStyle: TextStyle(fontSize: screenHeight*0.04, color: selectedIndex!=2? Colors.grey.shade800:Colors.black)
+        ),
+
+       /* // MenuItem(
+        //     title: 'Home',
+        //     textStyle: TextStyle(fontSize: 10.0, color: Colors.tealAccent),
+        //     image: Icon(
+        //       Icons.home,
+        //       color: Colors.white,
+        //     )),
+        // MenuItem(
+        //     title: 'Mail',
+        //     image: Icon(
+        //       Icons.mail,
+        //       color: Colors.white,
+        //     )),
+        // MenuItem(
+        //     title: 'Power',
+        //     image: Icon(
+        //       Icons.power,
+        //       color: Colors.white,
+        //     )),
+        // MenuItem(
+        //     title: 'Setting',
+        //     image: Icon(
+        //       Icons.settings,
+        //       color: Colors.white,
+        //     )),
+        // MenuItem(
+        //     title: 'PopupMenu',
+        //     image: Icon(
+        //       Icons.menu,
+        //       color: Colors.white
+        //     ))*/
+      ],
+      onClickMenu: (MenuItemProvider item){
+        String label = item.menuTitle.toLowerCase().trim();
+        print(label);
+        switch(label)
+            {
+          case "earth":
+            {
+              print(" earth");
+              selectedIndex = 0;
+              if (!connectionClient.isConnected.value) {
+                retryConnectionOrShowError();
+                return;
+              }
+              else {
+                runPlanetKml(selectedIndex);
+              }
+              break;
+            }
+          case "moon":
+            {
+              print(" moon");
+              selectedIndex = 1;
+              if (!connectionClient.isConnected.value) {
+                retryConnectionOrShowError();
+                return;
+              }
+              else {
+                runPlanetKml(selectedIndex);
+              }
+              break;
+            }
+          case "mars":
+            {
+              print(" mars");
+              selectedIndex = 2;
+              if (!connectionClient.isConnected.value) {
+                retryConnectionOrShowError();
+                return;
+              }
+              else {
+                runPlanetKml(selectedIndex);
+              }
+              break;
+            }
+        }
+      }
+    );
+    menu.show(widgetKey: key);
+  }
+
+  void runPlanetKml(int index) async {
+    var success = await connectionClient.changePlanet(index);
+    print(success);
+    if(!success)
+      {
+        if (!Get.isSnackbarOpen) {
+          Get.showSnackbar(GetSnackBar(
+            backgroundColor: Colors.red.shade300,
+            title: "Command Failed",
+            message: "Planet could not be changed due to an unknown error.",
+            isDismissible: true,
+            duration: 3.seconds,
+          ));
+        }
+      }
   }
 }

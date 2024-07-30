@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
+import 'package:super_liquid_galaxy_controller/controllers/geoquest_controller.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_info.dart';
 import 'package:super_liquid_galaxy_controller/screens/dashboard.dart';
+import 'package:super_liquid_galaxy_controller/screens/geoquest.dart';
 import 'package:super_liquid_galaxy_controller/screens/maps_controller.dart';
 import 'package:super_liquid_galaxy_controller/screens/place_view.dart';
 import 'package:super_liquid_galaxy_controller/screens/splashscreen.dart';
@@ -21,12 +23,14 @@ AndroidMapRenderer mapRenderer = AndroidMapRenderer.platformDefault;
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
+  //Lazy Initialize GetX controllers
   Get.lazyPut(() => LGConnection(),fenix: true);
   Get.lazyPut(() => ApiManager(),fenix: true);
   Get.lazyPut(() => SpeechController(),fenix: true);
   Get.lazyPut(() => MapMovementController(),fenix: true);
   Get.lazyPut(() => TourController(),fenix: true);
   Get.lazyPut(() => PoiController(),fenix: true);
+  Get.lazyPut(() => GeoQuestController(),fenix: true);
 
   // Get.lazyPut(() => WikiDataFetcher(), fenix:  true);
 

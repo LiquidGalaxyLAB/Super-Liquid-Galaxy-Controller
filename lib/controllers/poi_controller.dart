@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_info.dart';
 import 'package:super_liquid_galaxy_controller/screens/test.dart';
+import 'package:super_liquid_galaxy_controller/utils/balloongenerator.dart';
 import 'package:super_liquid_galaxy_controller/utils/constants.dart';
 import 'package:super_liquid_galaxy_controller/utils/wikidatafetcher.dart';
 
@@ -29,7 +30,7 @@ class PoiController extends GetxController {
   var imageIsError = false.obs;
   var isOrbit = false.obs;
   var isVoicing = false.obs;
-
+  MapPosition? camera;
   var description = ''.obs;
   var imageLink = ''.obs;
   var poiList = <PlaceInfo>[].obs;
@@ -59,12 +60,46 @@ class PoiController extends GetxController {
     poiList.clear();
   }
 
-  void fetchAllInfo() async {
+  Future<void> fetchAllInfo() async {
+    await connectionClient.cleanBalloon();
     await fetchDescription();
     await loadImage();
     await fetchNearbyPois();
     await setKML();
+    await setBalloon();
     await zoomToLocation();
+  }
+
+  Future<void> setBalloon() async
+  {
+
+      await connectionClient.cleanBalloon();
+      var poiBalloon = "";
+      int rigCount = 3;
+      if (connectionClient.isConnected.value)
+      {
+        rigCount =  connectionClient.rigCount().rightMostRig.toInt();
+      }
+
+        poiBalloon = BalloonGenerator.poiBalloonForTours(
+            place.value,
+            rigCount,
+            camera ??
+                MapPosition(
+                    latitude: place.value.coordinate.latitude,
+                    longitude: place.value.coordinate.longitude,
+                    bearing: 0.0,
+                    tilt: 45,
+                    zoom: 5));
+      print("kml $poiBalloon");
+      //Get.to(()=>TestScreen(kml:poiBalloon));
+      await connectionClient.renderInSlave(
+          rigCount, poiBalloon);
+    /*}
+    catch(e)
+    {
+      print("POI BAlloon error:$e");
+    }*/
   }
 
   void voiceButtonPressed() async {
@@ -145,6 +180,8 @@ class PoiController extends GetxController {
       if (response.places.isNotEmpty) {
         poiList.clear();
         poiList.addAll(response.places);
+        place.value.nearbyPlaces = [];
+        place.value.nearbyPlaces!.addAll(poiList.value);
       }
     }
     catch(error)
@@ -194,7 +231,7 @@ class PoiController extends GetxController {
     //String kml= KMLGenerator.generateKml('69', KMLGenerator.orbitLookAtLinear(position));
     //Get.to(()=> TestScreen(kml: kml));
     await connectionClient.flyToInstantWithoutSaving(position);
-    await connectionClient.cleanBalloon();
+    //await connectionClient.cleanBalloon();
     print(position);
   }
 
