@@ -2,6 +2,7 @@
 class Assets {
   Assets._();
 
+  static const String assetsAppLogo = 'assets/app_logo.png';
   static const String assetsBackgroundspace = 'assets/backgroundspace.jpg';
   static const String assetsEarth = 'assets/earth.gif';
   static const String assetsEarthclearbgless = 'assets/earthclearbgless.png';
@@ -16,16 +17,20 @@ class Assets {
   static const String iconsConnection = 'assets/icons/connection.png';
   static const String iconsController = 'assets/icons/controller.png';
   static const String iconsEarth = 'assets/icons/earth.png';
+  static const String iconsEarthImg = 'assets/icons/earth_img.png';
   static const String iconsFlag = 'assets/icons/flag.png';
   static const String iconsImageError = 'assets/icons/image_error.png';
+  static const String iconsInformation = 'assets/icons/information.png';
   static const String iconsKey = 'assets/icons/key.png';
   static const String iconsKml = 'assets/icons/kml.png';
   static const String iconsLandmark = 'assets/icons/landmark.png';
   static const String iconsLocsubmit = 'assets/icons/locsubmit.png';
   static const String iconsMapmarker = 'assets/icons/mapmarker.png';
   static const String iconsMars = 'assets/icons/mars.png';
+  static const String iconsMarsImg = 'assets/icons/mars_img.png';
   static const String iconsMic = 'assets/icons/mic.png';
   static const String iconsMoon = 'assets/icons/moon.png';
+  static const String iconsMoonImg = 'assets/icons/moon_img.png';
   static const String iconsNearbypoi = 'assets/icons/nearbypoi.png';
   static const String iconsOrbit = 'assets/icons/orbit.png';
   static const String iconsPin = 'assets/icons/pin.png';
@@ -34,6 +39,7 @@ class Assets {
   static const String iconsSshIndicator = 'assets/icons/ssh_indicator.png';
   static const String iconsSync = 'assets/icons/sync.png';
   static const String iconsTest = 'assets/icons/test.jpeg';
+  static const String iconsToursnotfound = 'assets/icons/toursnotfound.png';
   static const String iconsTravel = 'assets/icons/travel.png';
   static const String iconsVoices = 'assets/icons/voices.png';
   static const String lottieAddplaces = 'assets/lottie/addplaces.lottie';

@@ -27,6 +27,8 @@ class GeoQuestController extends GetxController {
   var screenCoords = Coordinates(latitude: 0.0, longitude: 0.0).obs;
   var currentState = "".obs;
   var currentCountry = "".obs;
+  bool processKilled = false;
+  var gameIsPlaying = false.obs;
   late List<CountryData> jsonList;
   late List<dynamic> dataList;
   late List<String> choiceList;
@@ -34,6 +36,10 @@ class GeoQuestController extends GetxController {
   void startTimer() {
     _gameTimer?.cancel();
     _gameTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      if(processKilled)
+        {
+          stopTimer();
+        }
       //print(timer.tick);
       timeFraction.value = 1 - (timer.tick * 0.1 / Constants.geoQuestTime);
       if (timeFraction.value == 0.0) {
@@ -100,7 +106,10 @@ class GeoQuestController extends GetxController {
   }
 
   Future<void> showStartMessage() async {
-    await Future.delayed(Duration(seconds: 3));
+    await Future.delayed(Duration(seconds: 1));
+    if(processKilled) {
+      return;
+    }
     Get.defaultDialog(
         title: "Welcome to Geo-Quest",
         content: Text(
@@ -118,11 +127,25 @@ class GeoQuestController extends GetxController {
           ),
         ),
 
-        barrierDismissible: false);
+        barrierDismissible: true);
+    if(processKilled)
+      {
+        Navigator.pop(Get.overlayContext!, true);
+      }
+  }
+  stopGameLogic()
+  {
+    stopTimer();
+    Get.closeAllSnackbars();
+    gameIsPlaying.value = false;
+    timeFraction.value = 1.0;
+    minTime.value = "01";
+    secTime.value = "30";
+    currentState.value = "";
   }
 
   Future<void> startGameLogic() async {
-
+    gameIsPlaying.value =true;
     final _random = Random.secure();
 
 // generate a random index based on the list length
@@ -249,5 +272,16 @@ class GeoQuestController extends GetxController {
     await Future.delayed(Duration(seconds: 5));
     Navigator.pop(Get.overlayContext!, true);
     startGameLogic();
+  }
+
+  void closeDialogIfPossible() async {
+    await Future.delayed(const Duration(seconds: 1));
+    try{
+      Navigator.pop(Get.overlayContext!, true);
+    }
+    catch(e)
+    {
+      print(e);
+    }
   }
 }

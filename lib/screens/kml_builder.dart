@@ -266,7 +266,7 @@ class _KmlUploaderState extends State<KmlUploader> {
                                     GeoUtils.getBoundsZoomLevel(
                                         getCoordsList(kmlList),
                                         MediaQuery.of(context).size));
-                            //Get.to(()=>TestScreen(kml: KMLGenerator.generateCustomKml('slave_1', kmlList)));
+                            Get.to(()=>TestScreen(kml: KMLGenerator.generateCustomKml('slave_1', kmlList)));
                             //String kml = KMLGenerator.generateCustomKml('slave_1', kmlList);
 
                             print("made successfully");

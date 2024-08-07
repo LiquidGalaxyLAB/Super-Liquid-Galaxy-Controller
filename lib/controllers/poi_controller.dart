@@ -53,8 +53,6 @@ class PoiController extends GetxController {
 
   void setInfo(PlaceInfo pl) {
     place.value = pl;
-    //screenSize = s;
-    //context = con;
     description.value = place.value.description ?? '';
     imageLink.value = place.value.imageLink ?? '';
     poiList.clear();
@@ -83,7 +81,6 @@ class PoiController extends GetxController {
 
         poiBalloon = BalloonGenerator.poiBalloonForTours(
             place.value,
-            rigCount,
             camera ??
                 MapPosition(
                     latitude: place.value.coordinate.latitude,
@@ -102,6 +99,11 @@ class PoiController extends GetxController {
     }*/
   }
 
+  void stopTTS()
+  {
+    isVoicing.value = false;
+    flutterTts.stop();
+  }
   void voiceButtonPressed() async {
     if (isVoicing.value) {
       isVoicing.value = false;
@@ -228,6 +230,7 @@ class PoiController extends GetxController {
             [place.value.coordinate.toLatLngMap(place.value.coordinate)],
             Get.context!.size!));
 
+    position.tilt = 60.0;
     //String kml= KMLGenerator.generateKml('69', KMLGenerator.orbitLookAtLinear(position));
     //Get.to(()=> TestScreen(kml: kml));
     await connectionClient.flyToInstantWithoutSaving(position);
@@ -304,6 +307,22 @@ class PoiController extends GetxController {
     const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz_';
     return List.generate(len, (index) => _chars[r.nextInt(_chars.length)])
         .join();
+  }
+
+  killAllProcesses()
+  {
+    descriptionIsLoading = false.obs;
+    descriptionIsError = false.obs;
+    imageIsLoading = false.obs;
+    imageIsError = false.obs;
+    isOrbit = false.obs;
+    isVoicing = false.obs;
+    description = ''.obs;
+    imageLink = ''.obs;
+    poiList = <PlaceInfo>[].obs;
+    place = PlaceInfo(coordinate: Coordinates(latitude: 0.0, longitude: 0.0), label: "Loading...", address: "Loading..", category: "Loading...", name: "Loading....").obs;
+
+
   }
 
 }

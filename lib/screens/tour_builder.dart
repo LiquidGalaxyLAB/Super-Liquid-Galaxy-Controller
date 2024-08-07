@@ -84,7 +84,8 @@ class _TourBuilderState extends State<TourBuilder>
   @override
   void initState() {
     tourController = Get.find();
-    lottieController = AnimationController(vsync: this, duration: const Duration(seconds: 2));
+    lottieController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 2));
     //_determinePosition();
     super.initState();
   }
@@ -116,65 +117,92 @@ class _TourBuilderState extends State<TourBuilder>
           backgroundColor: Colors.transparent,
           floatingActionButton: Container(
             height: screenHeight * 0.125,
-            width: screenWidth * 0.2,
+            width: screenWidth * 0.3,
             child: FittedBox(
               fit: BoxFit.contain,
-              child: FloatingActionButton.extended(
-                  elevation: 20.0,
-                  onPressed: () {
-                    tourController.tourButtonPressed();
-                  },
-                  backgroundColor: Colors.white,
-                  label: Container(
-                      width: screenWidth * 0.1,
-                      // color: Colors.orange.withOpacity(0.2),
-                      child: FittedBox(
-                          fit: BoxFit.contain, child: Text("START TOUR"))),
-                  icon: Container(
-                      //height: screenHeight * 0.1,
-                      child: FittedBox(
-                          fit: BoxFit.contain,
-                          child: Obx(() {
-                            lottieController?.dispose();
-                            lottieController = AnimationController(
-                                vsync: this,
-                                duration: const Duration(seconds: 2));
-                            return (tourController.isTouring.value)?Lottie.asset(Assets.lottieOrbitBlack,
-                                decoder: customDecoder,
-                                repeat: true,
-                                controller: lottieController,
-                                fit: BoxFit.fill,
-                                width: 25.0,
-                                height: 25.0, onLoaded: (c) {
-                                  //lottieController.forward(from: 0.0);
-                                  lottieController?.repeat();
-                                }):ImageIcon(
-                                AssetImage(Assets.iconsOrbit));
+              child: Row(
+                children: [
+                  InkWell(
+                    onLongPress: () {
+                      tourController.getTourLists();
+                    },
+                    child: FloatingActionButton(
+                      onPressed: () {
+                        saveTourFile();
+                      },
+                      heroTag: 'download',
+                      backgroundColor: Colors.white,
+                      child: const Icon(
+                        Icons.copy_sharp,
+                        color: GalaxyColors.prussianBlue,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: screenHeight * 0.01,
+                  ),
+                  FloatingActionButton.extended(
+                      elevation: 20.0,
+                      onPressed: () {
+                        tourController.tourButtonPressed();
+                      },
+                      heroTag: 'tour',
+                      backgroundColor: Colors.white,
+                      label: Container(
+                          width: screenWidth * 0.1,
+                          // color: Colors.orange.withOpacity(0.2),
+                          child: FittedBox(
+                              fit: BoxFit.contain, child: Obx((){
+                                return Text(tourController.isTouring.value?"STOP TOUR":"START TOUR");
+                          }))),
+                      icon: Container(
+                          //height: screenHeight * 0.1,
+                          child: FittedBox(
+                              fit: BoxFit.contain,
+                              child: Obx(() {
+                                lottieController?.dispose();
+                                lottieController = AnimationController(
+                                    vsync: this,
+                                    duration: const Duration(seconds: 2));
+                                return (tourController.isTouring.value)
+                                    ? Lottie.asset(Assets.lottieOrbitBlack,
+                                        decoder: customDecoder,
+                                        repeat: true,
+                                        controller: lottieController,
+                                        fit: BoxFit.fill,
+                                        width: 25.0,
+                                        height: 25.0, onLoaded: (c) {
+                                        //lottieController.forward(from: 0.0);
+                                        lottieController?.repeat();
+                                      })
+                                    : ImageIcon(AssetImage(Assets.iconsOrbit));
 
-                            /*return Stack(
-                              children: [
+                                /*return Stack(
+                                  children: [
 
 
-                                Visibility(
-                                  visible: !tourController.isTouring.value,
-                                    child: ImageIcon(
-                                        AssetImage(Assets.iconsOrbit))),
-                                Visibility(
-                                  visible: tourController.isTouring.value,
-                                  child: Lottie.asset(Assets.lottieOrbit,
-                                      decoder: customDecoder,
-                                      repeat: true,
-                                      controller: lottieController,
-                                      fit: BoxFit.fill,
-                                      width: 25.0,
-                                      height: 25.0, onLoaded: (c) {
-                                    //lottieController.forward(from: 0.0);
-                                    lottieController?.repeat();
-                                  }),
-                                )
-                              ],
-                            );*/
-                          })))),
+                                    Visibility(
+                                      visible: !tourController.isTouring.value,
+                                        child: ImageIcon(
+                                            AssetImage(Assets.iconsOrbit))),
+                                    Visibility(
+                                      visible: tourController.isTouring.value,
+                                      child: Lottie.asset(Assets.lottieOrbit,
+                                          decoder: customDecoder,
+                                          repeat: true,
+                                          controller: lottieController,
+                                          fit: BoxFit.fill,
+                                          width: 25.0,
+                                          height: 25.0, onLoaded: (c) {
+                                        //lottieController.forward(from: 0.0);
+                                        lottieController?.repeat();
+                                      }),
+                                    )
+                                  ],
+                                );*/
+                              })))),
+                ],
+              ),
             ),
           ),
           appBar: AppBar(
@@ -458,34 +486,40 @@ class _TourBuilderState extends State<TourBuilder>
                                     return Visibility(
                                       visible: tourController.tourList.isEmpty,
                                       child: Center(
-                                        child: Container(
-                                          width: screenWidth * 0.5,
-                                          //color: Colors.orange.withOpacity(0.2),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                child: Lottie.asset(
-                                                  Assets.lottieAddplaces,
-                                                  decoder: customDecoder,
-                                                  repeat: true,
+                                        child: InkWell(
+                                          onTap: () {
+                                            tourController.getTourLists();
+                                          },
+                                          child: Container(
+                                            width: screenWidth * 0.5,
+                                            //color: Colors.orange.withOpacity(0.2),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Lottie.asset(
+                                                    Assets.lottieAddplaces,
+                                                    decoder: customDecoder,
+                                                    repeat: true,
+                                                  ),
                                                 ),
-                                              ),
-                                              const Expanded(
-                                                  child: FittedBox(
-                                                      fit: BoxFit.contain,
-                                                      child: Padding(
-                                                        padding: EdgeInsets.all(
-                                                            15.0),
-                                                        child: Text(
-                                                            "ADD PLACES \nTO TOUR",
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold)),
-                                                      )))
-                                            ],
+                                                const Expanded(
+                                                    child: FittedBox(
+                                                        fit: BoxFit.contain,
+                                                        child: Padding(
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                  15.0),
+                                                          child: Text(
+                                                              "ADD PLACES \nTO TOUR",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold)),
+                                                        )))
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -583,10 +617,11 @@ class _TourBuilderState extends State<TourBuilder>
                                                             20.0)),
                                                 child: InkWell(
                                                   onTap: () async {
-                                                    if(tourController.isTouring.value)
-                                                      {
-                                                        tourController.tourButtonPressed();
-                                                      }
+                                                    if (tourController
+                                                        .isTouring.value) {
+                                                      tourController
+                                                          .tourButtonPressed();
+                                                    }
                                                     var output = await Get.to(
                                                         () => PlaceView(
                                                             place: tourController
@@ -600,7 +635,8 @@ class _TourBuilderState extends State<TourBuilder>
                                                           .addToTourList(
                                                               placeOutput);
                                                     }
-                                                    await tourController.setTourKMLs();
+                                                    await tourController
+                                                        .setTourKMLs();
                                                     /*tourController.runKml(
                                                         tourController.kml);
                                                     if (tourController
@@ -726,10 +762,10 @@ class _TourBuilderState extends State<TourBuilder>
                                                                       .length %
                                                                   2 ==
                                                               0) {
-
-                                                        if(tourController.isTouring.value)
-                                                        {
-                                                          tourController.tourButtonPressed();
+                                                        if (tourController
+                                                            .isTouring.value) {
+                                                          tourController
+                                                              .tourButtonPressed();
                                                         }
                                                         var output = await Get
                                                             .to(() => PlaceView(
@@ -737,7 +773,9 @@ class _TourBuilderState extends State<TourBuilder>
                                                                     .placeList[2 *
                                                                         index +
                                                                     1]));
-                                                        await tourController.connectionClient.cleanBalloon();
+                                                        await tourController
+                                                            .connectionClient
+                                                            .cleanBalloon();
                                                         if (output != null) {
                                                           print(output);
                                                           PlaceInfo
@@ -758,7 +796,8 @@ class _TourBuilderState extends State<TourBuilder>
                                                                       .lookAtPosition!);
                                                         }*/
 
-                                                        await tourController.setTourKMLs();
+                                                        await tourController
+                                                            .setTourKMLs();
                                                       }
                                                     },
                                                     child: Padding(
@@ -969,11 +1008,264 @@ class _TourBuilderState extends State<TourBuilder>
     print(tourController.getSearchAround());
   }
 
+  void dispose() {
+    tourController.killAllProcesses();
+    super.dispose();
+  }
+
   Future<LottieComposition?> customDecoder(List<int> bytes) {
     return LottieComposition.decodeZip(bytes, filePicker: (files) {
       return files.firstWhere(
         (f) => f.name.startsWith('animations/') && f.name.endsWith('.json'),
       );
     });
+  }
+
+  void saveTourFile() async {
+    //tourController.saveTour();
+    var list = await tourController.getTourLists();
+    Get.dialog(
+        Padding(
+          padding: EdgeInsets.all(screenWidth * 0.08),
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+                width: screenWidth * 0.6,
+                height: screenHeight * 0.6,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30.0)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Expanded(
+                          flex: 1,
+                          child: FittedBox(
+                              fit: BoxFit.contain, child: Text("SAVED TOURS"))),
+                      Expanded(
+                        flex: 8,
+                        child: Container(
+                            child: Obx((){
+                              return (tourController.savedList.isNotEmpty?(ListView.builder(
+                                  itemCount: tourController.savedList.length,
+                                  itemBuilder: (context, int index) {
+                                    return getTourLine(tourController.savedList[index],index);
+                                  })):(Center(
+                                child: Container(
+                                    width: screenWidth*0.3,
+                                    height: screenHeight*0.3,
+                                    child: FittedBox(
+                                        fit: BoxFit.contain,
+                                        child: Image.asset(Assets.iconsToursnotfound))),
+                              )));
+                            })
+                            ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: EdgeInsets.all(screenHeight * 0.02),
+                          child: MaterialButton(
+                              onPressed: () {
+                                print(tourController.tourList);
+                                tourController.addCurrentTour();
+                                Get.back();
+                              },
+                              color: GalaxyColors.green,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0)),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    "ADD CURRENT TOUR",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  SizedBox(width: 25.0),
+                                  Icon(
+                                    Icons.add,
+                                    color: Colors.white,
+                                  )
+                                ],
+                              )),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+          ),
+        ),
+        barrierDismissible: true);
+  }
+
+  Widget getTourLine(List<PlaceInfo> list, int index) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 15.0),
+      child: Column(
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+            Container(
+            width: screenHeight * 0.025,
+            height: screenHeight * 0.025,
+              decoration: BoxDecoration(color: Colors.black,
+              borderRadius: BorderRadius.circular(300.0)),
+            ),
+
+              InkWell(
+                onTap: (){
+                  tourController.setCurrentTour(list);
+                  Get.back();
+                },
+                child: Container(
+                  width: screenWidth * 0.7,
+                  height: screenHeight * 0.1,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    controller: tourScrollController,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Container(
+                          height: screenHeight * 0.1,
+                          width: (index == list.length - 1)
+                              ? screenWidth * 0.1
+                              : screenWidth * 0.2,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: Container(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                          flex: 4,
+                                          child: FittedBox(
+                                              fit: BoxFit.contain,
+                                              child: ImageIcon(
+                                                AssetImage(tourismCategories.contains(
+                                                        list[index].category)
+                                                    ? (assetPaths[
+                                                        tourismCategories.indexOf(
+                                                            list[index].category)])
+                                                    : (assetPaths[
+                                                        assetPaths.length - 1])),
+                                                color: Colors.black,
+                                              ))),
+                                      Expanded(
+                                          flex: 2,
+                                          child: FittedBox(
+                                              fit: BoxFit.contain,
+                                              child: Text(
+                                                list[index].name,
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black),
+                                              ))),
+                                      /*Expanded(
+                                          flex: 4,
+                                          child: Text(
+                                            list[index].address,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 3,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(color: Colors.black),
+                                          )),*/
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Visibility(
+                                  visible: !(index == list.length - 1),
+                                  child: const SizedBox(
+                                    width: 12.0,
+                                  )),
+                              Visibility(
+                                visible: !(index == list.length - 1),
+                                child: Expanded(
+                                  flex: 1,
+                                  child: Container(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: [
+                                        Container(
+                                          width: screenHeight * 0.02,
+                                          height: screenHeight * 0.02,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(300.0),
+                                              color: Colors.green),
+                                        ),
+                                        Expanded(
+                                          child: Container(
+                                            height: screenHeight * 0.002,
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(300.0),
+                                                color: Colors.green),
+                                          ),
+                                        ),
+                                        Container(
+                                          width: screenHeight * 0.02,
+                                          height: screenHeight * 0.02,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(300.0),
+                                              color: Colors.green),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                    itemCount: list.length,
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: (){
+                  print("deleting: $index");
+                  setState(() {
+                    tourController.deleteSavedListItem(index);
+                    tourController.savedList.add([PlaceInfo(coordinate: Coordinates(latitude: 0.0, longitude: 0.0), label: "label", address: "address", category: "category", name: "name")].obs);
+                    tourController.savedList.removeLast();
+                  });
+                },
+                child: Container(
+                  width: screenWidth * 0.05,
+                  height: screenHeight * 0.1,
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: Icon(
+                      Icons.delete_rounded,
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: screenWidth*0.05),
+            child: Divider(
+              color: Colors.black,
+              thickness: 2.0,
+            ),
+          )
+        ],
+      ),
+    );
   }
 }

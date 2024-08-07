@@ -6,14 +6,17 @@ import 'package:get/get.dart' as getx;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:super_liquid_galaxy_controller/controllers/api_manager.dart';
 import 'package:super_liquid_galaxy_controller/controllers/lg_connection.dart';
+import 'package:super_liquid_galaxy_controller/data_class/hive_info.dart';
 import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_details_response.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_info.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_response.dart';
+import 'package:super_liquid_galaxy_controller/screens/test.dart';
 import 'package:super_liquid_galaxy_controller/utils/balloongenerator.dart';
 import 'package:super_liquid_galaxy_controller/utils/constants.dart';
 import 'package:super_liquid_galaxy_controller/utils/geo_utils.dart';
-
+import 'package:path_provider/path_provider.dart';
+import 'package:hive/hive.dart';
 import '../data_class/coordinate.dart';
 import '../utils/kmlgenerator.dart';
 
@@ -30,6 +33,7 @@ class TourController extends getx.GetxController {
   MapPosition? lookAtPosition;
   List<PlaceInfo> masterList = <PlaceInfo>[];
   getx.RxList<PlaceInfo> placeList = <PlaceInfo>[].obs;
+  getx.RxList<getx.RxList<PlaceInfo>> savedList = <getx.RxList<PlaceInfo>>[].obs;
   var isLoading = false.obs;
   var isError = false.obs;
   var isTouring = false.obs;
@@ -43,6 +47,7 @@ class TourController extends getx.GetxController {
   void onInit() {
     apiClient = getx.Get.find();
     connectionClient = getx.Get.find();
+    setupHive();
     super.onInit();
   }
 
@@ -64,6 +69,14 @@ class TourController extends getx.GetxController {
     isLoading.value = true;
     isError.value = false;
     try {
+      if(!apiClient.isConnected.value)
+        {
+          print("error here: ApiClient Disconnected");
+          isLoading.value = false;
+          isError.value = true;
+          return;
+        }
+
       var queryText = label.value.split('\n').reversed.join(", ");
       bool isCountry = label.value.split('\n').where((String str) {
             return str.isNotEmpty;
@@ -154,7 +167,7 @@ class TourController extends getx.GetxController {
           tourBalloon = BalloonGenerator.listBalloonForTours(placeList, connectionClient.rigCount().rightMostRig.toInt(),lookAtPosition!);
         }
         else{
-          tourBalloon = BalloonGenerator.listBalloonForTours(placeList, 3,lookAtPosition!);
+          tourBalloon = BalloonGenerator.listBalloonForTours(placeList, 3, lookAtPosition!);
         }
         adjustPlaceMarks();
       }
@@ -293,8 +306,7 @@ class TourController extends getx.GetxController {
       print("$e");
     }
     await runKml(kml);
-
-
+    //getx.Get.to(()=>TestScreen(kml: kml));
   }
 
   Future<void> zoomToPoi(PlaceInfo place) async {
@@ -326,6 +338,8 @@ class TourController extends getx.GetxController {
           GeoUtils.getBoundsZoomLevel(
               [place.coordinate.toLatLngMap(place.coordinate)],
               getx.Get.context!.size!));
+      await connectionClient.cleanBalloon();
+      await connectionClient.renderBalloon(BalloonGenerator.poiBalloonForTours(place, position));
       await Future.delayed(Duration(seconds: Constants.zoomInDuration));
       await startOrbit(position, place);
 
@@ -351,6 +365,7 @@ class TourController extends getx.GetxController {
     position.tilt = 60.0;
     String placeKml = KMLGenerator.getTourPOIKML(place);
     await runKml(KMLGenerator.generateKml('69', placeKml));
+
     for (int i = 0; i <= 360; i += 17) {
       if (!isTouring.value) {
         return;
@@ -368,5 +383,141 @@ class TourController extends getx.GetxController {
     await runKml(tourKml);
     return;
     //startOrbit(position);
+  }
+
+  killAllProcesses()
+  {
+    label.value = '';
+    kml = "";
+    tourKml = "";
+    tourBalloon = "";
+    masterList.clear();
+    placeList.value.clear();
+    isLoading.value = false;
+    isError.value = false;
+    isTouring.value = false;
+    closeHiveBoxes();
+  }
+
+  void saveTour() async {
+    //await setupHive();
+
+    final countBox = Hive.box<int>('tourCount');
+    //countBox.put('count', 0);
+    final listBox = Hive.box<Map>('tourList');
+
+    final lists = listBox.get('lists');
+    Map<dynamic,dynamic> mp = lists ?? {};
+
+    List<HiveInfo> hiveList = [];
+    for(final place in tourList)
+      {
+        hiveList.add(HiveInfo.fromPlaceInfo(place));
+      }
+
+    if(hiveList.isNotEmpty) {
+      mp[mp.length+1] = hiveList;
+    }
+
+    listBox.put('lists', mp);
+    countBox.put('count', mp.length);
+  }
+
+  void updateTours(Map<int, List<HiveInfo>> mp, int count)
+  {
+    final countBox = Hive.box<int>('tourCount');
+    final listBox = Hive.box<Map>('tourList');
+    listBox.put('lists', mp);
+    countBox.put('count', count);
+  }
+
+  void updateSavedTours(List<List<PlaceInfo>> p)
+  {
+    Map<int, List<HiveInfo>> mp = {};
+    for(final (index,info) in p.indexed)
+      {
+        mp[index] = info.map((e)=>HiveInfo.fromPlaceInfo(e)).toList();
+      }
+    updateTours(mp, p.length);
+  }
+
+  Future<List<List<PlaceInfo>>> getTourLists() async {
+    //await setupHive();
+    final countBox = Hive.box<int>('tourCount');
+    int? count = countBox.get('count');
+    print("retrieved count $count");
+    final listBox = Hive.box<Map>('tourList');
+    final lists = listBox.get('lists');
+    Map<dynamic,dynamic> mp = lists ?? {};
+    List<List<PlaceInfo>> savedPlaces = [];
+    for(final item in mp.values)
+      {
+        print("item     $item");
+        List<PlaceInfo> temp = [];
+        for(HiveInfo it in item)
+          {
+            print("($it),");
+            temp.add(it.toPlaceInfo());
+          }
+        if(temp.isNotEmpty) {
+          savedPlaces.add(temp);
+        }
+      }
+    savedList.value.clear();
+
+    for(final item in savedPlaces)
+      {
+        savedList.value.add(item.obs);
+      }
+    return savedPlaces;
+  }
+
+  Future<void> setupHive() async
+  {
+    var path = await getApplicationDocumentsDirectory();
+    Hive.init(path.path);
+    Hive.registerAdapter(HiveInfoAdapter());
+    Hive.registerAdapter(HiveInfoListAdapter());
+    await Hive.openBox<int>('tourCount');
+    await Hive.openBox<Map>('tourList');
+  }
+
+  void closeHiveBoxes() async {
+    //await Hive.close();
+  }
+
+  void deleteSavedListItem(int index) {
+    savedList.value.removeAt(index);
+    updateSavedTours(savedList.value);
+  }
+
+  void addCurrentTour() {
+    savedList.value.add(tourList);
+    updateSavedTours(savedList.value);
+  }
+
+  void setCurrentTour(List<PlaceInfo> places) {
+    tourList.clear();
+    tourList.addAll(places);
+  }
+
+  /*Map<int, List<HiveInfo>> getMapFromList(List<HiveInfo> hiveList, ) {
+    Map<int,List<HiveInfo>> mp;
+
+  }*/
+}
+
+class HiveInfoListAdapter extends TypeAdapter<List<HiveInfo>> {
+  @override
+  final int typeId = 13;
+
+  @override
+  List<HiveInfo> read(BinaryReader reader) {
+    return (reader.readList() as List).cast<HiveInfo>();
+  }
+
+  @override
+  void write(BinaryWriter writer, List<HiveInfo> obj) {
+    writer.writeList(obj);
   }
 }

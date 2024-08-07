@@ -105,7 +105,7 @@ class LGConnection extends GetxController {
       });
       print("IP: $_host , port: $_port");
       isConnected.value =true;
-      await showLogos();
+      //await showLogos();
       return true;
 
     } on SocketException catch (e) {
@@ -183,12 +183,34 @@ class LGConnection extends GetxController {
 
 
   Future<void> renderInSlave(int slaveNo, String kml) async {
+    //Get.to(()=>TestScreen(kml: kml));
     try {
       print("render:$kml");
       if(_client==null) {
         return;
       }
       await _client!.run("echo '${kml.trim()}' > /var/www/html/kml/slave_$slaveNo.kml");
+      print("balloon sent");
+      await setRefresh();
+      print("refresh sent");
+
+      return;
+    } catch (error) {
+      Get.snackbar(
+          "ERROR", error.toString(), colorText: Colors.red);
+      print("render error");
+      return;
+    }
+  }
+
+  Future<void> renderBalloon(String kml) async {
+    //Get.to(()=>TestScreen(kml: kml));
+    try {
+      print("render:$kml");
+      if(_client==null) {
+        return;
+      }
+      await _client!.run("echo '${kml.trim()}' > /var/www/html/kml/slave_${int.parse(_numberOfRigs).rightMostRig}.kml");
       print("balloon sent");
       await setRefresh();
       print("refresh sent");
@@ -219,8 +241,6 @@ class LGConnection extends GetxController {
   }
 
   Future<void> shutdown() async {
-
-
     for (var i = int.tryParse(_numberOfRigs)!; i >= 1; i--) {
       try {
         if(_client==null)
@@ -236,7 +256,6 @@ class LGConnection extends GetxController {
   }
 
   Future<void> relaunch() async {
-
     for (var i = int.tryParse(_numberOfRigs)!; i >= 1; i--)  {
       try {
         if(_client==null)
@@ -416,7 +435,7 @@ fi
     }
   }
   showLogos() async {
-    Get.to(()=>TestScreen(kml: BalloonGenerator.screenOverlayImage(Constants.logosUrl, Constants.splashAspectRatio)));
+    //Get.to(()=>TestScreen(kml: BalloonGenerator.screenOverlayImage(Constants.logosUrl, Constants.splashAspectRatio)));
     try {
       if(_client==null) {
         return;

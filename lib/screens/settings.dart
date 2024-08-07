@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:super_liquid_galaxy_controller/components/glassbox.dart';
 import 'package:super_liquid_galaxy_controller/generated/assets.dart';
+import 'package:super_liquid_galaxy_controller/tabs/about.dart';
 import 'package:super_liquid_galaxy_controller/tabs/apikey_tab.dart';
 import 'package:super_liquid_galaxy_controller/tabs/connection_tab.dart';
 import 'package:super_liquid_galaxy_controller/tabs/sshcommands_tab.dart';
@@ -57,7 +58,7 @@ class _SettingsState extends State<Settings> {
         ),
       ),
       DefaultTabController(
-        length: 3,
+        length: 4,
         initialIndex: 0,
         child: Scaffold(
           backgroundColor: Colors.transparent,
@@ -136,7 +137,7 @@ class _SettingsState extends State<Settings> {
                             width: 10.0,
                           ),
                           Text(
-                            "Connection  ",
+                            "  Connection",
                             style: TextStyle(fontSize: 30.0),
                           ),
                         ]),
@@ -157,7 +158,7 @@ class _SettingsState extends State<Settings> {
                             width: 10.0,
                           ),
                           Text(
-                            "SSH Commands  ",
+                            "  SSH Commands",
                             style: TextStyle(fontSize: 30.0),
                           ),
                         ]),
@@ -178,7 +179,28 @@ class _SettingsState extends State<Settings> {
                             width: 10.0,
                           ),
                           Text(
-                            "API Keys  ",
+                            "  API Keys",
+                            style: TextStyle(fontSize: 30.0),
+                          ),
+                        ]),
+                      ),
+                    ),
+                  ),
+                ),
+                Tab(
+                  height: screenHeight * 0.1,
+                  child: Container(
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 15.0),
+                        child: Row(mainAxisSize: MainAxisSize.min, children: const [
+                          ImageIcon(AssetImage(Assets.iconsInformation), size: 45.0),
+                          SizedBox(
+                            width: 10.0,
+                          ),
+                          Text(
+                            "  About  ",
                             style: TextStyle(fontSize: 30.0),
                           ),
                         ]),
@@ -190,7 +212,7 @@ class _SettingsState extends State<Settings> {
             ),
           ),
           body: TabBarView(
-            children: const [ConnectionTab(), SSHCommandsTab(), ApiKeyTab()],
+            children: const [ConnectionTab(), SSHCommandsTab(), ApiKeyTab(),AboutTab()],
           ),
         ),
       ),

@@ -673,6 +673,8 @@ class _PlaceViewPoiState extends State<PlaceViewPoi> with TickerProviderStateMix
   void dispose() {
     voiceController?.dispose();
     lottieController?.dispose();
+    poiController.stopTTS();
+    poiController.killAllProcesses();
     super.dispose();
   }
 

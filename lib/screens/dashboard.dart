@@ -1,20 +1,25 @@
 import 'dart:developer' as developer;
+import 'dart:io';
+import 'dart:math';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:popup_menu/popup_menu.dart';
-import 'package:super_liquid_galaxy_controller/components/galaxytextfield.dart';
 import 'package:super_liquid_galaxy_controller/components/navisland.dart';
 import 'package:super_liquid_galaxy_controller/components/planet_selector.dart';
 import 'package:super_liquid_galaxy_controller/controllers/api_manager.dart';
 import 'package:super_liquid_galaxy_controller/controllers/lg_connection.dart';
+import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
 import 'package:super_liquid_galaxy_controller/generated/assets.dart';
 import 'package:super_liquid_galaxy_controller/screens/settings.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
+import 'package:super_liquid_galaxy_controller/utils/testkml.dart';
 
 import '../components/connection_flag.dart';
 import '../components/glassbox.dart';
+import '../utils/constants.dart';
 
 //ignore_for_file: prefer_const_constructors
 //ignore_for_file: prefer_const_literals
@@ -45,8 +50,14 @@ class _DashBoardState extends State<DashBoard> {
 
   @override
   Widget build(BuildContext context) {
-    screenHeight = MediaQuery.of(context).size.height;
-    screenWidth = MediaQuery.of(context).size.width;
+    screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
+    screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
 
     return SafeArea(
         child: Scaffold(
@@ -64,10 +75,44 @@ class _DashBoardState extends State<DashBoard> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Image.asset("assets/earth.gif",
+                      /*Image.network(getPlanetLink(selectedIndex),
                           height: screenHeight,
                           width: screenWidth,
-                          fit: BoxFit.cover),
+                          fit: BoxFit.cover,
+                        loadingBuilder: (context,Widget widget,ImageChunkEvent? loadingProgress){
+                          if (loadingProgress == null) return widget;
+                          print(loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                              : null);
+                        //print((loader!.cumulativeBytesLoaded /loader.expectedTotalBytes!));
+                        return Image.asset(getPlanetAssetLink(selectedIndex),
+                            height: screenHeight,
+                            width: screenWidth,
+                            fit: BoxFit.cover);
+                        },
+
+                      ),*/
+                      CachedNetworkImage(
+                        imageUrl: getPlanetLink(selectedIndex),
+                        placeholder: (context, str) {
+                          //print("blah");
+                          return Image.asset(getPlanetAssetLink(selectedIndex),
+                              height: screenHeight,
+                              width: screenWidth,
+                              fit: BoxFit.cover);
+                        },
+                        height: screenHeight,
+                        width: screenWidth,
+                        fit: BoxFit.cover,
+                        /*progressIndicatorBuilder:
+                            (context, widget, DownloadProgress? progress) {
+                          return Image.asset(getPlanetAssetLink(selectedIndex),
+                              height: screenHeight,
+                              width: screenWidth,
+                              fit: BoxFit.cover);
+                        },*/
+                      )
                     ],
                   ),
                   Column(
@@ -132,7 +177,7 @@ class _DashBoardState extends State<DashBoard> {
                                                         .cleaning_services_sharp,
                                                     size: screenHeight * 0.07,
                                                     color: connectionClient
-                                                            .isConnected.value
+                                                        .isConnected.value
                                                         ? GalaxyColors.blue
                                                         : Colors.red,
                                                   ),
@@ -149,14 +194,14 @@ class _DashBoardState extends State<DashBoard> {
                                                     "CLEAR KML",
                                                     style: TextStyle(
                                                         color: connectionClient
-                                                                .isConnected
-                                                                .value
+                                                            .isConnected
+                                                            .value
                                                             ? GalaxyColors.blue
                                                             : Colors.red,
                                                         fontSize:
-                                                            screenHeight * 0.07,
+                                                        screenHeight * 0.07,
                                                         fontWeight:
-                                                            FontWeight.bold),
+                                                        FontWeight.bold),
                                                   ),
                                                 ),
                                               )
@@ -198,7 +243,7 @@ class _DashBoardState extends State<DashBoard> {
                                     if (!out.isPassWordGuarded) {
                                       await Get.to(() => Settings());
                                     } else {
-                                      keyController.clear();
+                                      /*keyController.clear();
                                       String result = await Get.defaultDialog(
                                           title: "ENTER PASSWORD USED",
                                           content: Container(
@@ -226,13 +271,13 @@ class _DashBoardState extends State<DashBoard> {
                                             Get.back(result: '');
                                           });
 
-                                      if (result.compareTo(out.password) == 0) {
-                                        await Get.to(() => Settings());
-                                      } else {
+                                      if (result.compareTo(out.password) == 0) {*/
+                                      await Get.to(() => Settings());
+                                      /*} else {
                                         if (!(result.compareTo('') == 0)) {
                                           showErrorSnackBar();
                                         }
-                                      }
+                                      }*/
                                     }
                                   },
                                 ),
@@ -255,9 +300,9 @@ class _DashBoardState extends State<DashBoard> {
                                   Obx(() {
                                     return ConnectionFlag(
                                       status:
-                                          connectionClient.isConnected.value,
+                                      connectionClient.isConnected.value,
                                       backgroundColor:
-                                          Colors.white.withOpacity(0.0),
+                                      Colors.white.withOpacity(0.0),
                                       selectedText: 'LG CONNECTED',
                                       unSelectedText: 'LG NOT CONNECTED',
                                       fontSize: 15.0,
@@ -276,7 +321,7 @@ class _DashBoardState extends State<DashBoard> {
                                     return ConnectionFlag(
                                       status: apiClient.isConnected.value,
                                       backgroundColor:
-                                          Colors.white.withOpacity(0.0),
+                                      Colors.white.withOpacity(0.0),
                                       selectedText: 'API CONNECTED',
                                       unSelectedText: 'API NOT CONNECTED',
                                       fontSize: 15.0,
@@ -303,6 +348,7 @@ class _DashBoardState extends State<DashBoard> {
                               key: widgetKey,
                               height: screenHeight * 0.2,
                               width: screenWidth * 0.4,
+                              planetName: getPlanetName(selectedIndex),
                               onPressed: () {
                                 menu(widgetKey);
                               },
@@ -320,10 +366,98 @@ class _DashBoardState extends State<DashBoard> {
                       Padding(
                         padding: const EdgeInsets.all(25.0),
                         child: NavIsland(
-                            height: screenHeight * 0.6,
-                            width: screenWidth * 0.3),
+                          height: screenHeight * 0.6,
+                          width: screenWidth * 0.3,
+                          changePlanet: () async {
+                            print(" earth");
+                            //selectedIndex = 0;
+                            if (!connectionClient.isConnected.value) {
+                              retryConnectionOrShowError();
+                              return;
+                            } else {
+                              runPlanetKml(0);
+                            }
+                          },
+                          getPlanet: () {
+                            return selectedIndex;
+                          },
+                        ),
                       )
                     ],
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        height: screenHeight * 0.4,
+                        width: screenWidth * 0.1,
+                        decoration: BoxDecoration(
+                            color: Colors.grey.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20.0)),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Expanded(
+                                child: FittedBox(
+                                    fit: BoxFit.contain,
+                                    child: InkWell(
+                                        onTap: () {
+                                          testRun(Constants.noneKML);
+                                        },
+                                        child: Text(
+                                          "1",
+                                          style: TextStyle(color: Colors.white),
+                                        )))),
+                            Divider(color: Colors.white),
+                            Expanded(
+                                child: FittedBox(
+                                    fit: BoxFit.contain,
+                                    child: InkWell(
+                                        onTap: () {
+                                          testRun(Constants.clampKML);
+                                        },
+                                        child: Text(
+                                          "2",
+                                          style: TextStyle(color: Colors.white),
+                                        )))),
+                            Divider(color: Colors.white),
+                            Expanded(
+                                child: FittedBox(
+                                    fit: BoxFit.contain,
+                                    child: InkWell(
+                                        onTap: () {
+                                          testRun(Constants.relativeKML);
+                                        },
+                                        child: Text(
+                                          "3",
+                                          style: TextStyle(color: Colors.white),
+                                        )))),
+                            Divider(color: Colors.white),
+                            Expanded(
+                                child: FittedBox(
+                                    fit: BoxFit.contain,
+                                    child: InkWell(
+                                        onTap: () async {
+                                          testRun(TestKML.laveFlow);
+                                          MapPosition position = MapPosition(
+                                              latitude: 28.65665656297236,
+                                              longitude: -17.885454520583153,
+                                              bearing: 61.403038024902344,
+                                              tilt: 41.82725143432617,
+                                              zoom: 591657550.500000 /
+                                                  pow(2, 13.15393352508545));
+                                          await connectionClient.moveTo(
+                                              position);
+                                        },
+                                        child: Text(
+                                          "4",
+                                          style: TextStyle(color: Colors.white),
+                                        )))),
+                          ],
+                        ),
+                      ),
+                    ),
                   )
                 ],
               ),
@@ -378,7 +512,7 @@ class _DashBoardState extends State<DashBoard> {
   Future<LottieComposition?> customDecoder(List<int> bytes) {
     return LottieComposition.decodeZip(bytes, filePicker: (files) {
       return files.firstWhere(
-        (f) => f.name.startsWith('animations/') && f.name.endsWith('.json'),
+            (f) => f.name.startsWith('animations/') && f.name.endsWith('.json'),
       );
     });
   }
@@ -453,47 +587,54 @@ class _DashBoardState extends State<DashBoard> {
 
   void menu(GlobalKey key) {
     PopupMenu menu = PopupMenu(
-      context: context,
-      config: MenuConfig(
-        type: MenuType.list,
-        itemWidth: screenWidth*0.3,
-        itemHeight: screenHeight*0.1,
-        backgroundColor: Colors.white.withOpacity(0.5),
-        lineColor: Colors.grey,
-        maxColumn: 1,
-        highlightColor: Colors.black
-      ),
-      items: [
-        MenuItem(
-            title: '   Earth',
-            image: Image.asset(
-              Assets.iconsEarth,
-              height: screenHeight*0.07,
-              width: screenHeight*0.07,
+        context: context,
+        config: MenuConfig(
+            type: MenuType.list,
+            itemWidth: screenWidth * 0.3,
+            itemHeight: screenHeight * 0.1,
+            backgroundColor: Colors.white.withOpacity(0.5),
+            lineColor: Colors.grey,
+            maxColumn: 1,
+            highlightColor: Colors.black),
+        items: [
+          MenuItem(
+              title: '   Earth',
+              image: Image.asset(
+                Assets.iconsEarth,
+                height: screenHeight * 0.07,
+                width: screenHeight * 0.07,
+              ),
+              textStyle: TextStyle(
+                  fontSize: screenHeight * 0.04,
+                  color: selectedIndex != 0
+                      ? Colors.grey.shade800
+                      : Colors.black)),
+          MenuItem(
+              title: '   Moon',
+              image: Image.asset(
+                Assets.iconsMoon,
+                height: screenHeight * 0.07,
+                width: screenHeight * 0.07,
+              ),
+              textStyle: TextStyle(
+                  fontSize: screenHeight * 0.04,
+                  color: selectedIndex != 1
+                      ? Colors.grey.shade800
+                      : Colors.black)),
+          MenuItem(
+              title: '   Mars',
+              image: Image.asset(
+                Assets.iconsMars,
+                height: screenHeight * 0.07,
+                width: screenHeight * 0.07,
+              ),
+              textStyle: TextStyle(
+                  fontSize: screenHeight * 0.04,
+                  color: selectedIndex != 2
+                      ? Colors.grey.shade800
+                      : Colors.black)),
 
-            ),
-        textStyle: TextStyle(fontSize: screenHeight*0.04, color: selectedIndex!=0? Colors.grey.shade800:Colors.black)
-        ),
-        MenuItem(
-            title: '   Moon',
-            image: Image.asset(
-              Assets.iconsMoon,
-              height: screenHeight*0.07,
-              width: screenHeight*0.07,
-            ),
-            textStyle: TextStyle(fontSize: screenHeight*0.04,color: selectedIndex!=1? Colors.grey.shade800:Colors.black)
-        ),
-        MenuItem(
-            title: '   Mars',
-            image: Image.asset(
-              Assets.iconsMars,
-              height: screenHeight*0.07,
-              width: screenHeight*0.07,
-            ),
-            textStyle: TextStyle(fontSize: screenHeight*0.04, color: selectedIndex!=2? Colors.grey.shade800:Colors.black)
-        ),
-
-       /* // MenuItem(
+          /* // MenuItem(
         //     title: 'Home',
         //     textStyle: TextStyle(fontSize: 10.0, color: Colors.tealAccent),
         //     image: Icon(
@@ -524,71 +665,130 @@ class _DashBoardState extends State<DashBoard> {
         //       Icons.menu,
         //       color: Colors.white
         //     ))*/
-      ],
-      onClickMenu: (MenuItemProvider item){
-        String label = item.menuTitle.toLowerCase().trim();
-        print(label);
-        switch(label)
-            {
-          case "earth":
-            {
-              print(" earth");
-              selectedIndex = 0;
-              if (!connectionClient.isConnected.value) {
-                retryConnectionOrShowError();
-                return;
+        ],
+        onClickMenu: (MenuItemProvider item) {
+          String label = item.menuTitle.toLowerCase().trim();
+          print(label);
+          switch (label) {
+            case "earth":
+              {
+                print(" earth");
+                //selectedIndex = 0;
+                if (!connectionClient.isConnected.value) {
+                  retryConnectionOrShowError();
+                  return;
+                } else {
+                  runPlanetKml(0);
+                }
+                break;
               }
-              else {
-                runPlanetKml(selectedIndex);
+            case "moon":
+              {
+                print(" moon");
+                //selectedIndex = 1;
+                if (!connectionClient.isConnected.value) {
+                  retryConnectionOrShowError();
+                  return;
+                } else {
+                  runPlanetKml(1);
+                }
+                break;
               }
-              break;
-            }
-          case "moon":
-            {
-              print(" moon");
-              selectedIndex = 1;
-              if (!connectionClient.isConnected.value) {
-                retryConnectionOrShowError();
-                return;
+            case "mars":
+              {
+                print(" mars");
+                //selectedIndex = 2;
+                if (!connectionClient.isConnected.value) {
+                  retryConnectionOrShowError();
+                  return;
+                } else {
+                  runPlanetKml(2);
+                }
+                break;
               }
-              else {
-                runPlanetKml(selectedIndex);
-              }
-              break;
-            }
-          case "mars":
-            {
-              print(" mars");
-              selectedIndex = 2;
-              if (!connectionClient.isConnected.value) {
-                retryConnectionOrShowError();
-                return;
-              }
-              else {
-                runPlanetKml(selectedIndex);
-              }
-              break;
-            }
-        }
-      }
-    );
+          }
+        });
     menu.show(widgetKey: key);
   }
 
   void runPlanetKml(int index) async {
+    await connectionClient.clearKml();
     var success = await connectionClient.changePlanet(index);
     print(success);
-    if(!success)
-      {
-        if (!Get.isSnackbarOpen) {
-          Get.showSnackbar(GetSnackBar(
-            backgroundColor: Colors.red.shade300,
-            title: "Command Failed",
-            message: "Planet could not be changed due to an unknown error.",
-            isDismissible: true,
-            duration: 3.seconds,
-          ));
-        }
+    if (!success) {
+      if (!Get.isSnackbarOpen) {
+        Get.showSnackbar(GetSnackBar(
+          backgroundColor: Colors.red.shade300,
+          title: "Command Failed",
+          message: "Planet could not be changed due to an unknown error.",
+          isDismissible: true,
+          duration: 3.seconds,
+        ));
       }
+    } else {
+      setState(() {
+        selectedIndex = index;
+      });
+    }
+  }
+
+  String getPlanetName(int selectedIndex) {
+    switch (selectedIndex) {
+      case 0:
+        {
+          return "EARTH";
+        }
+      case 1:
+        {
+          return "MOON";
+        }
+      case 2:
+        {
+          return "MARS";
+        }
+      default:
+        {
+          return "EARTH";
+        }
+    }
+  }
+
+  String getPlanetLink(int selectedIndex) {
+    if (selectedIndex == 0) {
+      return Constants.earthGif;
+    } else if (selectedIndex == 1) {
+      return Constants.moonGif;
+    } else {
+      return Constants.marsGif;
+    }
+  }
+
+  String getPlanetAssetLink(int selectedIndex) {
+    if (selectedIndex == 0) {
+      return Assets.iconsEarthImg;
+    } else if (selectedIndex == 1) {
+      return Assets.iconsMoonImg;
+    } else {
+      return Assets.iconsMarsImg;
+    }
+  }
+
+  Future<void> testRun(String kml) async {
+    await connectionClient.connectToLG();
+    File? file = await connectionClient.makeFile("TEST", kml);
+    print("made successfully");
+    await connectionClient.kmlFileUpload(file!, "TEST");
+    print("uploaded successfully");
+    await connectionClient.runKml("TEST");
+    print("ran kml successfully");
+
+
+    Get.showSnackbar(GetSnackBar(
+      backgroundColor: Colors.green.shade300,
+      title: "Done.",
+      message: "KML was uploaded.",
+      isDismissible: true,
+      duration: 5.seconds,
+    ));
   }
 }

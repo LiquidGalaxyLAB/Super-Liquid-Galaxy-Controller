@@ -52,7 +52,8 @@ class GeoQuestState extends State<GeoQuest> with TickerProviderStateMixin {
     mapMovementController = Get.find();
     geoQuestController = Get.find();
     geoQuestController.initializeJsonList();
-    geoQuestController.startGame();
+    geoQuestController.processKilled = false;
+    //geoQuestController.startGame();
     geoQuestController.screenCoords.value = Coordinates(latitude: position.latitude, longitude: position.longitude) ;
     bootLGClient();
   }
@@ -124,79 +125,86 @@ class GeoQuestState extends State<GeoQuest> with TickerProviderStateMixin {
             padding: const EdgeInsets.all(16.0),
             child: Material(
               color: Colors.transparent,
-              child: Container(
-                width: screenWidth * 0.45,
-                height: screenHeight * 0.125,
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.6),
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                        flex: 3,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Container(
-                            child: const FittedBox(
-                              fit: BoxFit.contain,
-                              child: Text(
-                                "GEO-QUEST",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
-                        )),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16.0),
-                      child: VerticalDivider(
-                        color: Colors.white,
-                        thickness: 3.0,
-                      ),
+              child: Row(
+                children: [
+                  Container(
+                    width: screenWidth * 0.45,
+                    height: screenHeight * 0.125,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(20.0),
                     ),
-                    Expanded(
-                        child: Container(
-                          child: Column(
-                            children: [
-                              Expanded(
-                                  child: Padding(
-                                    padding:
-                                    const EdgeInsets.fromLTRB(
-                                        8.0, 16.0, 16.0, 2.0),
-                                    child: Container(
-                                      child: FittedBox(
-                                        fit: BoxFit.contain,
-                                        child: Text(
-                                          "Score:",
-                                          style: TextStyle(color: Colors.grey),
-                                        ),
-                                      ),
-                                    ),
-                                  )),
-                              Expanded(
-                                  child: Padding(
-                                    padding:
-                                    const EdgeInsets.fromLTRB(
-                                        8.0, 0.0, 16.0, 16.0),
-                                    child: Container(
-                                      child: FittedBox(
-                                        fit: BoxFit.contain,
-                                        child: Obx((){
-                                          return Text(
-                                            "${geoQuestController.score}",
-                                            style: TextStyle(color: Colors.white),
-                                          );
-                                        })
-                                      ),
-                                    ),
-                                  )),
-                            ],
+                    child: Row(
+                      children: [
+                        Expanded(
+                            flex: 3,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(16.0,16.0,0.0,16.0),
+                              child: Container(
+                                child: const FittedBox(
+                                  fit: BoxFit.contain,
+                                  child: Text(
+                                    "GEO-QUEST",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            )),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16.0),
+                          child: VerticalDivider(
+                            color: Colors.white,
+                            thickness: 3.0,
                           ),
-                        ))
-                  ],
-                ),
+                        ),
+                        Expanded(
+                            child: Container(
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                      child: Padding(
+                                        padding:
+                                        const EdgeInsets.fromLTRB(
+                                            8.0, 16.0, 16.0, 2.0),
+                                        child: Container(
+                                          child: FittedBox(
+                                            fit: BoxFit.contain,
+                                            child: Text(
+                                              "Score:",
+                                              style: TextStyle(color: Colors.grey),
+                                            ),
+                                          ),
+                                        ),
+                                      )),
+                                  Expanded(
+                                      child: Padding(
+                                        padding:
+                                        const EdgeInsets.fromLTRB(
+                                            8.0, 0.0, 16.0, 16.0),
+                                        child: Container(
+                                          child: FittedBox(
+                                            fit: BoxFit.contain,
+                                            child: Obx((){
+                                              return Text(
+                                                "${geoQuestController.score}",
+                                                style: TextStyle(color: Colors.white),
+                                              );
+                                            })
+                                          ),
+                                        ),
+                                      )),
+                                ],
+                              ),
+                            ))
+                      ],
+                    ),
+                  ),
+                  IconButton(onPressed: (){
+                    geoQuestController.showStartMessage();
+                  }, color: Colors.white, icon: Icon(Icons.info, size: screenHeight* 0.07,))
+                ],
               ),
             ),
           ),
@@ -268,6 +276,7 @@ class GeoQuestState extends State<GeoQuest> with TickerProviderStateMixin {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: InkWell(
@@ -295,7 +304,7 @@ class GeoQuestState extends State<GeoQuest> with TickerProviderStateMixin {
                                     fit: BoxFit.contain,
                                     child: Obx(() {
                                       return Text(
-                                        (geoQuestController.currentState.value.length !=0)?"${geoQuestController.currentState.value}, ${geoQuestController.currentCountry.value}":"Loading...",
+                                        (geoQuestController.currentState.value.length !=0)?"${geoQuestController.currentState.value}, ${geoQuestController.currentCountry.value}":"Start game...",
                                         style: TextStyle(color: Colors.white,
                                             fontWeight: FontWeight.bold),
                                       );
@@ -326,6 +335,59 @@ class GeoQuestState extends State<GeoQuest> with TickerProviderStateMixin {
                             )
                         )
                       ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: InkWell(
+                      radius: 150.0,
+                        onTap: (){
+                        if(!geoQuestController.gameIsPlaying.value)
+                        geoQuestController.startGameLogic();
+                        else
+                          geoQuestController.stopGameLogic();
+
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.6),
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          width: screenWidth * 0.2,
+                          height: screenHeight * 0.1,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                  flex: 8,
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(25.0, 16.0, 0.0, 16.0),
+                                    child: Obx((){
+                                      return Container(
+                                        child: FittedBox(
+                                          fit: BoxFit.contain,
+                                          child:
+                                          Text(
+                                            geoQuestController.gameIsPlaying.value?"STOP GAME":"START GAME",
+                                            style: TextStyle(color: Colors.white,
+                                                fontWeight: FontWeight.bold),
+
+                                          ),
+                                        ),
+                                      );
+                                    })
+                                  )),
+                              Expanded(
+                                  flex: 3,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: FittedBox(
+                                        fit: BoxFit.contain,
+                                        child: Icon(Icons.gamepad_rounded, color: Colors.white,size: screenHeight*0.07,)),
+                                    ),
+                                  )
+                            ],
+                          ),
+                        ),
                     ),
                   ),
                 ],
@@ -434,6 +496,9 @@ class GeoQuestState extends State<GeoQuest> with TickerProviderStateMixin {
   @override
   void dispose() {
     geoQuestController.stopTimer();
+    Get.closeAllSnackbars();
+    geoQuestController.processKilled = true;
+    Get.delete<GeoQuestController>();
     super.dispose();
   }
 }

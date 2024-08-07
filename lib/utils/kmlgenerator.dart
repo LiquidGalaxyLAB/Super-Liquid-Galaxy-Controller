@@ -9,6 +9,7 @@ import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_details_response.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_info.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_response.dart' as pr;
+import 'package:super_liquid_galaxy_controller/utils/constants.dart';
 import 'package:super_liquid_galaxy_controller/utils/geo_utils.dart';
 
 class KMLGenerator {
@@ -32,10 +33,21 @@ class KMLGenerator {
   </Point>
   </Placemark>''';
 
+  static getPOIPlacemark(Placemark placeMark) => '''<Placemark>
+  <name>${placeMark.label}</name>
+  <styleUrl>#poiplace</styleUrl>
+  <description>
+  ${placeMark.description}
+  </description>
+  <Point>
+  <coordinates>${placeMark.coordinate.longitude},${placeMark.coordinate.latitude}</coordinates>
+  </Point>
+  </Placemark>''';
+
   static getCoordinateList(List<Coordinates> list) {
     var coordinates = '';
     for (final coordinate in list) {
-      coordinates += '${coordinate.longitude},${coordinate.latitude},0 ';
+      coordinates += '${coordinate.longitude},${coordinate.latitude},250 ';
     }
     return '''<coordinates>${coordinates}</coordinates>''';
   }
@@ -60,6 +72,8 @@ class KMLGenerator {
   <styleUrl>#polyStyle</styleUrl>
   <Polygon>
   <extrude>1</extrude>
+  <tessellate>1</tessellate>
+  <altitudeMode>clampToGround</altitudeMode>
   <outerBoundaryIs>
   <LinearRing>
   ${getCoordinateList(placeMark.coordinates)}
@@ -326,6 +340,14 @@ class KMLGenerator {
              <scale>2.5</scale>
     </IconStyle>
     </Style>
+    <Style id="poiplace">
+    <IconStyle>
+             <Icon>
+                <href>${Constants.pinUrl}</href>
+             </Icon>
+             <scale>1.5</scale>
+    </IconStyle>
+    </Style>
     <Style id="nearby">
     <IconStyle>
              <color>ff00ff00</color>
@@ -380,6 +402,7 @@ class KMLGenerator {
         <Polygon>
         <extrude>2</extrude>
         <tessellate>1</tessellate>
+  <altitudeMode>clampToGround</altitudeMode>
           <outerBoundaryIs>
             <LinearRing>
               <coordinates>
@@ -460,6 +483,7 @@ class KMLGenerator {
         <Polygon>
         <extrude>2</extrude>
         <tessellate>1</tessellate>
+        <altitudeMode>clampToGround</altitudeMode>
           <outerBoundaryIs>
             <LinearRing>
               <coordinates>
@@ -623,7 +647,9 @@ class KMLGenerator {
   <Polygon>
   <outerBoundaryIs>
   <LinearRing>
+  <extrude>1</extrude>
   <tessellate>1</tessellate>
+  <altitudeMode>clampToGround</altitudeMode>
   <coordinates>
   ${getCoordinateList([
           Coordinates.fromLatLng(roadEnd1),
@@ -833,7 +859,8 @@ class KMLGenerator {
       <styleUrl>#ps</styleUrl>
         <Polygon>
         <extrude>2</extrude>
-        <altitudeMode>relativeToGround</altitudeMode>
+        <tessellate>1</tessellate>
+        <altitudeMode>clampToGround</altitudeMode>
           <outerBoundaryIs>
             <LinearRing>
               <coordinates>
@@ -948,6 +975,8 @@ class KMLGenerator {
   <styleUrl>#boundStyle</styleUrl>
   <Polygon>
   <extrude>1</extrude>
+  <tessellate>1</tessellate>
+  <altitudeMode>clampToGround</altitudeMode>
   <outerBoundaryIs>
   <LinearRing>
   ${getCoordinateList(coords)}
@@ -962,7 +991,7 @@ class KMLGenerator {
   static String addPlaces(List<PlaceInfo> points) {
     String kml = '';
     for( final point in points) {
-      kml+=getPlacemark(Placemark(coordinate: point.coordinate, label: point.label, description: point.address));
+      kml+=getPOIPlacemark(Placemark(coordinate: point.coordinate, label: point.label, description: point.address));
     }
     return kml;
 

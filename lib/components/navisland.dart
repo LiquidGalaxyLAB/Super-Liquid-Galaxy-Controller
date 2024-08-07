@@ -1,8 +1,9 @@
 import 'dart:ui';
-
+import 'package:latlong2/latlong.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:super_liquid_galaxy_controller/controllers/lg_connection.dart';
+import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/screens/geoquest.dart';
 import 'package:super_liquid_galaxy_controller/screens/kml_builder.dart';
 import 'package:super_liquid_galaxy_controller/screens/maps_controller.dart';
@@ -10,6 +11,8 @@ import 'package:super_liquid_galaxy_controller/screens/poi_exploration.dart';
 import 'package:super_liquid_galaxy_controller/screens/test.dart';
 import 'package:super_liquid_galaxy_controller/screens/tour_builder.dart';
 import 'package:super_liquid_galaxy_controller/utils/balloongenerator.dart';
+import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
+import 'package:super_liquid_galaxy_controller/utils/kmlgenerator.dart';
 
 import '../generated/assets.dart';
 import '../utils/constants.dart';
@@ -18,11 +21,13 @@ import '../utils/constants.dart';
 //ignore_for_file: prefer_const_literals
 
 class NavIsland extends StatelessWidget {
-  NavIsland({super.key, required this.height, required this.width, this.child});
+  NavIsland({super.key, required this.height, required this.width, this.child, required this.getPlanet,required this.changePlanet});
 
   double height;
   double width;
   Widget? child;
+  Function() getPlanet;
+  Function() changePlanet;
 
   int i =0;
 
@@ -60,9 +65,9 @@ class NavIsland extends StatelessWidget {
                     Container(
                       width: double.infinity,
                       height: height * 0.12,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          color: Colors.black.withOpacity(0.4)),
+                      // decoration: BoxDecoration(
+                      //     borderRadius: BorderRadius.circular(15),
+                      //     color: Colors.black.withOpacity(0.4)),
                       child: FittedBox(
                         fit: BoxFit.fitHeight,
                         child: Center(
@@ -85,7 +90,11 @@ class NavIsland extends StatelessWidget {
                     Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () {
+                        onTap: () async {
+                          if(getPlanet()!=0)
+                            {
+                              await changePlanet();
+                            }
                           Get.to(() => PoiExploration());
                         },
                         borderRadius: BorderRadius.circular(15),
@@ -128,7 +137,11 @@ class NavIsland extends StatelessWidget {
                           Material(
                             color: Colors.transparent,
                             child: InkWell(
-                              onTap: () {
+                              onTap: () async {
+                                if(getPlanet()!=0)
+                                {
+                                  await changePlanet();
+                                }
                                 Get.to(() => TourBuilder());
                               },
                               borderRadius: BorderRadius.circular(15),
@@ -181,7 +194,17 @@ class NavIsland extends StatelessWidget {
                                     color: Colors.transparent,
                                     child: InkWell(
                                       onTap: () async {
+
+
+
+                                        if(getPlanet()!=0)
+                                        {
+                                          await changePlanet();
+                                        }
                                         Get.to(()=>GeoQuest());
+
+                                        
+
                                         /*i++;
                                         try {
                                           LGConnection connection = Get.find();
@@ -199,6 +222,13 @@ class NavIsland extends StatelessWidget {
                                             ));
                                           }
                                         }*/
+
+                                        /*Coordinates start = Coordinates(latitude: 0.0, longitude: 0.0);
+                                        Coordinates end = Coordinates(latitude: 12.0, longitude: 12.0);
+                                        final distance = Distance();
+                                        final length = distance.distance(start.toLatLng(start), end.toLatLng(end));
+                                        String kml = KMLGenerator.generatefootPrintLine(start.toLatLng(start), end.toLatLng(end), length/10, length/20);
+                                        Get.to(()=>TestScreen(kml: KMLGenerator.generateKml('69', kml)));*/
 
                                       },
                                       borderRadius: BorderRadius.circular(15),
@@ -256,7 +286,11 @@ class NavIsland extends StatelessWidget {
                                   child: Material(
                                     color: Colors.transparent,
                                     child: InkWell(
-                                      onTap: () {
+                                      onTap: () async {
+                                        if(getPlanet()!=0)
+                                        {
+                                          await changePlanet();
+                                        }
                                         Get.to(() => MapController());
                                       },
                                       borderRadius: BorderRadius.circular(15),
@@ -315,7 +349,11 @@ class NavIsland extends StatelessWidget {
                                   child: Material(
                                     color: Colors.transparent,
                                     child: InkWell(
-                                      onTap: () {
+                                      onTap: () async {
+                                        if(getPlanet()!=0)
+                                        {
+                                          await changePlanet();
+                                        }
                                         Get.to(() => KmlUploader());
                                       },
                                       borderRadius: BorderRadius.circular(15),

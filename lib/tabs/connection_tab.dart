@@ -134,6 +134,7 @@ class _ConnectionTabState extends State<ConnectionTab>
     print("clicked");
     LGConnection lgConnection = Get.find();
     await lgConnection.connectToLG();
+    await lgConnection.showLogos();
     var dialog = lgConnection.connectStatus()
         ? CustomDialog(
         content: Text("SSH operations are now possible."),

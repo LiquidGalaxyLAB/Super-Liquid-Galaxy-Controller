@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 //ignore_for_file: prefer_const_literals
 
 class PlanetSelector extends StatefulWidget {
-  PlanetSelector({super.key,required this.height,required this.width, required this.onPressed});
+  PlanetSelector({super.key,required this.height,required this.width, required this.onPressed, required this.planetName});
 
   double width;
   double height;
   VoidCallback onPressed;
+  String planetName;
   @override
   State<PlanetSelector> createState() => _PlanetSelectorState();
 }
@@ -56,7 +57,7 @@ class _PlanetSelectorState extends State<PlanetSelector> {
                         padding: EdgeInsets.symmetric(
                             horizontal: 8.0),
                         child: Text(
-                          "EARTH",
+                          widget.planetName,
                           style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold),

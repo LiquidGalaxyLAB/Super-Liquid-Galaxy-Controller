@@ -46,7 +46,7 @@ class _SSHCommandsTabState extends State<SSHCommandsTab> with AutomaticKeepAlive
         child: SingleChildScrollView(
           child: Obx((){
             return Column(mainAxisSize: MainAxisSize.max, children: [
-              GalaxyButton(
+              /*GalaxyButton(
                 height: screenHeight * 0.1,
                 width: screenWidth * 0.7,
                 backgroundColor: client.isConnected.value? GalaxyColors.blue : Colors.grey,
@@ -76,6 +76,23 @@ class _SSHCommandsTabState extends State<SSHCommandsTab> with AutomaticKeepAlive
                       "This will reset the refresh rate on all slave Screens on LG rig",
                       client.resetRefresh);
                   // client.resetRefresh();
+                },
+              ),*/
+              GalaxyButton(
+                height: screenHeight * 0.1,
+                width: screenWidth * 0.7,
+                backgroundColor: client.isConnected.value? GalaxyColors.blue : Colors.grey,
+                actionText: "SHOW LOGOs",
+                icon: Icons.image_aspect_ratio_rounded,
+                onTap: () {
+                  if(!client.isConnected.value) {
+                    return;
+                  }
+                  showAlertMessage("Warning!",
+                      "This will show the App Logos on the LG rig.",
+                      client.showLogos);
+
+                  //client.clearKml();
                 },
               ),
               GalaxyButton(

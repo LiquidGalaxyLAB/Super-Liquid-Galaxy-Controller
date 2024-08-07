@@ -9,7 +9,7 @@ class BalloonGenerator {
       '''<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
     <Document id ="logo">
-         <name>Smart City Dashboard</name>
+         <name>SUPER LIQUID GALAXY CONTROLLER</name>
              <Folder>
                   <name>Splash Screen</name>
                   <ScreenOverlay>
@@ -18,7 +18,26 @@ class BalloonGenerator {
                       <overlayXY x="0" y="1" xunits="fraction" yunits="fraction"/>
                       <screenXY x="0.025" y="0.95" xunits="fraction" yunits="fraction"/>
                       <rotationXY x="0" y="0" xunits="fraction" yunits="fraction"/>
-                      <size x="500" y="${500 * factor}" xunits="pixels" yunits="pixels"/>
+                      <size x="1000" y="${1000 * factor}" xunits="pixels" yunits="pixels"/>
+                  </ScreenOverlay>
+             </Folder>
+    </Document>
+</kml>''';
+
+  static screenOverlayLogos(String imageUrl) =>
+      '''<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+    <Document id ="logo">
+         <name>SUPER LIQUID GALAXY CONTROLLER</name>
+             <Folder>
+                  <name>Splash Screen</name>
+                  <ScreenOverlay>
+                      <name>Logo</name>
+                      <Icon><href>$imageUrl</href> </Icon>
+                      <overlayXY x="0" y="1" xunits="fraction" yunits="fraction"/>
+                      <screenXY x="0.025" y="0.95" xunits="fraction" yunits="fraction"/>
+                      <rotationXY x="0" y="0" xunits="fraction" yunits="fraction"/>
+                      <size x="0" y="0" xunits="pixels" yunits="fraction"/>
                   </ScreenOverlay>
              </Folder>
     </Document>
@@ -67,7 +86,7 @@ class BalloonGenerator {
           "                  <p>" + p.getAddress() + "</p>\n" +
           "                </td>\n" +
           "              </tr>\n";
-      if(i==10) {
+      if(i==7) {
         break;
       }
     }
@@ -86,7 +105,7 @@ class BalloonGenerator {
 
   }
 
-  static poiBalloonForTours(PlaceInfo place,int slaveNo, MapPosition pos) {
+  static poiBalloonForTours(PlaceInfo place, MapPosition pos) {
 
     String html = "<![CDATA[<div style=\"text-align: center; font-size: 20px; font-weight: bold; vertical-align: middle;\">${place.name}</div>]]>";
     html += "<![CDATA[\n" +
@@ -95,7 +114,7 @@ class BalloonGenerator {
     "            <table width=\"600\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\" style=\"font-size: 14px; margin: auto; text-align: center;\" border=1 frame=void rules=rows>\n" +
     "              <tr>\n" +
     "                <td align=\"center\">\n" +
-    "                  <img src=\"" + Uri.decodeFull(place.getImageLink()) + "\" alt=\"main picture\" height=\"400\" width=\"600\" style=\"margin-bottom: 10px;\" />\n" +
+    "                  <img src=\"" + place.getImageLink() + "\" alt=\"main picture\" height=\"400\" width=\"600\" style=\"margin-bottom: 10px;\" />\n" +
     "                </td>\n" +
     "              </tr>\n" +
     "              <tr>\n" +
@@ -116,12 +135,12 @@ class BalloonGenerator {
       i++;
       html += "              <tr>\n" +
           "                <td colspan=\"2\" align=\"center\">\n" +
-          "                  <img src=\"" + Uri.decodeFull(p.getImageLink()) + "\" alt=\"picture\" height=\"100\" style=\"float: left; margin-right: 10px;\" />\n" +
+          "                  <img src=\"" + p.getImageLink() + "\" alt=\"picture\" height=\"100\" style=\"float: left; margin-right: 10px;\" />\n" +
           "                  <p><b>" + p.getTitle() + "</b></p>\n" +
           "                  <p>" + p.getAddress() + "</p>\n" +
           "                </td>\n" +
           "              </tr>\n";
-      if (i == 10) break;
+      if (i == 5) break;
     }
 
     html += "            </table>\n" +
@@ -169,7 +188,7 @@ class BalloonGenerator {
         i++;
         s += "              <tr>\n" +
             "                <td colspan=\"2\" align=\"center\">\n" +
-            "                <img src=\"" + Uri.decodeFull(p.getImageLink()) + "\" alt=\"picture\" height=\"100\" style=\"float: left; margin-right: 10px;\" />\n" +
+            "                <img src=\"" + p.getImageLink() + "\" alt=\"picture\" height=\"100\" style=\"float: left; margin-right: 10px;\" />\n" +
             "                  <p><b>" + p.getTitle() + "</b> "+"</p>\n" +
             "                  <p>" + p.getAddress() + "</p>\n" +
             "                </td>\n" +
@@ -214,7 +233,7 @@ class BalloonGenerator {
       i++;
       s += "              <tr>\n" +
           "                <td colspan=\"2\" align=\"center\">\n" +
-          "                <img src=\"" + Uri.decodeFull(p.getImageLink()) + "\" alt=\"picture\" height=\"100\" style=\"float: left; margin-right: 10px;\" />\n" +
+          "                <img src=\"" + p.getImageLink() + "\" alt=\"picture\" height=\"100\" style=\"float: left; margin-right: 10px;\" />\n" +
           "                  <p><b>" + p.getTitle() + "</b> "+"</p>\n" +
           "                  <p>" + p.getAddress() + "</p>\n" +
           "                </td>\n" +

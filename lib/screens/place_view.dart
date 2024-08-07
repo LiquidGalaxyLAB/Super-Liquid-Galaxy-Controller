@@ -209,7 +209,7 @@ class _PlaceViewState extends State<PlaceView> with TickerProviderStateMixin {
                                                     ? Image.asset(
                                                         Assets.iconsImageError,
                                                         height: 400,
-                                                        fit: BoxFit.fill,
+                                                        fit: BoxFit.contain,
                                                       )
                                                     : (Image.network(
                                                         poiController
@@ -675,6 +675,8 @@ class _PlaceViewState extends State<PlaceView> with TickerProviderStateMixin {
   void dispose() {
     voiceController?.dispose();
     lottieController?.dispose();
+    poiController.stopTTS();
+    poiController.killAllProcesses();
     super.dispose();
   }
 
