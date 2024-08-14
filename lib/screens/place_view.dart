@@ -6,7 +6,6 @@ import 'package:lottie/lottie.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_info.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 import 'package:super_liquid_galaxy_controller/controllers/poi_controller.dart';
-
 import '../generated/assets.dart';
 import '../utils/constants.dart';
 
@@ -26,6 +25,7 @@ class _PlaceViewState extends State<PlaceView> with TickerProviderStateMixin {
   late AnimationController lottieController;
   late AnimationController voiceController;
   late PlaceInfo currentPlace;
+
 
   @override
   void initState() {

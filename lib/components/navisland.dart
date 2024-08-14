@@ -3,6 +3,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:super_liquid_galaxy_controller/controllers/lg_connection.dart';
+import 'package:super_liquid_galaxy_controller/controllers/showcase_controller.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/screens/geoquest.dart';
 import 'package:super_liquid_galaxy_controller/screens/kml_builder.dart';
@@ -13,7 +14,7 @@ import 'package:super_liquid_galaxy_controller/screens/tour_builder.dart';
 import 'package:super_liquid_galaxy_controller/utils/balloongenerator.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 import 'package:super_liquid_galaxy_controller/utils/kmlgenerator.dart';
-
+import 'package:showcaseview/showcaseview.dart';
 import '../generated/assets.dart';
 import '../utils/constants.dart';
 
@@ -30,6 +31,7 @@ class NavIsland extends StatelessWidget {
   Function() changePlanet;
 
   int i =0;
+  ShowcaseController showcaseController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +97,12 @@ class NavIsland extends StatelessWidget {
                             {
                               await changePlanet();
                             }
-                          Get.to(() => PoiExploration());
+                          Get.to(() => ShowCaseWidget(
+                            builder: (BuildContext context) { return PoiExploration(); },
+                            onFinish: (){
+                              showcaseController.setPOICompleted();
+                            },
+                          ));
                         },
                         borderRadius: BorderRadius.circular(15),
                         child: Container(
@@ -142,7 +149,12 @@ class NavIsland extends StatelessWidget {
                                 {
                                   await changePlanet();
                                 }
-                                Get.to(() => TourBuilder());
+                                Get.to(() =>ShowCaseWidget(
+                                  builder: (BuildContext context) { return TourBuilder(); },
+                                  onFinish: (){
+                                    showcaseController.setToursCompleted();
+                                  },
+                                ));
                               },
                               borderRadius: BorderRadius.circular(15),
                               child: Container(
@@ -201,7 +213,12 @@ class NavIsland extends StatelessWidget {
                                         {
                                           await changePlanet();
                                         }
-                                        Get.to(()=>GeoQuest());
+                                        Get.to(()=>ShowCaseWidget(
+                                          builder: (BuildContext context) { return GeoQuest(); },
+                                          onFinish: (){
+                                            showcaseController.setGeoQuestCompleted();
+                                          },
+                                        ));
 
                                         
 
@@ -291,7 +308,12 @@ class NavIsland extends StatelessWidget {
                                         {
                                           await changePlanet();
                                         }
-                                        Get.to(() => MapController());
+                                        Get.to(() => ShowCaseWidget(
+                                          builder: (BuildContext context) { return MapController(); },
+                                          onFinish: (){
+                                            showcaseController.setMapsCompleted();
+                                          },
+                                        ));
                                       },
                                       borderRadius: BorderRadius.circular(15),
                                       child: Container(
@@ -354,7 +376,12 @@ class NavIsland extends StatelessWidget {
                                         {
                                           await changePlanet();
                                         }
-                                        Get.to(() => KmlUploader());
+                                        Get.to(() => ShowCaseWidget(
+                                            builder: (BuildContext context) { return KmlUploader(); },
+                                            onFinish: (){
+                                              showcaseController.setKmlBuilderCompleted();
+                                            },
+                                        ));
                                       },
                                       borderRadius: BorderRadius.circular(15),
                                       child: Container(

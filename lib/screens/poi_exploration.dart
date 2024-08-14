@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:super_liquid_galaxy_controller/components/galaxytextfield.dart';
 import 'package:super_liquid_galaxy_controller/components/location_selector.dart';
+import 'package:super_liquid_galaxy_controller/controllers/showcase_controller.dart';
 import 'package:super_liquid_galaxy_controller/controllers/tour_controller.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/generated/assets.dart';
@@ -26,6 +28,7 @@ class _PoiExplorationState extends State<PoiExploration> {
   late double screenHeight;
   late double screenWidth;
   late TourController tourController;
+  late ShowcaseController showcaseController;
   TextEditingController queryController = TextEditingController();
   ScrollController queryScrollController = ScrollController();
   ScrollController tourScrollController = ScrollController();
@@ -80,9 +83,23 @@ class _PoiExplorationState extends State<PoiExploration> {
     Assets.placeIconsObelisk,
   ];
 
+  final _key1 = GlobalKey();
+  final _key2 = GlobalKey();
+  final _key3 = GlobalKey();
+
   @override
   void initState() {
     tourController = Get.find();
+    showcaseController = Get.find();
+
+    if (showcaseController.isFirstLaunchPOI()) {
+      WidgetsBinding.instance.addPostFrameCallback(
+            (_) => ShowCaseWidget.of(context).startShowCase(
+          [_key1, _key2, _key3],
+        ),
+      );
+    }
+
     //lottieController = AnimationController(vsync: this, duration: const Duration(seconds: 2));
     //_determinePosition();
     super.initState();
@@ -511,31 +528,51 @@ class _PoiExplorationState extends State<PoiExploration> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             Expanded(
-                                child: GalaxyTextField(
-                                    hintText: "Search places here...",
-                                    labelText: "DISCOVER TOUR DESTINATIONS",
-                                    controller: queryController,
-                                    iconData: Icons.search_rounded,
-                                    textInputType: TextInputType.text,
-                                    fillColor:
-                                    GalaxyColors.lightgrey.withOpacity(0.25),
-                                    onTextChanged: (query) {
-                                      tourController.filterList(query);
-                                    },
-                                    focusColor: Colors.white,
-                                    labelWeight: FontWeight.w300,
-                                    paddingSize: 0.0,
-                                    contentPadding: 40.0,
-                                    isPassword: false)),
-                            LocationSelector(
-                              width: screenWidth * 0.25,
-                              iconSize: screenHeight * 0.1,
-                              searchSize: screenWidth * 0.85,
-                              tourController: tourController,
-                              submitData: (Coordinates point, String label) {
-                                setSearchAround(point, label);
-                                queryController.clear();
-                              },
+                                child: Showcase(
+                                  key: _key1,
+                                  description:
+                                  'This is used to filter the POI list',
+                                  descTextStyle: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                  ),
+                                  child: GalaxyTextField(
+                                      hintText: "Search places here...",
+                                      labelText: "DISCOVER TOUR DESTINATIONS",
+                                      controller: queryController,
+                                      iconData: Icons.search_rounded,
+                                      textInputType: TextInputType.text,
+                                      fillColor:
+                                      GalaxyColors.lightgrey.withOpacity(0.25),
+                                      onTextChanged: (query) {
+                                        tourController.filterList(query);
+                                      },
+                                      focusColor: Colors.white,
+                                      labelWeight: FontWeight.w300,
+                                      paddingSize: 0.0,
+                                      contentPadding: 40.0,
+                                      isPassword: false),
+                                )),
+                            Showcase(
+                              key: _key2,
+                              description:
+                              'This is used to change the Location whose POIs you want to see. \nThe Map icon can be clicked to set the location manually by map.',
+                              descTextStyle: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
+                              child: LocationSelector(
+                                width: screenWidth * 0.25,
+                                iconSize: screenHeight * 0.1,
+                                searchSize: screenWidth * 0.85,
+                                tourController: tourController,
+                                submitData: (Coordinates point, String label) {
+                                  setSearchAround(point, label);
+                                  queryController.clear();
+                                },
+                              ),
                             )
                           ],
                         ),
@@ -544,158 +581,43 @@ class _PoiExplorationState extends State<PoiExploration> {
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: Container(
-                          child: Obx(() {
-                            return Stack(children: [
-                              Visibility(
-                                visible: tourController.placeList.isNotEmpty &&
-                                    !tourController.isLoading.value &&
-                                    !tourController.isError.value,
-                                child: Scrollbar(
-                                  thumbVisibility: true,
-                                  thickness: 5.0,
-                                  controller: queryScrollController,
-                                  radius: Radius.circular(20.0),
-                                  child: ListView.builder(
+                        child: Showcase(
+                          key: _key3,
+                          description:
+                          'This shows all the fetched POI from currently selected location. \nYou can click on the places to view more details.',
+                          descTextStyle: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                            fontSize: 16,
+                          ),
+                          child: Container(
+                            child: Obx(() {
+                              return Stack(children: [
+                                Visibility(
+                                  visible: tourController.placeList.isNotEmpty &&
+                                      !tourController.isLoading.value &&
+                                      !tourController.isError.value,
+                                  child: Scrollbar(
+                                    thumbVisibility: true,
+                                    thickness: 5.0,
                                     controller: queryScrollController,
-                                    itemBuilder: (_, int index) {
-                                      return Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Container(
-                                          height: screenHeight * 0.13,
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.max,
-                                            children: [
-                                              Expanded(
-                                                child: Padding(
-                                                  padding:
-                                                  const EdgeInsets.all(8.0),
-                                                  child: Container(
-                                                    height: screenHeight * 0.13,
-                                                    decoration: BoxDecoration(
-                                                        color: GalaxyColors
-                                                            .prussianBlue
-                                                            .withOpacity(0.3),
-                                                        borderRadius:
-                                                        BorderRadius.circular(
-                                                            20.0)),
-                                                    child: InkWell(
-                                                      onTap: () async {
-                                                        if(tourController.isTouring.value)
-                                                        {
-                                                          tourController.tourButtonPressed();
-                                                        }
-                                                        var output = await Get.to(
-                                                                () => PlaceViewPoi(
-                                                                place: tourController
-                                                                    .placeList[
-                                                                2 * index]));
-                                                        if (output != null) {
-                                                          print(output);
-                                                          // PlaceInfo placeOutput =
-                                                          //     output;
-                                                          // tourController
-                                                          //     .addToTourList(
-                                                          //     placeOutput);
-                                                        }
-                                                        tourController.runKml(
-                                                            tourController.kml);
-                                                        if (tourController
-                                                            .lookAtPosition !=
-                                                            null) {
-                                                          tourController.zoomToLocation(
-                                                              tourController
-                                                                  .lookAtPosition!);
-                                                        }
-                                                      },
-                                                      borderRadius:
-                                                      BorderRadius.circular(
-                                                          20.0),
-                                                      child: Padding(
-                                                        padding: const EdgeInsets
-                                                            .symmetric(
-                                                            horizontal: 30.0),
-                                                        child: Row(
-                                                          children: [
-                                                            Expanded(
-                                                                flex: 1,
-                                                                child: Container(
-                                                                    child: FittedBox(
-                                                                        fit: BoxFit.contain,
-                                                                        child: Padding(
-                                                                          padding: const EdgeInsets
-                                                                              .all(
-                                                                              5.0),
-                                                                          child:
-                                                                          ImageIcon(
-                                                                            AssetImage(
-                                                                              assetPaths[(tourismCategories.contains(tourController.placeList[2 * index].category))
-                                                                                  ? (tourismCategories.indexOf(tourController.placeList[2 * index].category))
-                                                                                  : (tourismCategories.length - 1)],
-                                                                            ),
-                                                                            color: Colors
-                                                                                .white,
-                                                                          ),
-                                                                        )))),
-                                                            SizedBox(
-                                                              width: 8.0,
-                                                            ),
-                                                            Expanded(
-                                                                flex: 6,
-                                                                child: Container(
-                                                                    child: FittedBox(
-                                                                        fit: BoxFit.contain,
-                                                                        child: Padding(
-                                                                          padding: const EdgeInsets
-                                                                              .symmetric(
-                                                                              horizontal:
-                                                                              8.0,
-                                                                              vertical:
-                                                                              5.0),
-                                                                          child:
-                                                                          Text(
-                                                                            tourController.placeList[2 * index].label.compareTo('') ==
-                                                                                0
-                                                                                ? tourController.placeList[2 * index].name
-                                                                                : tourController.placeList[2 * index].label,
-                                                                            style:
-                                                                            TextStyle(
-                                                                              color:
-                                                                              Colors.white,
-                                                                            ),
-                                                                          ),
-                                                                        ))))
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              Visibility(
-                                                visible: ((index !=
-                                                    ((tourController.placeList
-                                                        .length %
-                                                        2 ==
-                                                        0)
-                                                        ? tourController
-                                                        .placeList
-                                                        .length ~/
-                                                        2 -
-                                                        1
-                                                        : ((tourController
-                                                        .placeList
-                                                        .length ~/
-                                                        2)))) ||
-                                                    tourController
-                                                        .placeList.length %
-                                                        2 ==
-                                                        0),
-                                                child: Expanded(
+                                    radius: Radius.circular(20.0),
+                                    child: ListView.builder(
+                                      controller: queryScrollController,
+                                      itemBuilder: (_, int index) {
+                                        return Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Container(
+                                            height: screenHeight * 0.13,
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.max,
+                                              children: [
+                                                Expanded(
                                                   child: Padding(
                                                     padding:
                                                     const EdgeInsets.all(8.0),
                                                     child: Container(
+                                                      height: screenHeight * 0.13,
                                                       decoration: BoxDecoration(
                                                           color: GalaxyColors
                                                               .prussianBlue
@@ -705,57 +627,36 @@ class _PoiExplorationState extends State<PoiExploration> {
                                                               20.0)),
                                                       child: InkWell(
                                                         onTap: () async {
-                                                          if ((index !=
-                                                              ((tourController.placeList.length %
-                                                                  2 ==
-                                                                  0)
-                                                                  ? tourController
-                                                                  .placeList
-                                                                  .length ~/
-                                                                  2 -
-                                                                  1
-                                                                  : ((tourController
-                                                                  .placeList
-                                                                  .length ~/
-                                                                  2)))) ||
-                                                              tourController
-                                                                  .placeList
-                                                                  .length %
-                                                                  2 ==
-                                                                  0) {
-                      
-                                                            if(tourController.isTouring.value)
-                                                            {
-                                                              tourController.tourButtonPressed();
-                                                            }
-                                                            var output = await Get
-                                                                .to(() => PlaceViewPoi(
-                                                                place: tourController
-                                                                    .placeList[2 *
-                                                                    index +
-                                                                    1]));
-                                                            if (output != null) {
-                                                              print(output);
-                                                              // PlaceInfo
-                                                              // placeOutput =
-                                                              //     output;
-                                                              // tourController
-                                                              //     .addToTourList(
-                                                              //     placeOutput);
-                                                            }
-                                                            tourController.runKml(
-                                                                tourController.kml
-                                                            );
-                                                            if (tourController
-                                                                .lookAtPosition !=
-                                                                null) {
-                                                              tourController
-                                                                  .zoomToLocation(
-                                                                  tourController
-                                                                      .lookAtPosition!);
-                                                            }
+                                                          if(tourController.isTouring.value)
+                                                          {
+                                                            tourController.tourButtonPressed();
+                                                          }
+                                                          var output = await Get.to(
+                                                                  () => PlaceViewPoi(
+                                                                  place: tourController
+                                                                      .placeList[
+                                                                  2 * index]));
+                                                          if (output != null) {
+                                                            print(output);
+                                                            // PlaceInfo placeOutput =
+                                                            //     output;
+                                                            // tourController
+                                                            //     .addToTourList(
+                                                            //     placeOutput);
+                                                          }
+                                                          tourController.runKml(
+                                                              tourController.kml);
+                                                          if (tourController
+                                                              .lookAtPosition !=
+                                                              null) {
+                                                            tourController.zoomToLocation(
+                                                                tourController
+                                                                    .lookAtPosition!);
                                                           }
                                                         },
+                                                        borderRadius:
+                                                        BorderRadius.circular(
+                                                            20.0),
                                                         child: Padding(
                                                           padding: const EdgeInsets
                                                               .symmetric(
@@ -774,12 +675,12 @@ class _PoiExplorationState extends State<PoiExploration> {
                                                                             child:
                                                                             ImageIcon(
                                                                               AssetImage(
-                                                                                ((index != ((tourController.placeList.length % 2 == 0) ? tourController.placeList.length ~/ 2 - 1 : ((tourController.placeList.length ~/ 2)))) || tourController.placeList.length % 2 == 0)
-                                                                                    ? assetPaths[(tourismCategories.contains(tourController.placeList[2 * index + 1].category)) ? (tourismCategories.indexOf(tourController.placeList[2 * index + 1].category)) : (tourismCategories.length - 1)]
-                                                                                    : assetPaths[assetPaths.length - 1],
+                                                                                assetPaths[(tourismCategories.contains(tourController.placeList[2 * index].category))
+                                                                                    ? (tourismCategories.indexOf(tourController.placeList[2 * index].category))
+                                                                                    : (tourismCategories.length - 1)],
                                                                               ),
-                                                                              color:
-                                                                              Colors.white,
+                                                                              color: Colors
+                                                                                  .white,
                                                                             ),
                                                                           )))),
                                                               SizedBox(
@@ -788,22 +689,28 @@ class _PoiExplorationState extends State<PoiExploration> {
                                                               Expanded(
                                                                   flex: 6,
                                                                   child: Container(
-                                                                      child:
-                                                                      FittedBox(
+                                                                      child: FittedBox(
                                                                           fit: BoxFit.contain,
-                                                                          child:
-                                                                          Padding(
-                                                                            padding:
-                                                                            const EdgeInsets.symmetric(horizontal: 12.0, vertical: 5.0),
+                                                                          child: Padding(
+                                                                            padding: const EdgeInsets
+                                                                                .symmetric(
+                                                                                horizontal:
+                                                                                8.0,
+                                                                                vertical:
+                                                                                5.0),
                                                                             child:
                                                                             Text(
-                                                                              ((index != ((tourController.placeList.length % 2 == 0) ? tourController.placeList.length ~/ 2 - 1 : ((tourController.placeList.length ~/ 2)))) || tourController.placeList.length % 2 == 0) ? tourController.placeList[2 * index + 1].label : 'Blah',
-                                                                              style: TextStyle(color: Colors.white),
+                                                                              tourController.placeList[2 * index].label.compareTo('') ==
+                                                                                  0
+                                                                                  ? tourController.placeList[2 * index].name
+                                                                                  : tourController.placeList[2 * index].label,
+                                                                              style:
+                                                                              TextStyle(
+                                                                                color:
+                                                                                Colors.white,
+                                                                              ),
                                                                             ),
-                                                                          )
-                                                                      )
-                                                                  )
-                                                              )
+                                                                          ))))
                                                             ],
                                                           ),
                                                         ),
@@ -811,102 +718,242 @@ class _PoiExplorationState extends State<PoiExploration> {
                                                     ),
                                                   ),
                                                 ),
-                                              )
-                                            ],
+                                                Visibility(
+                                                  visible: ((index !=
+                                                      ((tourController.placeList
+                                                          .length %
+                                                          2 ==
+                                                          0)
+                                                          ? tourController
+                                                          .placeList
+                                                          .length ~/
+                                                          2 -
+                                                          1
+                                                          : ((tourController
+                                                          .placeList
+                                                          .length ~/
+                                                          2)))) ||
+                                                      tourController
+                                                          .placeList.length %
+                                                          2 ==
+                                                          0),
+                                                  child: Expanded(
+                                                    child: Padding(
+                                                      padding:
+                                                      const EdgeInsets.all(8.0),
+                                                      child: Container(
+                                                        decoration: BoxDecoration(
+                                                            color: GalaxyColors
+                                                                .prussianBlue
+                                                                .withOpacity(0.3),
+                                                            borderRadius:
+                                                            BorderRadius.circular(
+                                                                20.0)),
+                                                        child: InkWell(
+                                                          onTap: () async {
+                                                            if ((index !=
+                                                                ((tourController.placeList.length %
+                                                                    2 ==
+                                                                    0)
+                                                                    ? tourController
+                                                                    .placeList
+                                                                    .length ~/
+                                                                    2 -
+                                                                    1
+                                                                    : ((tourController
+                                                                    .placeList
+                                                                    .length ~/
+                                                                    2)))) ||
+                                                                tourController
+                                                                    .placeList
+                                                                    .length %
+                                                                    2 ==
+                                                                    0) {
+
+                                                              if(tourController.isTouring.value)
+                                                              {
+                                                                tourController.tourButtonPressed();
+                                                              }
+                                                              var output = await Get
+                                                                  .to(() => PlaceViewPoi(
+                                                                  place: tourController
+                                                                      .placeList[2 *
+                                                                      index +
+                                                                      1]));
+                                                              if (output != null) {
+                                                                print(output);
+                                                                // PlaceInfo
+                                                                // placeOutput =
+                                                                //     output;
+                                                                // tourController
+                                                                //     .addToTourList(
+                                                                //     placeOutput);
+                                                              }
+                                                              tourController.runKml(
+                                                                  tourController.kml
+                                                              );
+                                                              if (tourController
+                                                                  .lookAtPosition !=
+                                                                  null) {
+                                                                tourController
+                                                                    .zoomToLocation(
+                                                                    tourController
+                                                                        .lookAtPosition!);
+                                                              }
+                                                            }
+                                                          },
+                                                          child: Padding(
+                                                            padding: const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 30.0),
+                                                            child: Row(
+                                                              children: [
+                                                                Expanded(
+                                                                    flex: 1,
+                                                                    child: Container(
+                                                                        child: FittedBox(
+                                                                            fit: BoxFit.contain,
+                                                                            child: Padding(
+                                                                              padding: const EdgeInsets
+                                                                                  .all(
+                                                                                  5.0),
+                                                                              child:
+                                                                              ImageIcon(
+                                                                                AssetImage(
+                                                                                  ((index != ((tourController.placeList.length % 2 == 0) ? tourController.placeList.length ~/ 2 - 1 : ((tourController.placeList.length ~/ 2)))) || tourController.placeList.length % 2 == 0)
+                                                                                      ? assetPaths[(tourismCategories.contains(tourController.placeList[2 * index + 1].category)) ? (tourismCategories.indexOf(tourController.placeList[2 * index + 1].category)) : (tourismCategories.length - 1)]
+                                                                                      : assetPaths[assetPaths.length - 1],
+                                                                                ),
+                                                                                color:
+                                                                                Colors.white,
+                                                                              ),
+                                                                            )))),
+                                                                SizedBox(
+                                                                  width: 8.0,
+                                                                ),
+                                                                Expanded(
+                                                                    flex: 6,
+                                                                    child: Container(
+                                                                        child:
+                                                                        FittedBox(
+                                                                            fit: BoxFit.contain,
+                                                                            child:
+                                                                            Padding(
+                                                                              padding:
+                                                                              const EdgeInsets.symmetric(horizontal: 12.0, vertical: 5.0),
+                                                                              child:
+                                                                              Text(
+                                                                                ((index != ((tourController.placeList.length % 2 == 0) ? tourController.placeList.length ~/ 2 - 1 : ((tourController.placeList.length ~/ 2)))) || tourController.placeList.length % 2 == 0) ? tourController.placeList[2 * index + 1].label : 'Blah',
+                                                                                style: TextStyle(color: Colors.white),
+                                                                              ),
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                )
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                )
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                    },
-                                    itemCount:
-                                    ((tourController.placeList.length % 2 == 0)
-                                        ? tourController.placeList.length ~/ 2
-                                        : ((tourController.placeList.length ~/
-                                        2) +
-                                        1)),
-                                  ),
-                                ),
-                              ),
-                              Visibility(
-                                visible: tourController.isLoading.value,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Center(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Lottie.asset(
-                                          Assets.lottieLoadingPlaces,
-                                          decoder: customDecoder,
-                                          repeat: true,
-                                        ),
-                                        SizedBox(
-                                          width: 8.0,
-                                        ),
-                                        Text("Places are Loading...",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 35.0))
-                                      ],
+                                        );
+                                      },
+                                      itemCount:
+                                      ((tourController.placeList.length % 2 == 0)
+                                          ? tourController.placeList.length ~/ 2
+                                          : ((tourController.placeList.length ~/
+                                          2) +
+                                          1)),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Visibility(
-                                visible: (tourController.isError.value ||
-                                    tourController.placeList.isEmpty) &&
-                                    !tourController.isLoading.value,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Center(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Lottie.asset(
-                                          Assets.lottieLoadingFailed,
-                                          decoder: customDecoder,
-                                          repeat: true,
-                                        ),
-                                        SizedBox(
-                                          width: 8.0,
-                                        ),
-                                        Text(
-                                            tourController.isError.value
-                                                ? "Error occured while fetching places"
-                                                : "No Places found to visit here",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 35.0))
-                                      ],
+                                Visibility(
+                                  visible: tourController.isLoading.value,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Center(
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Lottie.asset(
+                                            Assets.lottieLoadingPlaces,
+                                            decoder: customDecoder,
+                                            repeat: true,
+                                          ),
+                                          SizedBox(
+                                            width: 8.0,
+                                          ),
+                                          Text("Places are Loading...",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 35.0))
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              )
-                            ]);
-                          })
-                      
-                          /*GridView.builder(
-                          itemCount: 12,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2),
-                          itemBuilder: (_, int index) {
-                            return InkWell(
-                                onTap: () {
-                                  //tap
-                                },
-                                onLongPress: () {
-                                  //long press
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: MaterialButton(
-                                    onPressed: () {},
-                                    color: Colors.white.withOpacity(0.6),
-                                    height: screenHeight*0.15,
+                                Visibility(
+                                  visible: (tourController.isError.value ||
+                                      tourController.placeList.isEmpty) &&
+                                      !tourController.isLoading.value,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Center(
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Lottie.asset(
+                                            Assets.lottieLoadingFailed,
+                                            decoder: customDecoder,
+                                            repeat: true,
+                                          ),
+                                          SizedBox(
+                                            width: 8.0,
+                                          ),
+                                          Text(
+                                              tourController.isError.value
+                                                  ? "Error occured while fetching places"
+                                                  : "No Places found to visit here",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 35.0))
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                ));
-                          })*/
-                          ,
+                                )
+                              ]);
+                            })
+
+                            /*GridView.builder(
+                            itemCount: 12,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2),
+                            itemBuilder: (_, int index) {
+                              return InkWell(
+                                  onTap: () {
+                                    //tap
+                                  },
+                                  onLongPress: () {
+                                    //long press
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: MaterialButton(
+                                      onPressed: () {},
+                                      color: Colors.white.withOpacity(0.6),
+                                      height: screenHeight*0.15,
+                                    ),
+                                  ));
+                            })*/
+                            ,
+                          ),
                         ),
                       ),
                     )

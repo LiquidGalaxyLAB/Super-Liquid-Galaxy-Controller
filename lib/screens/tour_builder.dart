@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:super_liquid_galaxy_controller/components/galaxytextfield.dart';
 import 'package:super_liquid_galaxy_controller/components/location_selector.dart';
+import 'package:super_liquid_galaxy_controller/controllers/showcase_controller.dart';
 import 'package:super_liquid_galaxy_controller/controllers/tour_controller.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_info.dart';
@@ -27,6 +29,7 @@ class _TourBuilderState extends State<TourBuilder>
   late double screenHeight;
   late double screenWidth;
   late TourController tourController;
+  late ShowcaseController showcaseController;
   TextEditingController queryController = TextEditingController();
   ScrollController queryScrollController = ScrollController();
   ScrollController tourScrollController = ScrollController();
@@ -81,12 +84,28 @@ class _TourBuilderState extends State<TourBuilder>
     Assets.placeIconsObelisk,
   ];
 
+  final _key1 = GlobalKey();
+  final _key2 = GlobalKey();
+  final _key3 = GlobalKey();
+  final _key4 = GlobalKey();
+  final _key5 = GlobalKey();
+
   @override
   void initState() {
     tourController = Get.find();
+    showcaseController = Get.find();
     lottieController =
         AnimationController(vsync: this, duration: const Duration(seconds: 2));
     //_determinePosition();
+
+    if (showcaseController.isFirstLaunchTours()) {
+      WidgetsBinding.instance.addPostFrameCallback(
+            (_) => ShowCaseWidget.of(context).startShowCase(
+          [_key1, _key2, _key3, _key4,_key5],
+        ),
+      );
+    }
+
     super.initState();
   }
 
@@ -115,93 +134,103 @@ class _TourBuilderState extends State<TourBuilder>
       ),
       Scaffold(
           backgroundColor: Colors.transparent,
-          floatingActionButton: Container(
-            height: screenHeight * 0.125,
-            width: screenWidth * 0.3,
-            child: FittedBox(
-              fit: BoxFit.contain,
-              child: Row(
-                children: [
-                  InkWell(
-                    onLongPress: () {
-                      tourController.getTourLists();
-                    },
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        saveTourFile();
+          floatingActionButton: Showcase(
+            key: _key4,
+            description:
+            'Use these buttons to save your tours for future use. \nThe Stop/Start Tour is used to visualize your built tour on the LG Rig.',
+            descTextStyle: const TextStyle(
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
+              fontSize: 16,
+            ),
+            child: Container(
+              height: screenHeight * 0.125,
+              width: screenWidth * 0.3,
+              child: FittedBox(
+                fit: BoxFit.contain,
+                child: Row(
+                  children: [
+                    InkWell(
+                      onLongPress: () {
+                        tourController.getTourLists();
                       },
-                      heroTag: 'download',
-                      backgroundColor: Colors.white,
-                      child: const Icon(
-                        Icons.copy_sharp,
-                        color: GalaxyColors.prussianBlue,
+                      child: FloatingActionButton(
+                        onPressed: () {
+                          saveTourFile();
+                        },
+                        heroTag: 'download',
+                        backgroundColor: Colors.white,
+                        child: const Icon(
+                          Icons.copy_sharp,
+                          color: GalaxyColors.prussianBlue,
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    width: screenHeight * 0.01,
-                  ),
-                  FloatingActionButton.extended(
-                      elevation: 20.0,
-                      onPressed: () {
-                        tourController.tourButtonPressed();
-                      },
-                      heroTag: 'tour',
-                      backgroundColor: Colors.white,
-                      label: Container(
-                          width: screenWidth * 0.1,
-                          // color: Colors.orange.withOpacity(0.2),
-                          child: FittedBox(
-                              fit: BoxFit.contain, child: Obx((){
-                                return Text(tourController.isTouring.value?"STOP TOUR":"START TOUR");
-                          }))),
-                      icon: Container(
-                          //height: screenHeight * 0.1,
-                          child: FittedBox(
-                              fit: BoxFit.contain,
-                              child: Obx(() {
-                                lottieController?.dispose();
-                                lottieController = AnimationController(
-                                    vsync: this,
-                                    duration: const Duration(seconds: 2));
-                                return (tourController.isTouring.value)
-                                    ? Lottie.asset(Assets.lottieOrbitBlack,
-                                        decoder: customDecoder,
-                                        repeat: true,
-                                        controller: lottieController,
-                                        fit: BoxFit.fill,
-                                        width: 25.0,
-                                        height: 25.0, onLoaded: (c) {
-                                        //lottieController.forward(from: 0.0);
-                                        lottieController?.repeat();
-                                      })
-                                    : ImageIcon(AssetImage(Assets.iconsOrbit));
-
-                                /*return Stack(
-                                  children: [
-
-
-                                    Visibility(
-                                      visible: !tourController.isTouring.value,
-                                        child: ImageIcon(
-                                            AssetImage(Assets.iconsOrbit))),
-                                    Visibility(
-                                      visible: tourController.isTouring.value,
-                                      child: Lottie.asset(Assets.lottieOrbit,
+                    SizedBox(
+                      width: screenHeight * 0.01,
+                    ),
+                    FloatingActionButton.extended(
+                        elevation: 20.0,
+                        onPressed: () {
+                          tourController.tourButtonPressed();
+                        },
+                        heroTag: 'tour',
+                        backgroundColor: Colors.white,
+                        label: Container(
+                            width: screenWidth * 0.1,
+                            // color: Colors.orange.withOpacity(0.2),
+                            child: FittedBox(
+                                fit: BoxFit.contain, child: Obx((){
+                                  return Text(tourController.isTouring.value?"STOP TOUR":"START TOUR");
+                            }))),
+                        icon: Container(
+                            //height: screenHeight * 0.1,
+                            child: FittedBox(
+                                fit: BoxFit.contain,
+                                child: Obx(() {
+                                  lottieController?.dispose();
+                                  lottieController = AnimationController(
+                                      vsync: this,
+                                      duration: const Duration(seconds: 2));
+                                  return (tourController.isTouring.value)
+                                      ? Lottie.asset(Assets.lottieOrbitBlack,
                                           decoder: customDecoder,
                                           repeat: true,
                                           controller: lottieController,
                                           fit: BoxFit.fill,
                                           width: 25.0,
                                           height: 25.0, onLoaded: (c) {
-                                        //lottieController.forward(from: 0.0);
-                                        lottieController?.repeat();
-                                      }),
-                                    )
-                                  ],
-                                );*/
-                              })))),
-                ],
+                                          //lottieController.forward(from: 0.0);
+                                          lottieController?.repeat();
+                                        })
+                                      : ImageIcon(AssetImage(Assets.iconsOrbit));
+
+                                  /*return Stack(
+                                    children: [
+
+
+                                      Visibility(
+                                        visible: !tourController.isTouring.value,
+                                          child: ImageIcon(
+                                              AssetImage(Assets.iconsOrbit))),
+                                      Visibility(
+                                        visible: tourController.isTouring.value,
+                                        child: Lottie.asset(Assets.lottieOrbit,
+                                            decoder: customDecoder,
+                                            repeat: true,
+                                            controller: lottieController,
+                                            fit: BoxFit.fill,
+                                            width: 25.0,
+                                            height: 25.0, onLoaded: (c) {
+                                          //lottieController.forward(from: 0.0);
+                                          lottieController?.repeat();
+                                        }),
+                                      )
+                                    ],
+                                  );*/
+                                })))),
+                  ],
+                ),
               ),
             ),
           ),
@@ -295,156 +324,152 @@ class _TourBuilderState extends State<TourBuilder>
                   Center(
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaY: 15.0, sigmaX: 15.0),
-                      child: Container(
-                        height: screenHeight * 0.25,
-                        width: screenWidth * 0.93,
-                        decoration: BoxDecoration(
-                            color: GalaxyColors.lightgrey.withOpacity(0.35),
-                            backgroundBlendMode: BlendMode.screen,
-                            borderRadius: BorderRadius.circular(20.0)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Container(
-                            child: Obx(() {
-                              return Scrollbar(
-                                //trackVisibility: true,
-                                thickness: 5.0,
-                                radius: const Radius.circular(20.0),
-                                thumbVisibility:
-                                    tourController.tourList.isNotEmpty,
-                                controller: tourScrollController,
+                      child: Showcase(
+                        key: _key5,
+                        description:
+                        'Displays the tour that you have built so far.',
+                        descTextStyle: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                          fontSize: 16,
+                        ),
+                        child: Container(
+                          height: screenHeight * 0.25,
+                          width: screenWidth * 0.93,
+                          decoration: BoxDecoration(
+                              color: GalaxyColors.lightgrey.withOpacity(0.35),
+                              backgroundBlendMode: BlendMode.screen,
+                              borderRadius: BorderRadius.circular(20.0)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Container(
+                              child: Obx(() {
+                                return Scrollbar(
+                                  //trackVisibility: true,
+                                  thickness: 5.0,
+                                  radius: const Radius.circular(20.0),
+                                  thumbVisibility:
+                                      tourController.tourList.isNotEmpty,
+                                  controller: tourScrollController,
 
-                                child: Stack(children: [
-                                  Visibility(
-                                    visible: tourController.tourList.isNotEmpty,
-                                    child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      controller: tourScrollController,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return Padding(
-                                          padding: const EdgeInsets.all(12.0),
-                                          child: Container(
-                                            height: screenHeight * 0.23,
-                                            width: (index ==
-                                                    tourController
-                                                            .tourList.length -
-                                                        1)
-                                                ? screenWidth * 0.2
-                                                : screenWidth * 0.4,
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                  flex: 1,
-                                                  child: Container(
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Expanded(
-                                                            flex: 4,
-                                                            child: FittedBox(
-                                                                fit: BoxFit
-                                                                    .contain,
-                                                                child:
-                                                                    ImageIcon(
-                                                                  AssetImage(tourismCategories.contains(tourController
-                                                                          .tourList[
-                                                                              index]
-                                                                          .category)
-                                                                      ? (assetPaths[tourismCategories.indexOf(tourController
-                                                                          .tourList[
-                                                                              index]
-                                                                          .category)])
-                                                                      : (assetPaths[
-                                                                          assetPaths.length -
-                                                                              1])),
-                                                                  color: Colors
-                                                                      .white,
-                                                                ))),
-                                                        Expanded(
-                                                            flex: 2,
-                                                            child: FittedBox(
-                                                                fit: BoxFit
-                                                                    .contain,
-                                                                child: Text(
-                                                                  tourController
-                                                                      .tourList[
-                                                                          index]
-                                                                      .name,
-                                                                  style: TextStyle(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      color: Colors
-                                                                          .white),
-                                                                ))),
-                                                        Expanded(
-                                                            flex: 4,
-                                                            child: Text(
-                                                              tourController
-                                                                  .tourList[
-                                                                      index]
-                                                                  .address,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                              maxLines: 3,
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .white),
-                                                            )),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                                Visibility(
-                                                    visible: !(index ==
-                                                        tourController.tourList
-                                                                .length -
-                                                            1),
-                                                    child: const SizedBox(
-                                                      width: 12.0,
-                                                    )),
-                                                Visibility(
-                                                  visible: !(index ==
+                                  child: Stack(children: [
+                                    Visibility(
+                                      visible: tourController.tourList.isNotEmpty,
+                                      child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        controller: tourScrollController,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          return Padding(
+                                            padding: const EdgeInsets.all(12.0),
+                                            child: Container(
+                                              height: screenHeight * 0.23,
+                                              width: (index ==
                                                       tourController
                                                               .tourList.length -
-                                                          1),
-                                                  child: Expanded(
+                                                          1)
+                                                  ? screenWidth * 0.2
+                                                  : screenWidth * 0.4,
+                                              child: Row(
+                                                children: [
+                                                  Expanded(
                                                     flex: 1,
                                                     child: Container(
-                                                      child: Row(
-                                                        mainAxisSize:
-                                                            MainAxisSize.max,
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
                                                         children: [
-                                                          Container(
-                                                            width:
-                                                                screenHeight *
-                                                                    0.03,
-                                                            height:
-                                                                screenHeight *
-                                                                    0.03,
-                                                            decoration: BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            300.0),
-                                                                color: Colors
-                                                                    .green),
-                                                          ),
                                                           Expanded(
-                                                            child: Container(
+                                                              flex: 4,
+                                                              child: FittedBox(
+                                                                  fit: BoxFit
+                                                                      .contain,
+                                                                  child:
+                                                                      ImageIcon(
+                                                                    AssetImage(tourismCategories.contains(tourController
+                                                                            .tourList[
+                                                                                index]
+                                                                            .category)
+                                                                        ? (assetPaths[tourismCategories.indexOf(tourController
+                                                                            .tourList[
+                                                                                index]
+                                                                            .category)])
+                                                                        : (assetPaths[
+                                                                            assetPaths.length -
+                                                                                1])),
+                                                                    color: Colors
+                                                                        .white,
+                                                                  ))),
+                                                          Expanded(
+                                                              flex: 2,
+                                                              child: FittedBox(
+                                                                  fit: BoxFit
+                                                                      .contain,
+                                                                  child: Text(
+                                                                    tourController
+                                                                        .tourList[
+                                                                            index]
+                                                                        .name,
+                                                                    style: TextStyle(
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                        color: Colors
+                                                                            .white),
+                                                                  ))),
+                                                          Expanded(
+                                                              flex: 4,
+                                                              child: Text(
+                                                                tourController
+                                                                    .tourList[
+                                                                        index]
+                                                                    .address,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                maxLines: 3,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white),
+                                                              )),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Visibility(
+                                                      visible: !(index ==
+                                                          tourController.tourList
+                                                                  .length -
+                                                              1),
+                                                      child: const SizedBox(
+                                                        width: 12.0,
+                                                      )),
+                                                  Visibility(
+                                                    visible: !(index ==
+                                                        tourController
+                                                                .tourList.length -
+                                                            1),
+                                                    child: Expanded(
+                                                      flex: 1,
+                                                      child: Container(
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.max,
+                                                          children: [
+                                                            Container(
+                                                              width:
+                                                                  screenHeight *
+                                                                      0.03,
                                                               height:
                                                                   screenHeight *
-                                                                      0.005,
+                                                                      0.03,
                                                               decoration: BoxDecoration(
                                                                   borderRadius:
                                                                       BorderRadius
@@ -453,81 +478,95 @@ class _TourBuilderState extends State<TourBuilder>
                                                                   color: Colors
                                                                       .green),
                                                             ),
-                                                          ),
-                                                          Container(
-                                                            width:
-                                                                screenHeight *
-                                                                    0.035,
-                                                            height:
-                                                                screenHeight *
-                                                                    0.035,
-                                                            decoration: BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            300.0),
-                                                                color: Colors
-                                                                    .green),
-                                                          ),
-                                                        ],
+                                                            Expanded(
+                                                              child: Container(
+                                                                height:
+                                                                    screenHeight *
+                                                                        0.005,
+                                                                decoration: BoxDecoration(
+                                                                    borderRadius:
+                                                                        BorderRadius
+                                                                            .circular(
+                                                                                300.0),
+                                                                    color: Colors
+                                                                        .green),
+                                                              ),
+                                                            ),
+                                                            Container(
+                                                              width:
+                                                                  screenHeight *
+                                                                      0.035,
+                                                              height:
+                                                                  screenHeight *
+                                                                      0.035,
+                                                              decoration: BoxDecoration(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              300.0),
+                                                                  color: Colors
+                                                                      .green),
+                                                            ),
+                                                          ],
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                )
-                                              ],
+                                                  )
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                        );
-                                      },
-                                      itemCount: tourController.tourList.length,
+                                          );
+                                        },
+                                        itemCount: tourController.tourList.length,
+                                      ),
                                     ),
-                                  ),
-                                  Obx(() {
-                                    return Visibility(
-                                      visible: tourController.tourList.isEmpty,
-                                      child: Center(
-                                        child: InkWell(
-                                          onTap: () {
-                                            tourController.getTourLists();
-                                          },
-                                          child: Container(
-                                            width: screenWidth * 0.5,
-                                            //color: Colors.orange.withOpacity(0.2),
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Lottie.asset(
-                                                    Assets.lottieAddplaces,
-                                                    decoder: customDecoder,
-                                                    repeat: true,
+                                    Obx(() {
+                                      return Visibility(
+                                        visible: tourController.tourList.isEmpty,
+                                        child: Center(
+                                          child: InkWell(
+                                            onTap: () {
+                                              tourController.getTourLists();
+                                            },
+                                            child: Container(
+                                              width: screenWidth * 0.5,
+                                              //color: Colors.orange.withOpacity(0.2),
+                                              child: Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Lottie.asset(
+                                                      Assets.lottieAddplaces,
+                                                      decoder: customDecoder,
+                                                      repeat: true,
+                                                    ),
                                                   ),
-                                                ),
-                                                const Expanded(
-                                                    child: FittedBox(
-                                                        fit: BoxFit.contain,
-                                                        child: Padding(
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                  15.0),
-                                                          child: Text(
-                                                              "ADD PLACES \nTO TOUR",
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold)),
-                                                        )))
-                                              ],
+                                                  const Expanded(
+                                                      child: FittedBox(
+                                                          fit: BoxFit.contain,
+                                                          child: Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    15.0),
+                                                            child: Text(
+                                                                "ADD PLACES \nTO TOUR",
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold)),
+                                                          )))
+                                                ],
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    );
-                                  })
-                                ]),
-                              );
-                            }),
+                                      );
+                                    })
+                                  ]),
+                                );
+                              }),
+                            ),
                           ),
                         ),
                       ),
@@ -546,31 +585,51 @@ class _TourBuilderState extends State<TourBuilder>
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Expanded(
-                              child: GalaxyTextField(
-                                  hintText: "Search places here...",
-                                  labelText: "DISCOVER TOUR DESTINATIONS",
-                                  controller: queryController,
-                                  iconData: Icons.search_rounded,
-                                  textInputType: TextInputType.text,
-                                  fillColor:
-                                      GalaxyColors.lightgrey.withOpacity(0.25),
-                                  onTextChanged: (query) {
-                                    tourController.filterList(query);
-                                  },
-                                  focusColor: Colors.white,
-                                  labelWeight: FontWeight.w300,
-                                  paddingSize: 0.0,
-                                  contentPadding: 40.0,
-                                  isPassword: false)),
-                          LocationSelector(
-                            width: screenWidth * 0.25,
-                            iconSize: screenHeight * 0.1,
-                            searchSize: screenWidth * 0.85,
-                            tourController: tourController,
-                            submitData: (Coordinates point, String label) {
-                              setSearchAround(point, label);
-                              queryController.clear();
-                            },
+                              child: Showcase(
+                                key: _key1,
+                                description:
+                                'This is used to filter the fetched results.',
+                                descTextStyle: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                ),
+                                child: GalaxyTextField(
+                                    hintText: "Search places here...",
+                                    labelText: "DISCOVER TOUR DESTINATIONS",
+                                    controller: queryController,
+                                    iconData: Icons.search_rounded,
+                                    textInputType: TextInputType.text,
+                                    fillColor:
+                                        GalaxyColors.lightgrey.withOpacity(0.25),
+                                    onTextChanged: (query) {
+                                      tourController.filterList(query);
+                                    },
+                                    focusColor: Colors.white,
+                                    labelWeight: FontWeight.w300,
+                                    paddingSize: 0.0,
+                                    contentPadding: 40.0,
+                                    isPassword: false),
+                              )),
+                          Showcase(
+                            key: _key2,
+                            description:
+                            'This is used to change the Location whose POIs you want to see. \nThe Map icon can be clicked to set the location manually by map.',
+                            descTextStyle: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black,
+                              fontSize: 16,
+                            ),
+                            child: LocationSelector(
+                              width: screenWidth * 0.25,
+                              iconSize: screenHeight * 0.1,
+                              searchSize: screenWidth * 0.85,
+                              tourController: tourController,
+                              submitData: (Coordinates point, String label) {
+                                setSearchAround(point, label);
+                                queryController.clear();
+                              },
+                            ),
                           )
                         ],
                       ),
@@ -578,163 +637,45 @@ class _TourBuilderState extends State<TourBuilder>
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      width: screenWidth * 0.93,
-                      height: screenHeight * 0.35,
-                      child: Obx(() {
-                        return Stack(children: [
-                          Visibility(
-                            visible: tourController.placeList.isNotEmpty &&
-                                !tourController.isLoading.value &&
-                                !tourController.isError.value,
-                            child: Scrollbar(
-                              thumbVisibility: true,
-                              thickness: 5.0,
-                              controller: queryScrollController,
-                              radius: Radius.circular(20.0),
-                              child: ListView.builder(
+                    child: Showcase(
+                      key: _key3,
+                      description:
+                      'This shows all the fetched POI from currently selected location. \nYou can click on the places to view more details. \nOn the Place screen you can click on Submit Data to add it to your tour.',
+                      descTextStyle: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        fontSize: 16,
+                      ),
+                      child: Container(
+                        width: screenWidth * 0.93,
+                        height: screenHeight * 0.35,
+                        child: Obx(() {
+                          return Stack(children: [
+                            Visibility(
+                              visible: tourController.placeList.isNotEmpty &&
+                                  !tourController.isLoading.value &&
+                                  !tourController.isError.value,
+                              child: Scrollbar(
+                                thumbVisibility: true,
+                                thickness: 5.0,
                                 controller: queryScrollController,
-                                itemBuilder: (_, int index) {
-                                  return Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Container(
-                                      height: screenHeight * 0.13,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          Expanded(
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Container(
-                                                height: screenHeight * 0.13,
-                                                decoration: BoxDecoration(
-                                                    color: GalaxyColors
-                                                        .prussianBlue
-                                                        .withOpacity(0.3),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20.0)),
-                                                child: InkWell(
-                                                  onTap: () async {
-                                                    if (tourController
-                                                        .isTouring.value) {
-                                                      tourController
-                                                          .tourButtonPressed();
-                                                    }
-                                                    var output = await Get.to(
-                                                        () => PlaceView(
-                                                            place: tourController
-                                                                    .placeList[
-                                                                2 * index]));
-                                                    if (output != null) {
-                                                      print(output);
-                                                      PlaceInfo placeOutput =
-                                                          output;
-                                                      tourController
-                                                          .addToTourList(
-                                                              placeOutput);
-                                                    }
-                                                    await tourController
-                                                        .setTourKMLs();
-                                                    /*tourController.runKml(
-                                                        tourController.kml);
-                                                    if (tourController
-                                                            .lookAtPosition !=
-                                                        null) {
-                                                      tourController.zoomToLocation(
-                                                          tourController
-                                                              .lookAtPosition!);
-                                                    }*/
-                                                  },
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          20.0),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 30.0),
-                                                    child: Row(
-                                                      children: [
-                                                        Expanded(
-                                                            flex: 1,
-                                                            child: Container(
-                                                                child: FittedBox(
-                                                                    fit: BoxFit.contain,
-                                                                    child: Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .all(
-                                                                          5.0),
-                                                                      child:
-                                                                          ImageIcon(
-                                                                        AssetImage(
-                                                                          assetPaths[(tourismCategories.contains(tourController.placeList[2 * index].category))
-                                                                              ? (tourismCategories.indexOf(tourController.placeList[2 * index].category))
-                                                                              : (tourismCategories.length - 1)],
-                                                                        ),
-                                                                        color: Colors
-                                                                            .white,
-                                                                      ),
-                                                                    )))),
-                                                        SizedBox(
-                                                          width: 8.0,
-                                                        ),
-                                                        Expanded(
-                                                            flex: 6,
-                                                            child: Container(
-                                                                child: FittedBox(
-                                                                    fit: BoxFit.contain,
-                                                                    child: Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .symmetric(
-                                                                          horizontal:
-                                                                              8.0,
-                                                                          vertical:
-                                                                              5.0),
-                                                                      child:
-                                                                          Text(
-                                                                        tourController.placeList[2 * index].label.compareTo('') ==
-                                                                                0
-                                                                            ? tourController.placeList[2 * index].name
-                                                                            : tourController.placeList[2 * index].label,
-                                                                        style:
-                                                                            TextStyle(
-                                                                          color:
-                                                                              Colors.white,
-                                                                        ),
-                                                                      ),
-                                                                    ))))
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          Visibility(
-                                            visible: ((index !=
-                                                    ((tourController.placeList
-                                                                    .length %
-                                                                2 ==
-                                                            0)
-                                                        ? tourController
-                                                                    .placeList
-                                                                    .length ~/
-                                                                2 -
-                                                            1
-                                                        : ((tourController
-                                                                .placeList
-                                                                .length ~/
-                                                            2)))) ||
-                                                tourController
-                                                            .placeList.length %
-                                                        2 ==
-                                                    0),
-                                            child: Expanded(
+                                radius: Radius.circular(20.0),
+                                child: ListView.builder(
+                                  controller: queryScrollController,
+                                  itemBuilder: (_, int index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Container(
+                                        height: screenHeight * 0.13,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: [
+                                            Expanded(
                                               child: Padding(
                                                 padding:
                                                     const EdgeInsets.all(8.0),
                                                 child: Container(
+                                                  height: screenHeight * 0.13,
                                                   decoration: BoxDecoration(
                                                       color: GalaxyColors
                                                           .prussianBlue
@@ -744,62 +685,50 @@ class _TourBuilderState extends State<TourBuilder>
                                                               20.0)),
                                                   child: InkWell(
                                                     onTap: () async {
-                                                      if ((index !=
-                                                              ((tourController.placeList.length %
-                                                                          2 ==
-                                                                      0)
-                                                                  ? tourController
-                                                                              .placeList
-                                                                              .length ~/
-                                                                          2 -
-                                                                      1
-                                                                  : ((tourController
-                                                                          .placeList
-                                                                          .length ~/
-                                                                      2)))) ||
-                                                          tourController
-                                                                      .placeList
-                                                                      .length %
-                                                                  2 ==
-                                                              0) {
-                                                        if (tourController
-                                                            .isTouring.value) {
-                                                          tourController
-                                                              .tourButtonPressed();
-                                                        }
-                                                        var output = await Get
-                                                            .to(() => PlaceView(
-                                                                place: tourController
-                                                                    .placeList[2 *
-                                                                        index +
-                                                                    1]));
-                                                        await tourController
-                                                            .connectionClient
-                                                            .cleanBalloon();
-                                                        if (output != null) {
-                                                          print(output);
-                                                          PlaceInfo
-                                                              placeOutput =
-                                                              output;
-                                                          tourController
-                                                              .addToTourList(
-                                                                  placeOutput);
-                                                        }
-                                                        /*tourController.runKml(
-                                                            tourController.kml);
-                                                        if (tourController
-                                                                .lookAtPosition !=
-                                                            null) {
-                                                          tourController
-                                                              .zoomToLocation(
-                                                                  tourController
-                                                                      .lookAtPosition!);
-                                                        }*/
-
-                                                        await tourController
-                                                            .setTourKMLs();
+                                                      if (tourController
+                                                          .isTouring.value) {
+                                                        tourController
+                                                            .tourButtonPressed();
                                                       }
+                                                      print("here");
+                                                      var output = await Get.to(
+                                                          () => PlaceView(place: tourController
+                                                              .placeList[
+                                                          2 * index]
+
+                                                              /*ShowCaseWidget(
+                                                            builder: (BuildContext context) { return PlaceView(place: tourController
+                                                                .placeList[
+                                                            2 * index]); },
+                                                            onFinish: (){
+                                                              showcaseController.setPlaceViewCompleted();
+                                                            },
+                                                          )*/));
+                                                      // PlaceView(
+                                                      //         place: ));
+                                                      if (output != null) {
+                                                        print(output);
+                                                        PlaceInfo placeOutput =
+                                                            output;
+                                                        tourController
+                                                            .addToTourList(
+                                                                placeOutput);
+                                                      }
+                                                      await tourController
+                                                          .setTourKMLs();
+                                                      /*tourController.runKml(
+                                                          tourController.kml);
+                                                      if (tourController
+                                                              .lookAtPosition !=
+                                                          null) {
+                                                        tourController.zoomToLocation(
+                                                            tourController
+                                                                .lookAtPosition!);
+                                                      }*/
                                                     },
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20.0),
                                                     child: Padding(
                                                       padding: const EdgeInsets
                                                           .symmetric(
@@ -818,12 +747,12 @@ class _TourBuilderState extends State<TourBuilder>
                                                                         child:
                                                                             ImageIcon(
                                                                           AssetImage(
-                                                                            ((index != ((tourController.placeList.length % 2 == 0) ? tourController.placeList.length ~/ 2 - 1 : ((tourController.placeList.length ~/ 2)))) || tourController.placeList.length % 2 == 0)
-                                                                                ? assetPaths[(tourismCategories.contains(tourController.placeList[2 * index + 1].category)) ? (tourismCategories.indexOf(tourController.placeList[2 * index + 1].category)) : (tourismCategories.length - 1)]
-                                                                                : assetPaths[assetPaths.length - 1],
+                                                                            assetPaths[(tourismCategories.contains(tourController.placeList[2 * index].category))
+                                                                                ? (tourismCategories.indexOf(tourController.placeList[2 * index].category))
+                                                                                : (tourismCategories.length - 1)],
                                                                           ),
-                                                                          color:
-                                                                              Colors.white,
+                                                                          color: Colors
+                                                                              .white,
                                                                         ),
                                                                       )))),
                                                           SizedBox(
@@ -832,20 +761,28 @@ class _TourBuilderState extends State<TourBuilder>
                                                           Expanded(
                                                               flex: 6,
                                                               child: Container(
-                                                                  child:
-                                                                      FittedBox(
-                                                                          fit: BoxFit
-                                                                              .contain,
-                                                                          child:
-                                                                              Padding(
-                                                                            padding:
-                                                                                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 5.0),
-                                                                            child:
-                                                                                Text(
-                                                                              ((index != ((tourController.placeList.length % 2 == 0) ? tourController.placeList.length ~/ 2 - 1 : ((tourController.placeList.length ~/ 2)))) || tourController.placeList.length % 2 == 0) ? tourController.placeList[2 * index + 1].label : 'Blah',
-                                                                              style: TextStyle(color: Colors.white),
-                                                                            ),
-                                                                          ))))
+                                                                  child: FittedBox(
+                                                                      fit: BoxFit.contain,
+                                                                      child: Padding(
+                                                                        padding: const EdgeInsets
+                                                                            .symmetric(
+                                                                            horizontal:
+                                                                                8.0,
+                                                                            vertical:
+                                                                                5.0),
+                                                                        child:
+                                                                            Text(
+                                                                          tourController.placeList[2 * index].label.compareTo('') ==
+                                                                                  0
+                                                                              ? tourController.placeList[2 * index].name
+                                                                              : tourController.placeList[2 * index].label,
+                                                                          style:
+                                                                              TextStyle(
+                                                                            color:
+                                                                                Colors.white,
+                                                                          ),
+                                                                        ),
+                                                                      ))))
                                                         ],
                                                       ),
                                                     ),
@@ -853,102 +790,255 @@ class _TourBuilderState extends State<TourBuilder>
                                                 ),
                                               ),
                                             ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                                itemCount:
-                                    ((tourController.placeList.length % 2 == 0)
-                                        ? tourController.placeList.length ~/ 2
-                                        : ((tourController.placeList.length ~/
-                                                2) +
-                                            1)),
-                              ),
-                            ),
-                          ),
-                          Visibility(
-                            visible: tourController.isLoading.value,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Lottie.asset(
-                                      Assets.lottieLoadingPlaces,
-                                      decoder: customDecoder,
-                                      repeat: true,
-                                    ),
-                                    SizedBox(
-                                      width: 8.0,
-                                    ),
-                                    Text("Places are Loading...",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 35.0))
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          Visibility(
-                            visible: (tourController.isError.value ||
-                                    tourController.placeList.isEmpty) &&
-                                !tourController.isLoading.value,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Center(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Lottie.asset(
-                                      Assets.lottieLoadingFailed,
-                                      decoder: customDecoder,
-                                      repeat: true,
-                                    ),
-                                    SizedBox(
-                                      width: 8.0,
-                                    ),
-                                    Text(
-                                        tourController.isError.value
-                                            ? "Error occured while fetching places"
-                                            : "No Places found to visit here",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 35.0))
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                        ]);
-                      })
+                                            Visibility(
+                                              visible: ((index !=
+                                                      ((tourController.placeList
+                                                                      .length %
+                                                                  2 ==
+                                                              0)
+                                                          ? tourController
+                                                                      .placeList
+                                                                      .length ~/
+                                                                  2 -
+                                                              1
+                                                          : ((tourController
+                                                                  .placeList
+                                                                  .length ~/
+                                                              2)))) ||
+                                                  tourController
+                                                              .placeList.length %
+                                                          2 ==
+                                                      0),
+                                              child: Expanded(
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: GalaxyColors
+                                                            .prussianBlue
+                                                            .withOpacity(0.3),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                                20.0)),
+                                                    child: InkWell(
+                                                      onTap: () async {
+                                                        if ((index !=
+                                                                ((tourController.placeList.length %
+                                                                            2 ==
+                                                                        0)
+                                                                    ? tourController
+                                                                                .placeList
+                                                                                .length ~/
+                                                                            2 -
+                                                                        1
+                                                                    : ((tourController
+                                                                            .placeList
+                                                                            .length ~/
+                                                                        2)))) ||
+                                                            tourController
+                                                                        .placeList
+                                                                        .length %
+                                                                    2 ==
+                                                                0) {
+                                                          if (tourController
+                                                              .isTouring.value) {
+                                                            tourController
+                                                                .tourButtonPressed();
+                                                          }
+                                                          var output = await Get
+                                                              .to(() => PlaceView(place: tourController
+                                                              .placeList[2 *
+                                                              index +
+                                                              1])/*ShowCaseWidget(
+                                                            builder: (BuildContext context) { return PlaceView(place: tourController
+                                                                .placeList[2 *
+                                                                index +
+                                                                1]); },
+                                                            onFinish: (){
+                                                              showcaseController.setPlaceViewCompleted();
+                                                            },
+                                                          )*/);
 
-                      /*GridView.builder(
-                          itemCount: 12,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2),
-                          itemBuilder: (_, int index) {
-                            return InkWell(
-                                onTap: () {
-                                  //tap
-                                },
-                                onLongPress: () {
-                                  //long press
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: MaterialButton(
-                                    onPressed: () {},
-                                    color: Colors.white.withOpacity(0.6),
-                                    height: screenHeight*0.15,
+                                                              // PlaceView(
+                                                              //     place: ));
+                                                          await tourController
+                                                              .connectionClient
+                                                              .cleanBalloon();
+                                                          if (output != null) {
+                                                            print(output);
+                                                            PlaceInfo
+                                                                placeOutput =
+                                                                output;
+                                                            tourController
+                                                                .addToTourList(
+                                                                    placeOutput);
+                                                          }
+                                                          /*tourController.runKml(
+                                                              tourController.kml);
+                                                          if (tourController
+                                                                  .lookAtPosition !=
+                                                              null) {
+                                                            tourController
+                                                                .zoomToLocation(
+                                                                    tourController
+                                                                        .lookAtPosition!);
+                                                          }*/
+
+                                                          await tourController
+                                                              .setTourKMLs();
+                                                        }
+                                                      },
+                                                      child: Padding(
+                                                        padding: const EdgeInsets
+                                                            .symmetric(
+                                                            horizontal: 30.0),
+                                                        child: Row(
+                                                          children: [
+                                                            Expanded(
+                                                                flex: 1,
+                                                                child: Container(
+                                                                    child: FittedBox(
+                                                                        fit: BoxFit.contain,
+                                                                        child: Padding(
+                                                                          padding: const EdgeInsets
+                                                                              .all(
+                                                                              5.0),
+                                                                          child:
+                                                                              ImageIcon(
+                                                                            AssetImage(
+                                                                              ((index != ((tourController.placeList.length % 2 == 0) ? tourController.placeList.length ~/ 2 - 1 : ((tourController.placeList.length ~/ 2)))) || tourController.placeList.length % 2 == 0)
+                                                                                  ? assetPaths[(tourismCategories.contains(tourController.placeList[2 * index + 1].category)) ? (tourismCategories.indexOf(tourController.placeList[2 * index + 1].category)) : (tourismCategories.length - 1)]
+                                                                                  : assetPaths[assetPaths.length - 1],
+                                                                            ),
+                                                                            color:
+                                                                                Colors.white,
+                                                                          ),
+                                                                        )))),
+                                                            SizedBox(
+                                                              width: 8.0,
+                                                            ),
+                                                            Expanded(
+                                                                flex: 6,
+                                                                child: Container(
+                                                                    child:
+                                                                        FittedBox(
+                                                                            fit: BoxFit
+                                                                                .contain,
+                                                                            child:
+                                                                                Padding(
+                                                                              padding:
+                                                                                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 5.0),
+                                                                              child:
+                                                                                  Text(
+                                                                                ((index != ((tourController.placeList.length % 2 == 0) ? tourController.placeList.length ~/ 2 - 1 : ((tourController.placeList.length ~/ 2)))) || tourController.placeList.length % 2 == 0) ? tourController.placeList[2 * index + 1].label : 'Blah',
+                                                                                style: TextStyle(color: Colors.white),
+                                                                              ),
+                                                                            ))))
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  itemCount:
+                                      ((tourController.placeList.length % 2 == 0)
+                                          ? tourController.placeList.length ~/ 2
+                                          : ((tourController.placeList.length ~/
+                                                  2) +
+                                              1)),
+                                ),
+                              ),
+                            ),
+                            Visibility(
+                              visible: tourController.isLoading.value,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Center(
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Lottie.asset(
+                                        Assets.lottieLoadingPlaces,
+                                        decoder: customDecoder,
+                                        repeat: true,
+                                      ),
+                                      SizedBox(
+                                        width: 8.0,
+                                      ),
+                                      Text("Places are Loading...",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 35.0))
+                                    ],
                                   ),
-                                ));
-                          })*/
-                      ,
+                                ),
+                              ),
+                            ),
+                            Visibility(
+                              visible: (tourController.isError.value ||
+                                      tourController.placeList.isEmpty) &&
+                                  !tourController.isLoading.value,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Center(
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Lottie.asset(
+                                        Assets.lottieLoadingFailed,
+                                        decoder: customDecoder,
+                                        repeat: true,
+                                      ),
+                                      SizedBox(
+                                        width: 8.0,
+                                      ),
+                                      Text(
+                                          tourController.isError.value
+                                              ? "Error occured while fetching places"
+                                              : "No Places found to visit here",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 35.0))
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )
+                          ]);
+                        })
+
+                        /*GridView.builder(
+                            itemCount: 12,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2),
+                            itemBuilder: (_, int index) {
+                              return InkWell(
+                                  onTap: () {
+                                    //tap
+                                  },
+                                  onLongPress: () {
+                                    //long press
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: MaterialButton(
+                                      onPressed: () {},
+                                      color: Colors.white.withOpacity(0.6),
+                                      height: screenHeight*0.15,
+                                    ),
+                                  ));
+                            })*/
+                        ,
+                      ),
                     ),
                   )
                 ],
@@ -1236,11 +1326,30 @@ class _TourBuilderState extends State<TourBuilder>
               InkWell(
                 onTap: (){
                   print("deleting: $index");
-                  setState(() {
-                    tourController.deleteSavedListItem(index);
-                    tourController.savedList.add([PlaceInfo(coordinate: Coordinates(latitude: 0.0, longitude: 0.0), label: "label", address: "address", category: "category", name: "name")].obs);
-                    tourController.savedList.removeLast();
-                  });
+                  Get.dialog(
+                    AlertDialog(
+                      title: const Text("Warning", style: TextStyle(color: Colors.red),),
+                      content: const Text("This will delete this saved tour forever..."),
+                      actions: [
+                        TextButton(
+                          child: const Text("CANCEL", style: TextStyle(color: Colors.black),),
+                          onPressed: () => Get.back(),
+                        ),
+                        TextButton(
+                          child: const Text("CONTINUE", style: TextStyle(color: Colors.red),),
+                          onPressed: () async {
+                            setState(() {
+                              tourController.deleteSavedListItem(index);
+                              tourController.savedList.add([PlaceInfo(coordinate: Coordinates(latitude: 0.0, longitude: 0.0), label: "label", address: "address", category: "category", name: "name")].obs);
+                              tourController.savedList.removeLast();
+                            });
+                            Get.back();
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+
                 },
                 child: Container(
                   width: screenWidth * 0.05,

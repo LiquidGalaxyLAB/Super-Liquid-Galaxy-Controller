@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
 import 'package:super_liquid_galaxy_controller/controllers/geoquest_controller.dart';
+import 'package:super_liquid_galaxy_controller/controllers/showcase_controller.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_info.dart';
 import 'package:super_liquid_galaxy_controller/screens/dashboard.dart';
@@ -16,6 +17,7 @@ import 'package:super_liquid_galaxy_controller/controllers/map_movement_controll
 import 'package:super_liquid_galaxy_controller/controllers/poi_controller.dart';
 import 'package:super_liquid_galaxy_controller/controllers/speech_controller.dart';
 import 'package:super_liquid_galaxy_controller/controllers/tour_controller.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:super_liquid_galaxy_controller/utils/wikidatafetcher.dart';
 
 AndroidMapRenderer mapRenderer = AndroidMapRenderer.platformDefault;
@@ -31,11 +33,15 @@ void main() {
   Get.lazyPut(() => TourController(),fenix: true);
   Get.lazyPut(() => PoiController(),fenix: true);
   Get.lazyPut(() => GeoQuestController(),fenix: true);
+  Get.lazyPut(() => ShowcaseController(),fenix: true);
 
   // Get.lazyPut(() => WikiDataFetcher(), fenix:  true);
 
   LGConnection client = Get.find();
   client.connectToLG();
+  ShowcaseController showcaseController = Get.find();
+  showcaseController.fetchFirstLaunch();
+
   SystemChrome.setPreferredOrientations([
     // Lock orientation to landscape
     DeviceOrientation.landscapeRight,

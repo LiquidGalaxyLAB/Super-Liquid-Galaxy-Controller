@@ -209,7 +209,7 @@ class _PlaceViewPoiState extends State<PlaceViewPoi> with TickerProviderStateMix
                                                     ? Image.asset(
                                                         Assets.iconsImageError,
                                                         height: 400,
-                                                        fit: BoxFit.fill,
+                                                        fit: BoxFit.contain,
                                                       )
                                                     : (Image.network(
                                                         poiController

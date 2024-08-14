@@ -8,11 +8,13 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:super_liquid_galaxy_controller/components/autocomplete_locationfield.dart';
 import 'package:super_liquid_galaxy_controller/components/tray_button.dart';
 import 'package:super_liquid_galaxy_controller/controllers/autocomplete_controller.dart';
 import 'package:super_liquid_galaxy_controller/controllers/lg_connection.dart';
 import 'package:super_liquid_galaxy_controller/controllers/map_movement_controller.dart';
+import 'package:super_liquid_galaxy_controller/controllers/showcase_controller.dart';
 import 'package:super_liquid_galaxy_controller/controllers/speech_controller.dart';
 import 'package:super_liquid_galaxy_controller/data_class/coordinate.dart';
 import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
@@ -42,10 +44,17 @@ class MapControllerState extends State<MapController> {
   late LGConnection client;
   late SpeechController speechController;
   late MapMovementController mapMovementController;
+  late ShowcaseController showcaseController;
   late double screenHeight;
   late double screenWidth;
   bool widgetVisible = true;
-  bool voiceCommandActive = false;
+  bool voiceCommandActive = true;
+
+  final _key1 = GlobalKey();
+  final _key2 = GlobalKey();
+  final _key3 = GlobalKey();
+  final _key4 = GlobalKey();
+  final _key5 = GlobalKey();
 
   @override
   void initState() {
@@ -53,10 +62,20 @@ class MapControllerState extends State<MapController> {
     client = Get.find();
     speechController = Get.find();
     mapMovementController = Get.find();
+    showcaseController = Get.find();
     speechController.setMapController(mapMovementController);
     updateToCurrentLocation();
     bootLGClient();
+
+    if (showcaseController.isFirstLaunchMap()) {
+      WidgetsBinding.instance.addPostFrameCallback(
+            (_) => ShowCaseWidget.of(context).startShowCase(
+          [_key1, _key2, _key3, _key4, _key5],
+        ),
+      );
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -100,16 +119,26 @@ class MapControllerState extends State<MapController> {
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
                     color: Colors.green.withOpacity(0.2),
-                    child: AutoCompleteLocationField(
-                      hintText: "Enter Location to search here",
-                      labelText: "",
-                      iconData: Icons.search_rounded,
-                      textInputType: TextInputType.text,
-                      isPassword: false,
-                      fillColor: Colors.white,
-                      textColor: Colors.black,
-                      autocompleteController: textController,
-                      seekTo: goToSearchFeature,
+                    child: Showcase(
+                      key: _key1,
+                      description:
+                      'You can use this to search any location by Address. \nIt automatically seeks you to the selected location.',
+                      descTextStyle: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        fontSize: 16,
+                      ),
+                      child: AutoCompleteLocationField(
+                        hintText: "Enter Location to search here",
+                        labelText: "",
+                        iconData: Icons.search_rounded,
+                        textInputType: TextInputType.text,
+                        isPassword: false,
+                        fillColor: Colors.white,
+                        textColor: Colors.black,
+                        autocompleteController: textController,
+                        seekTo: goToSearchFeature,
+                      ),
                     ),
                   ),
                 )),
@@ -132,29 +161,49 @@ class MapControllerState extends State<MapController> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        TrayButton(
-                          icon: Assets.iconsMic,
-                          color:
-                              voiceCommandActive ? Colors.green : Colors.grey,
-                          text: "VOICE \n COMMANDS",
-                          iconSize: screenHeight * 0.07,
-                          action: () {
-                            setState(() {
-                              voiceCommandActive = !voiceCommandActive;
-                            });
-                          },
-                        ),
-                        Obx(() {
-                          return TrayButton(
-                            icon: Assets.iconsSync,
-                            color: client.isConnected.value
-                                ? Colors.green
-                                : Colors.red,
-                            text: "SYNC TO \n  LG",
+                        Showcase(
+                          key: _key2,
+                          description:
+                          'This is used to activate and de-activate Voice Commands.',
+                          descTextStyle: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                            fontSize: 16,
+                          ),
+                          child: TrayButton(
+                            icon: Assets.iconsMic,
+                            color:
+                                voiceCommandActive ? Colors.green : Colors.grey,
+                            text: "VOICE \n COMMANDS",
                             iconSize: screenHeight * 0.07,
                             action: () {
-                              bootLGClient();
+                              setState(() {
+                                voiceCommandActive = !voiceCommandActive;
+                              });
                             },
+                          ),
+                        ),
+                        Obx(() {
+                          return Showcase(
+                            key: _key3,
+                            description:
+                            'Can be used to sync to the LG rig.',
+                            descTextStyle: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black,
+                              fontSize: 16,
+                            ),
+                            child: TrayButton(
+                              icon: Assets.iconsSync,
+                              color: client.isConnected.value
+                                  ? Colors.green
+                                  : Colors.red,
+                              text: "SYNC TO \n  LG",
+                              iconSize: screenHeight * 0.07,
+                              action: () {
+                                bootLGClient();
+                              },
+                            ),
                           );
                         }),
                         /*TrayButton(
@@ -289,141 +338,159 @@ class MapControllerState extends State<MapController> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
 
-                  Container(
-                    height: screenHeight * 0.125,
-                    width: screenWidth * 0.35,
-                    decoration: BoxDecoration(
-                        color: Colors.grey.shade800,
-                        borderRadius: BorderRadius.circular(20.0),
-                        backgroundBlendMode: BlendMode.modulate),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Obx(() {
-                            return Row(
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Container(
-                                    child: FittedBox(
-                                  fit: BoxFit.contain,
-                                  child: AvatarGlow(
-                                    glowColor: Colors.white,
-                                    glowShape: BoxShape.circle,
-                                    animate: speechController.isListening.value,
-                                    curve: Curves.fastOutSlowIn,
-                                    child: Material(
-                                      elevation: 8.0,
-                                      shape: CircleBorder(),
-                                      color: Colors.transparent,
-                                      child: InkWell(
-                                        borderRadius:
-                                            BorderRadius.circular(20.0),
-                                        onTapUp: (TapUpDetails tapdetails) {
-                                          print('up: ${tapdetails.kind}');
-                                          speechController.stopListening();
-                                        },
-                                        onTapDown: (TapDownDetails details) {
-                                          print('down: ${details.kind}');
-                                          speechController.startListening();
-                                        },
-                                        onTapCancel: () {
-                                          print('cancel');
-                                          speechController.stopListening();
-                                        },
-                                        child: Padding(
-                                          padding: EdgeInsets.all(6.0),
-                                          child: CircleAvatar(
-                                            backgroundColor:
-                                                Colors.grey.shade800,
-                                            radius: screenHeight * 0.05,
-                                            child: ImageIcon(
-                                              const AssetImage(Assets.iconsMic),
-                                              color: Colors.white,
-                                              size: screenHeight * 0.07,
+                  Showcase(
+                    key: _key4,
+                    description:
+                    'The mic button must be held down to speak commands. \nIt works by detecting directional commands.',
+                    descTextStyle: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                      fontSize: 16,
+                    ),
+                    child: Container(
+                      height: screenHeight * 0.125,
+                      width: screenWidth * 0.35,
+                      decoration: BoxDecoration(
+                          color: Colors.grey.shade800,
+                          borderRadius: BorderRadius.circular(20.0),
+                          backgroundBlendMode: BlendMode.modulate),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Obx(() {
+                              return Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Container(
+                                      child: FittedBox(
+                                    fit: BoxFit.contain,
+                                    child: AvatarGlow(
+                                      glowColor: Colors.white,
+                                      glowShape: BoxShape.circle,
+                                      animate: speechController.isListening.value,
+                                      curve: Curves.fastOutSlowIn,
+                                      child: Material(
+                                        elevation: 8.0,
+                                        shape: CircleBorder(),
+                                        color: Colors.transparent,
+                                        child: InkWell(
+                                          borderRadius:
+                                              BorderRadius.circular(20.0),
+                                          onTapUp: (TapUpDetails tapdetails) {
+                                            print('up: ${tapdetails.kind}');
+                                            speechController.stopListening();
+                                          },
+                                          onTapDown: (TapDownDetails details) {
+                                            print('down: ${details.kind}');
+                                            speechController.startListening();
+                                          },
+                                          onTapCancel: () {
+                                            print('cancel');
+                                            speechController.stopListening();
+                                          },
+                                          child: Padding(
+                                            padding: EdgeInsets.all(6.0),
+                                            child: CircleAvatar(
+                                              backgroundColor:
+                                                  Colors.grey.shade800,
+                                              radius: screenHeight * 0.05,
+                                              child: ImageIcon(
+                                                const AssetImage(Assets.iconsMic),
+                                                color: Colors.white,
+                                                size: screenHeight * 0.07,
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                )),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: Container(
-                                        child: Column(
-                                      mainAxisSize: MainAxisSize.max,
-                                      children: [
-                                        Expanded(
-                                          flex: 7,
-                                          child: Container(
-                                            child: FittedBox(
-                                              fit: BoxFit.contain,
-                                              child: Text(
-                                                speechController
-                                                    .commandWord.value,
-                                                style: const TextStyle(
-                                                    fontSize: 25.0,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.white),
+                                  )),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Container(
+                                          child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: [
+                                          Expanded(
+                                            flex: 7,
+                                            child: Container(
+                                              child: FittedBox(
+                                                fit: BoxFit.contain,
+                                                child: Text(
+                                                  speechController
+                                                      .commandWord.value,
+                                                  style: const TextStyle(
+                                                      fontSize: 25.0,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Colors.white),
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        Expanded(
-                                          flex: 3,
-                                          child: Container(
-                                            child: FittedBox(
-                                              fit: BoxFit.contain,
-                                              child: Text(
-                                                speechController.wordsString
-                                                        .value.isEmpty
-                                                    ? "Word Queue Empty. Try Saying something!"
-                                                    : speechController
-                                                        .wordsString.value,
-                                                style: const TextStyle(
-                                                    color: Colors.grey,
-                                                    fontSize: 12.0),
+                                          Expanded(
+                                            flex: 3,
+                                            child: Container(
+                                              child: FittedBox(
+                                                fit: BoxFit.contain,
+                                                child: Text(
+                                                  speechController.wordsString
+                                                          .value.isEmpty
+                                                      ? "Word Queue Empty. Try Saying something!"
+                                                      : speechController
+                                                          .wordsString.value,
+                                                  style: const TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 12.0),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        )
-                                      ],
-                                    )),
+                                          )
+                                        ],
+                                      )),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            );
-                          })),
+                                ],
+                              );
+                            })),
+                      ),
                     ),
                   ),
                   SizedBox(
                     width: 12.0,
                   ),
-
-
                   Material(
                     color: Colors.transparent,
                     //borderRadius: BorderRadius.circular(300.0),
-                    child: Container(
-                      height: screenHeight * 0.07,
-                      width: screenHeight * 0.07,
-                      decoration: BoxDecoration(
-                          color: Colors.grey.shade800,
-                          borderRadius: BorderRadius.circular(300.0),
-                          backgroundBlendMode: BlendMode.modulate),
-                      child: InkWell(
-                        onTap: (){
-                          showInfo();
-                        },
-                        child: FittedBox(
-                          fit: BoxFit.contain,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Icon(
-                              Icons.info_outline,
-                              color: Colors.white,
+                    child: Showcase(
+                      key: _key5,
+                      description:
+                      'Shows the commands that the Voice processor detects.',
+                      descTextStyle: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        fontSize: 16,
+                      ),
+                      child: Container(
+                        height: screenHeight * 0.07,
+                        width: screenHeight * 0.07,
+                        decoration: BoxDecoration(
+                            color: Colors.grey.shade800,
+                            borderRadius: BorderRadius.circular(300.0),
+                            backgroundBlendMode: BlendMode.modulate),
+                        child: InkWell(
+                          onTap: (){
+                            showInfo();
+                          },
+                          child: FittedBox(
+                            fit: BoxFit.contain,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.info_outline,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),

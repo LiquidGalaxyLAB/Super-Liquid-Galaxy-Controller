@@ -1,21 +1,19 @@
 import 'dart:developer' as developer;
-import 'dart:io';
-import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:popup_menu/popup_menu.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:super_liquid_galaxy_controller/components/navisland.dart';
 import 'package:super_liquid_galaxy_controller/components/planet_selector.dart';
 import 'package:super_liquid_galaxy_controller/controllers/api_manager.dart';
 import 'package:super_liquid_galaxy_controller/controllers/lg_connection.dart';
-import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
+import 'package:super_liquid_galaxy_controller/controllers/showcase_controller.dart';
 import 'package:super_liquid_galaxy_controller/generated/assets.dart';
 import 'package:super_liquid_galaxy_controller/screens/settings.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
-import 'package:super_liquid_galaxy_controller/utils/testkml.dart';
 
 import '../components/connection_flag.dart';
 import '../components/glassbox.dart';
@@ -36,9 +34,14 @@ class _DashBoardState extends State<DashBoard> {
   late double screenWidth;
   late LGConnection connectionClient;
   late ApiManager apiClient;
+  late ShowcaseController showcaseController;
   GlobalKey widgetKey = GlobalKey();
   int selectedIndex = 0;
   TextEditingController keyController = TextEditingController();
+
+  final _key1 = GlobalKey();
+  final _key2 = GlobalKey();
+  final _key3 = GlobalKey();
 
   @override
   void initState() {
@@ -46,18 +49,21 @@ class _DashBoardState extends State<DashBoard> {
     log("ui", "dashboard-built");
     initializeLGClient();
     initializeApiClient();
+    showcaseController = Get.find();
+
+    if (showcaseController.isFirstLaunchDashboard()) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => ShowCaseWidget.of(context).startShowCase(
+          [_key1, _key2, _key3],
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
-    screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
+    screenHeight = MediaQuery.of(context).size.height;
+    screenWidth = MediaQuery.of(context).size.width;
 
     return SafeArea(
         child: Scaffold(
@@ -76,23 +82,23 @@ class _DashBoardState extends State<DashBoard> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       /*Image.network(getPlanetLink(selectedIndex),
+                        height: screenHeight,
+                        width: screenWidth,
+                        fit: BoxFit.cover,
+                      loadingBuilder: (context,Widget widget,ImageChunkEvent? loadingProgress){
+                        if (loadingProgress == null) return widget;
+                        print(loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                            : null);
+                      //print((loader!.cumulativeBytesLoaded /loader.expectedTotalBytes!));
+                      return Image.asset(getPlanetAssetLink(selectedIndex),
                           height: screenHeight,
                           width: screenWidth,
-                          fit: BoxFit.cover,
-                        loadingBuilder: (context,Widget widget,ImageChunkEvent? loadingProgress){
-                          if (loadingProgress == null) return widget;
-                          print(loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                              : null);
-                        //print((loader!.cumulativeBytesLoaded /loader.expectedTotalBytes!));
-                        return Image.asset(getPlanetAssetLink(selectedIndex),
-                            height: screenHeight,
-                            width: screenWidth,
-                            fit: BoxFit.cover);
-                        },
+                          fit: BoxFit.cover);
+                      },
 
-                      ),*/
+                    ),*/
                       CachedNetworkImage(
                         imageUrl: getPlanetLink(selectedIndex),
                         placeholder: (context, str) {
@@ -106,12 +112,12 @@ class _DashBoardState extends State<DashBoard> {
                         width: screenWidth,
                         fit: BoxFit.cover,
                         /*progressIndicatorBuilder:
-                            (context, widget, DownloadProgress? progress) {
-                          return Image.asset(getPlanetAssetLink(selectedIndex),
-                              height: screenHeight,
-                              width: screenWidth,
-                              fit: BoxFit.cover);
-                        },*/
+                          (context, widget, DownloadProgress? progress) {
+                        return Image.asset(getPlanetAssetLink(selectedIndex),
+                            height: screenHeight,
+                            width: screenWidth,
+                            fit: BoxFit.cover);
+                      },*/
                       )
                     ],
                   ),
@@ -177,7 +183,7 @@ class _DashBoardState extends State<DashBoard> {
                                                         .cleaning_services_sharp,
                                                     size: screenHeight * 0.07,
                                                     color: connectionClient
-                                                        .isConnected.value
+                                                            .isConnected.value
                                                         ? GalaxyColors.blue
                                                         : Colors.red,
                                                   ),
@@ -194,14 +200,14 @@ class _DashBoardState extends State<DashBoard> {
                                                     "CLEAR KML",
                                                     style: TextStyle(
                                                         color: connectionClient
-                                                            .isConnected
-                                                            .value
+                                                                .isConnected
+                                                                .value
                                                             ? GalaxyColors.blue
                                                             : Colors.red,
                                                         fontSize:
-                                                        screenHeight * 0.07,
+                                                            screenHeight * 0.07,
                                                         fontWeight:
-                                                        FontWeight.bold),
+                                                            FontWeight.bold),
                                                   ),
                                                 ),
                                               )
@@ -213,7 +219,7 @@ class _DashBoardState extends State<DashBoard> {
                                   ),
                                   onTap: () async {
                                     /*log("gesture", "settings tapped");
-                                    await Get.to(() => Settings());*/
+                                  await Get.to(() => Settings());*/
 
                                     if (!connectionClient.isConnected.value) {
                                       retryConnectionOrShowError();
@@ -229,20 +235,29 @@ class _DashBoardState extends State<DashBoard> {
                               Padding(
                                 padding: EdgeInsets.symmetric(
                                     vertical: 12.0, horizontal: 20.0),
-                                child: GlassBox(
-                                  height: screenHeight * 0.1,
-                                  width: screenHeight * 0.1,
-                                  child: Icon(
-                                    Icons.settings,
-                                    size: screenHeight * 0.07,
-                                    color: Colors.white,
+                                child: Showcase(
+                                  key: _key2,
+                                  description:
+                                      'This takes you to Settings where you can provide all necessary credentials.',
+                                  descTextStyle: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black,
+                                    fontSize: 16,
                                   ),
-                                  onTap: () async {
-                                    log("gesture", "settings tapped");
-                                    var out = await checkCredentials();
-                                    if (!out.isPassWordGuarded) {
-                                      await Get.to(() => Settings());
-                                    } else {
+                                  child: GlassBox(
+                                    height: screenHeight * 0.1,
+                                    width: screenHeight * 0.1,
+                                    child: Icon(
+                                      Icons.settings,
+                                      size: screenHeight * 0.07,
+                                      color: Colors.white,
+                                    ),
+                                    onTap: () {
+                                      log("gesture", "settings tapped");
+                                      //var out = await checkCredentials();
+                                      /*if (!out.isPassWordGuarded) {
+                                        await Get.to(() => Settings());
+                                      } else {*/
                                       /*keyController.clear();
                                       String result = await Get.defaultDialog(
                                           title: "ENTER PASSWORD USED",
@@ -272,14 +287,16 @@ class _DashBoardState extends State<DashBoard> {
                                           });
 
                                       if (result.compareTo(out.password) == 0) {*/
-                                      await Get.to(() => Settings());
+                                      Get.to(() => Settings());
+
                                       /*} else {
                                         if (!(result.compareTo('') == 0)) {
                                           showErrorSnackBar();
                                         }
                                       }*/
-                                    }
-                                  },
+                                      //}
+                                    },
+                                  ),
                                 ),
                               ),
                             ],
@@ -300,9 +317,9 @@ class _DashBoardState extends State<DashBoard> {
                                   Obx(() {
                                     return ConnectionFlag(
                                       status:
-                                      connectionClient.isConnected.value,
+                                          connectionClient.isConnected.value,
                                       backgroundColor:
-                                      Colors.white.withOpacity(0.0),
+                                          Colors.white.withOpacity(0.0),
                                       selectedText: 'LG CONNECTED',
                                       unSelectedText: 'LG NOT CONNECTED',
                                       fontSize: 15.0,
@@ -321,7 +338,7 @@ class _DashBoardState extends State<DashBoard> {
                                     return ConnectionFlag(
                                       status: apiClient.isConnected.value,
                                       backgroundColor:
-                                      Colors.white.withOpacity(0.0),
+                                          Colors.white.withOpacity(0.0),
                                       selectedText: 'API CONNECTED',
                                       unSelectedText: 'API NOT CONNECTED',
                                       fontSize: 15.0,
@@ -344,15 +361,24 @@ class _DashBoardState extends State<DashBoard> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            PlanetSelector(
-                              key: widgetKey,
-                              height: screenHeight * 0.2,
-                              width: screenWidth * 0.4,
-                              planetName: getPlanetName(selectedIndex),
-                              onPressed: () {
-                                menu(widgetKey);
-                              },
-                            )
+                            Showcase(
+                                key: _key1,
+                                description:
+                                    'You can use this to change the primary Planet to: Earth, Mars, Moon',
+                                descTextStyle: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                ),
+                                child: PlanetSelector(
+                                  key: widgetKey,
+                                  height: screenHeight * 0.2,
+                                  width: screenWidth * 0.4,
+                                  planetName: getPlanetName(selectedIndex),
+                                  onPressed: () {
+                                    menu(widgetKey);
+                                  },
+                                ))
                           ],
                         ),
                       ),
@@ -365,100 +391,109 @@ class _DashBoardState extends State<DashBoard> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(25.0),
-                        child: NavIsland(
-                          height: screenHeight * 0.6,
-                          width: screenWidth * 0.3,
-                          changePlanet: () async {
-                            print(" earth");
-                            //selectedIndex = 0;
-                            if (!connectionClient.isConnected.value) {
-                              retryConnectionOrShowError();
-                              return;
-                            } else {
-                              runPlanetKml(0);
-                            }
-                          },
-                          getPlanet: () {
-                            return selectedIndex;
-                          },
+                        child: Showcase(
+                          key: _key3,
+                          description: 'This is the Navigation Island to access all the various features.',
+                          descTextStyle: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                            fontSize: 16,
+                          ),
+                          child: NavIsland(
+                            height: screenHeight * 0.6,
+                            width: screenWidth * 0.3,
+                            changePlanet: () async {
+                              print(" earth");
+                              //selectedIndex = 0;
+                              if (!connectionClient.isConnected.value) {
+                                retryConnectionOrShowError();
+                                return;
+                              } else {
+                                runPlanetKml(0);
+                              }
+                            },
+                            getPlanet: () {
+                              return selectedIndex;
+                            },
+                          ),
                         ),
                       )
                     ],
                   ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        height: screenHeight * 0.4,
-                        width: screenWidth * 0.1,
-                        decoration: BoxDecoration(
-                            color: Colors.grey.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(20.0)),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Expanded(
-                                child: FittedBox(
-                                    fit: BoxFit.contain,
-                                    child: InkWell(
-                                        onTap: () {
-                                          testRun(Constants.noneKML);
-                                        },
-                                        child: Text(
-                                          "1",
-                                          style: TextStyle(color: Colors.white),
-                                        )))),
-                            Divider(color: Colors.white),
-                            Expanded(
-                                child: FittedBox(
-                                    fit: BoxFit.contain,
-                                    child: InkWell(
-                                        onTap: () {
-                                          testRun(Constants.clampKML);
-                                        },
-                                        child: Text(
-                                          "2",
-                                          style: TextStyle(color: Colors.white),
-                                        )))),
-                            Divider(color: Colors.white),
-                            Expanded(
-                                child: FittedBox(
-                                    fit: BoxFit.contain,
-                                    child: InkWell(
-                                        onTap: () {
-                                          testRun(Constants.relativeKML);
-                                        },
-                                        child: Text(
-                                          "3",
-                                          style: TextStyle(color: Colors.white),
-                                        )))),
-                            Divider(color: Colors.white),
-                            Expanded(
-                                child: FittedBox(
-                                    fit: BoxFit.contain,
-                                    child: InkWell(
-                                        onTap: () async {
-                                          testRun(TestKML.laveFlow);
-                                          MapPosition position = MapPosition(
-                                              latitude: 28.65665656297236,
-                                              longitude: -17.885454520583153,
-                                              bearing: 61.403038024902344,
-                                              tilt: 41.82725143432617,
-                                              zoom: 591657550.500000 /
-                                                  pow(2, 13.15393352508545));
-                                          await connectionClient.moveTo(
-                                              position);
-                                        },
-                                        child: Text(
-                                          "4",
-                                          style: TextStyle(color: Colors.white),
-                                        )))),
-                          ],
-                        ),
+                  /*Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      height: screenHeight * 0.4,
+                      width: screenWidth * 0.1,
+                      decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(20.0)),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Expanded(
+                              child: FittedBox(
+                                  fit: BoxFit.contain,
+                                  child: InkWell(
+                                      onTap: () {
+                                        testRun(Constants.noneKML);
+                                      },
+                                      child: Text(
+                                        "1",
+                                        style: TextStyle(color: Colors.white),
+                                      )))),
+                          Divider(color: Colors.white),
+                          Expanded(
+                              child: FittedBox(
+                                  fit: BoxFit.contain,
+                                  child: InkWell(
+                                      onTap: () {
+                                        testRun(Constants.clampKML);
+                                      },
+                                      child: Text(
+                                        "2",
+                                        style: TextStyle(color: Colors.white),
+                                      )))),
+                          Divider(color: Colors.white),
+                          Expanded(
+                              child: FittedBox(
+                                  fit: BoxFit.contain,
+                                  child: InkWell(
+                                      onTap: () {
+                                        testRun(Constants.relativeKML);
+                                      },
+                                      child: Text(
+                                        "3",
+                                        style: TextStyle(color: Colors.white),
+                                      )))),
+                          Divider(color: Colors.white),
+                          Expanded(
+                              child: FittedBox(
+                                  fit: BoxFit.contain,
+                                  child: InkWell(
+                                      onTap: () async {
+                                        testRun(TestKML.laveFlow);
+                                        MapPosition position = MapPosition(
+                                            latitude: 28.65665656297236,
+                                            longitude: -17.885454520583153,
+                                            bearing: 61.403038024902344,
+                                            tilt: 41.82725143432617,
+                                            zoom: 591657550.500000 /
+                                                pow(2, 13.15393352508545));
+                                        await connectionClient.moveTo(
+                                            position);
+                                      },
+                                      child: Text(
+                                        "4",
+                                        style: TextStyle(color: Colors.white),
+                                      )))),
+                        ],
                       ),
                     ),
-                  )
+                  ),
+                )*/
                 ],
               ),
             )));
@@ -512,7 +547,7 @@ class _DashBoardState extends State<DashBoard> {
   Future<LottieComposition?> customDecoder(List<int> bytes) {
     return LottieComposition.decodeZip(bytes, filePicker: (files) {
       return files.firstWhere(
-            (f) => f.name.startsWith('animations/') && f.name.endsWith('.json'),
+        (f) => f.name.startsWith('animations/') && f.name.endsWith('.json'),
       );
     });
   }
@@ -773,7 +808,7 @@ class _DashBoardState extends State<DashBoard> {
     }
   }
 
-  Future<void> testRun(String kml) async {
+/*Future<void> testRun(String kml) async {
     await connectionClient.connectToLG();
     File? file = await connectionClient.makeFile("TEST", kml);
     print("made successfully");
@@ -790,5 +825,5 @@ class _DashBoardState extends State<DashBoard> {
       isDismissible: true,
       duration: 5.seconds,
     ));
-  }
+  }*/
 }

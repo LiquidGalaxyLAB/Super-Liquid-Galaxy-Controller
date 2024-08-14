@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:super_liquid_galaxy_controller/components/glassbox.dart';
+import 'package:super_liquid_galaxy_controller/controllers/showcase_controller.dart';
 import 'package:super_liquid_galaxy_controller/generated/assets.dart';
 import 'package:super_liquid_galaxy_controller/tabs/about.dart';
 import 'package:super_liquid_galaxy_controller/tabs/apikey_tab.dart';
@@ -10,7 +11,6 @@ import 'package:super_liquid_galaxy_controller/tabs/connection_tab.dart';
 import 'package:super_liquid_galaxy_controller/tabs/sshcommands_tab.dart';
 import 'package:super_liquid_galaxy_controller/controllers/api_manager.dart';
 import 'package:super_liquid_galaxy_controller/controllers/lg_connection.dart';
-
 //ignore_for_file: prefer_const_constructors
 //ignore_for_file: prefer_const_literals
 
@@ -26,6 +26,7 @@ class _SettingsState extends State<Settings> {
   late double screenWidth;
   late LGConnection connectionClient;
   late ApiManager apiClient;
+
 
   @override
   void initState() {
@@ -203,7 +204,8 @@ class _SettingsState extends State<Settings> {
                             "  About  ",
                             style: TextStyle(fontSize: 30.0),
                           ),
-                        ]),
+                        ]
+                        ),
                       ),
                     ),
                   ),
@@ -212,7 +214,8 @@ class _SettingsState extends State<Settings> {
             ),
           ),
           body: TabBarView(
-            children: const [ConnectionTab(), SSHCommandsTab(), ApiKeyTab(),AboutTab()],
+            children: [ConnectionTab(),
+              SSHCommandsTab(), ApiKeyTab(),AboutTab()],
           ),
         ),
       ),
