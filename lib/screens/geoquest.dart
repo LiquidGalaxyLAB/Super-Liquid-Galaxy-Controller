@@ -134,7 +134,7 @@ class GeoQuestState extends State<GeoQuest> with TickerProviderStateMixin {
                 children: [
                   Showcase(
                     key: _key1,
-                    description: 'You can check your accumulated score here.',
+                    description: 'This is a Geo-Guessr like game where the goal is to place \nthe pointer as close to the mentioned state as quick as possible. \nEarn the highest scores! \nYou can check your accumulated score here.',
                     descTextStyle: const TextStyle(
                       fontWeight: FontWeight.w500,
                       color: Colors.black,
@@ -216,7 +216,12 @@ class GeoQuestState extends State<GeoQuest> with TickerProviderStateMixin {
                   ),
                   IconButton(
                       onPressed: () {
-                        geoQuestController.showStartMessage();
+                        //geoQuestController.showStartMessage();
+                        WidgetsBinding.instance.addPostFrameCallback(
+                              (_) => ShowCaseWidget.of(context).startShowCase(
+                            [_key1, _key2, _key3, _key4,_key5, _key6],
+                          ),
+                        );
                       },
                       color: Colors.white,
                       icon: Icon(

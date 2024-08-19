@@ -137,15 +137,27 @@ class _ConnectionTabState extends State<ConnectionTab>
     await lgConnection.showLogos();
     var dialog = lgConnection.connectStatus()
         ? CustomDialog(
-        content: Text("SSH operations are now possible."),
-        title: Text("Connection established",style: TextStyle(color: Colors.green.shade500,fontSize: 25.0,fontWeight: FontWeight.bold),),
+        content: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0),
+          child: Text("SSH operations are now possible."),
+        ),
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text("Connection established",style: TextStyle(color: Colors.green.shade500,fontSize: 25.0,fontWeight: FontWeight.bold),),
+        ),
         firstColor: Colors.green,
         secondColor: Colors.white,
         headerIcon: Lottie.asset(Assets.lottieConnected,
             decoder: customDecoder, repeat: false,width: 200.0,height: 200.0))
         : CustomDialog(
-        content: Text("SSH operations unavailable."),
-        title: Text("Connection failed",style: TextStyle(color: Colors.red.shade500,fontSize: 25.0,fontWeight: FontWeight.bold),),
+        content: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0),
+          child: Text("SSH operations unavailable."),
+        ),
+        title: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text("Connection failed",style: TextStyle(color: Colors.red.shade500,fontSize: 25.0,fontWeight: FontWeight.bold),),
+        ),
         firstColor: Colors.red.shade400,
         secondColor: Colors.white,
         headerIcon: Lottie.asset(Assets.lottieConnectionfailed,

@@ -41,6 +41,7 @@ class Assets {
   static const String iconsTest = 'assets/icons/test.jpeg';
   static const String iconsToursnotfound = 'assets/icons/toursnotfound.png';
   static const String iconsTravel = 'assets/icons/travel.png';
+  static const String iconsTutorial = 'assets/icons/tutorial.png';
   static const String iconsVoices = 'assets/icons/voices.png';
   static const String lottieAddplaces = 'assets/lottie/addplaces.lottie';
   static const String lottieCongrats = 'assets/lottie/congrats.json';

@@ -1,12 +1,15 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:super_liquid_galaxy_controller/controllers/api_manager.dart';
+
 import '../generated/assets.dart';
+import '../utils/galaxy_colors.dart';
 import 'custom_dialog.dart';
 import 'galaxytextfield.dart';
-import 'package:lottie/lottie.dart';
-import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiManagerBlock extends StatefulWidget {
   ApiManagerBlock(
@@ -18,7 +21,7 @@ class ApiManagerBlock extends StatefulWidget {
       this.urlLauncher1,
       this.urlLauncher2,
       required this.keyController,
-        required this.width});
+      required this.width});
 
   String title;
   String description;
@@ -33,10 +36,7 @@ class ApiManagerBlock extends StatefulWidget {
   State<ApiManagerBlock> createState() => _ApiManagerBlockState();
 }
 
-
-
 class _ApiManagerBlockState extends State<ApiManagerBlock> {
-
   @override
   void initState() {
     loadSetValues();
@@ -52,8 +52,7 @@ class _ApiManagerBlockState extends State<ApiManagerBlock> {
             child: Container(
                 width: widget.width,
                 decoration: BoxDecoration(
-                    border:
-                    Border.all(color: Colors.white.withOpacity(0.1)),
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
                     borderRadius: BorderRadius.circular(5),
                     gradient: LinearGradient(colors: [
                       Colors.white.withOpacity(0.1),
@@ -73,7 +72,7 @@ class _ApiManagerBlockState extends State<ApiManagerBlock> {
                             children: [
                               Text(
                                 widget.title,
-                                style:const TextStyle(
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 35,
                                   fontWeight: FontWeight.w400,
@@ -142,7 +141,9 @@ class _ApiManagerBlockState extends State<ApiManagerBlock> {
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(width: 20.0,),
+                                      const SizedBox(
+                                        width: 20.0,
+                                      ),
                                       Expanded(
                                         child: Material(
                                           color: Colors.transparent,
@@ -153,7 +154,6 @@ class _ApiManagerBlockState extends State<ApiManagerBlock> {
                                                 Colors.blue.withOpacity(0.3),
                                             onTap: widget.urlLauncher2,
                                             child: Container(
-
                                               child: FittedBox(
                                                 fit: BoxFit.fitHeight,
                                                 child: Text(
@@ -183,25 +183,72 @@ class _ApiManagerBlockState extends State<ApiManagerBlock> {
                                 iconData: Icons.code,
                                 textInputType: TextInputType.text,
                                 controller: widget.keyController,
-                                isPassword: false,
-                                buttonAction: () {
+                                isPassword: true,
+                                /*buttonAction: () {
                                   if (widget.keyController.text.isNotEmpty) {
                                     saveApiKey('places_apikey');
-                                  }
-                                  else
-                                    {
-                                      if (!Get.isSnackbarOpen) {
-                                        Get.showSnackbar(GetSnackBar(
-                                          backgroundColor: Colors.red.shade300,
-                                          title: "EMPTY FIELD",
-                                          message: "API Key Field is Empty!",
-                                          isDismissible: true,
-                                          duration: 3.seconds,
-                                        ));
-                                      }
+                                  } else {
+                                    if (!Get.isSnackbarOpen) {
+                                      Get.showSnackbar(GetSnackBar(
+                                        backgroundColor: Colors.red.shade300,
+                                        title: "EMPTY FIELD",
+                                        message: "API Key Field is Empty!",
+                                        isDismissible: true,
+                                        duration: 3.seconds,
+                                      ));
                                     }
+                                  }
                                 },
-                                endIcon: Icons.save_alt_outlined,
+                                endIcon: Icons.save_alt_outlined,*/
+                              ),
+                              const SizedBox(
+                                height: 10.0,
+                              ),
+                              MaterialButton(
+                                color: GalaxyColors.blue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                ),
+                                onPressed: () async {
+                                  //await formSubmitted();
+                                  if (widget.keyController.text.isNotEmpty) {
+                                    saveApiKey('places_apikey');
+                                  } else {
+                                    if (!Get.isSnackbarOpen) {
+                                      Get.showSnackbar(GetSnackBar(
+                                        backgroundColor: Colors.red.shade300,
+                                        title: "EMPTY FIELD",
+                                        message: "API Key Field is Empty!",
+                                        isDismissible: true,
+                                        duration: 3.seconds,
+                                      ));
+                                    }
+                                  }
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 10.0,
+                                    horizontal: 20.0
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.key,
+                                        size: 30,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(width: 10.0),
+                                      Text(
+                                        "CONNECT TO API",
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold),
+                                      )
+                                    ],
+                                  ),
+                                ),
                               ),
                               const SizedBox(
                                 height: 10.0,
@@ -210,21 +257,17 @@ class _ApiManagerBlockState extends State<ApiManagerBlock> {
                           )))
                 ]))));
   }
-  void loadSetValues() async {
 
+  void loadSetValues() async {
     try {
       SharedPreferences preferences = await SharedPreferences.getInstance();
       var key = preferences.getString("places_apikey") ?? "";
       key = key.trim();
       widget.keyController.text = key;
-    }
-    catch(e)
-    {
+    } catch (e) {
       print(e);
     }
-
   }
-
 
   void saveApiKey(String prefKey) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -233,32 +276,61 @@ class _ApiManagerBlockState extends State<ApiManagerBlock> {
     await apiClient.testApiKey();
     var dialog = apiClient.isConnected.value
         ? CustomDialog(
-        content: Text("All Api Services now available!"),
-        title: Text("API KEY VALIDATED",style: TextStyle(color: Colors.green.shade500,fontSize: 25.0,fontWeight: FontWeight.bold),),
-        firstColor: Colors.green,
-        secondColor: Colors.white,
-        headerIcon: Lottie.asset(Assets.lottieConnected,
-            decoder: customDecoder, repeat: false,width: 200.0,height: 200.0))
+            content: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              child: Text("All Api Services now available!"),
+            ),
+            title: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                "API KEY VALIDATED",
+                style: TextStyle(
+                    color: Colors.green.shade500,
+                    fontSize: 25.0,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            firstColor: Colors.green,
+            secondColor: Colors.white,
+            headerIcon: Lottie.asset(Assets.lottieConnected,
+                decoder: customDecoder,
+                repeat: false,
+                width: 200.0,
+                height: 200.0))
         : CustomDialog(
-        content: Text("Api services unavailable"),
-        title: Text("API KEY INVALID",style: TextStyle(color: Colors.red.shade500,fontSize: 25.0,fontWeight: FontWeight.bold),),
-        firstColor: Colors.red.shade400,
-        secondColor: Colors.white,
-        headerIcon: Lottie.asset(Assets.lottieConnectionfailed,
-            decoder: customDecoder, repeat: false,width: 200.0,height: 200.0));
+            content: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              child: Text("Api services unavailable"),
+            ),
+            title: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                "API KEY INVALID",
+                style: TextStyle(
+                    color: Colors.red.shade500,
+                    fontSize: 25.0,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            firstColor: Colors.red.shade400,
+            secondColor: Colors.white,
+            headerIcon: Lottie.asset(Assets.lottieConnectionfailed,
+                decoder: customDecoder,
+                repeat: false,
+                width: 200.0,
+                height: 200.0));
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return dialog;
       },
     );
-
   }
 
   Future<LottieComposition?> customDecoder(List<int> bytes) {
     return LottieComposition.decodeZip(bytes, filePicker: (files) {
       return files.firstWhere(
-            (f) => f.name.startsWith('animations/') && f.name.endsWith('.json'),
+        (f) => f.name.startsWith('animations/') && f.name.endsWith('.json'),
       );
     });
   }

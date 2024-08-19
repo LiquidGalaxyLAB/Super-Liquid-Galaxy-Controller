@@ -18,6 +18,7 @@ class ApiKeyTab extends StatefulWidget {
 class _ApiKeyTabState extends State<ApiKeyTab> with AutomaticKeepAliveClientMixin{
   late double screenHeight;
   late double screenWidth;
+  TextEditingController keyController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +45,7 @@ class _ApiKeyTabState extends State<ApiKeyTab> with AutomaticKeepAliveClientMixi
               },
               urlLauncher2:(){ launchUrlFromLink(
                   Uri.parse("https://myprojects.geoapify.com/projects"));},
-              keyController: TextEditingController(),
+              keyController: keyController,
             ),
           ]),
         ),

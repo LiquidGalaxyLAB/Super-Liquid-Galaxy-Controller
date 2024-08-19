@@ -134,6 +134,70 @@ class _KmlUploaderState extends State<KmlUploader> {
             ],
           ),
           centerTitle: true,
+            actions: [
+              Padding(
+                  padding: EdgeInsets.symmetric(
+                      vertical: 12.0, horizontal: 8.0),
+                  child: GlassBox(
+                      height: screenHeight * 0.05,
+                      width: screenHeight * 0.05,
+                      child: Icon(
+                        Icons.info_outline,
+                        size: screenHeight * 0.045,
+                        color: Colors.white,
+                      ),
+                      onTap: () {
+                        WidgetsBinding.instance.addPostFrameCallback(
+                              (_) => ShowCaseWidget.of(context).startShowCase(
+                            [_key5, _key1, _key2, _key3, _key4],
+                          ),
+                        );
+                      })),
+              Obx(() {
+                return Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: GlassBox(
+                      height: screenHeight * 0.1,
+                      width: screenHeight * 0.1,
+                      cornerRadius: 8.0,
+                      backgroundGradient: LinearGradient(colors: [
+                        Colors.grey.withOpacity(0.2),
+                        Colors.grey.withOpacity(0.2)
+                      ]),
+                      child: ImageIcon(
+                        const AssetImage(Assets.iconsSshIndicator),
+                        color:
+                        sshClient.isConnected.value
+                            ? Colors.green
+                            : Colors.red,
+                        size: screenHeight * 0.06,
+                      )),
+                );
+              }),
+              /*Obx(() {
+                return Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: GlassBox(
+                      height: screenHeight * 0.1,
+                      width: screenHeight * 0.1,
+                      cornerRadius: 8.0,
+                      backgroundGradient: LinearGradient(colors: [
+                        Colors.grey.withOpacity(0.2),
+                        Colors.grey.withOpacity(0.2),
+                      ]),
+                      child: ImageIcon(
+                        const AssetImage(Assets.iconsApiIndicator),
+                        color: apiClient.isConnected.value
+                            ? Colors.green
+                            : Colors.red,
+                        size: screenHeight * 0.07,
+                      )),
+                );
+              }),*/
+              const SizedBox(
+                width: 50.0,
+              )
+            ]
         ),
         body: Row(
           mainAxisSize: MainAxisSize.max,
@@ -252,7 +316,7 @@ class _KmlUploaderState extends State<KmlUploader> {
                     Showcase(
                       key: _key2,
                       description:
-                      'This can be used as a Visual Editor to add KML elements. \nThe pins are hold-and-drag to edit. \nThe Submit data button sends info from visual editor to the custom editor on the right side. \nAdd point is used to increase the KML element. \nIt also has a fullscreen mode to edit the element.',
+                      'This can be used as a Visual Editor to add KML elements. \nThe pins are hold-and-drag to edit. \nThe Submit data button sends info from visual editor to the custom editor. \nAdd point is used to increase the KML element.',
                       descTextStyle: const TextStyle(
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
@@ -300,6 +364,13 @@ class _KmlUploaderState extends State<KmlUploader> {
                             isLeading: true,
                             onTap: () async {
                               print("tapped");
+
+                              if(!sshClient.isConnected.value)
+                                {
+                                  showErrorSnackBar();
+                                  return;
+                                }
+
                               String filename = generateRandomString(7);
                               await sshClient.connectToLG();
                               //await sshClient.clearKml();
@@ -405,7 +476,7 @@ class _KmlUploaderState extends State<KmlUploader> {
                                       callbackController.callBack!(elementIndex);
                                     });
                                   },
-                                  textStyle: TextStyle(
+                                  textStyle: const TextStyle(
                                       color: Colors.white, fontSize: 20.0),
                                   leadingIcon: Icon(kmlElements[elementIndex][1]),
                                   trailingIcon: const Row(
@@ -650,6 +721,18 @@ class _KmlUploaderState extends State<KmlUploader> {
         backgroundColor: Colors.green.shade300,
         title: "Download Successful",
         message: message,
+        isDismissible: true,
+        duration: 5.seconds,
+      ));
+    }
+  }
+
+  void showErrorSnackBar() {
+    if (!Get.isSnackbarOpen) {
+      Get.showSnackbar(GetSnackBar(
+        backgroundColor: Colors.red.shade300,
+        title: "CONNECTION FAILED",
+        message: "The app is not connected to the LG rig.",
         isDismissible: true,
         duration: 5.seconds,
       ));

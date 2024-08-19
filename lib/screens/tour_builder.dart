@@ -269,6 +269,24 @@ class _TourBuilderState extends State<TourBuilder>
               ),
               centerTitle: true,
               actions: [
+                Padding(
+                    padding: EdgeInsets.symmetric(
+                        vertical: 12.0, horizontal: 8.0),
+                    child: GlassBox(
+                        height: screenHeight * 0.05,
+                        width: screenHeight * 0.05,
+                        child: Icon(
+                          Icons.info_outline,
+                          size: screenHeight * 0.045,
+                          color: Colors.white,
+                        ),
+                        onTap: () {
+                          WidgetsBinding.instance.addPostFrameCallback(
+                                (_) => ShowCaseWidget.of(context).startShowCase(
+                              [_key1, _key2, _key3, _key4,_key5],
+                            ),
+                          );
+                        })),
                 Obx(() {
                   return Padding(
                     padding: const EdgeInsets.all(12.0),

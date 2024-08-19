@@ -35,7 +35,6 @@ void main() {
   Get.lazyPut(() => GeoQuestController(),fenix: true);
   Get.lazyPut(() => ShowcaseController(),fenix: true);
 
-  // Get.lazyPut(() => WikiDataFetcher(), fenix:  true);
 
   LGConnection client = Get.find();
   client.connectToLG();
@@ -60,7 +59,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/': (context) => SplashScreen(), // Root route
+        '/': (context) => const SplashScreen(), // Root route
         // Settings route
       },
       theme: ThemeData(

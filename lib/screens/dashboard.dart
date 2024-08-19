@@ -16,6 +16,7 @@ import 'package:super_liquid_galaxy_controller/screens/settings.dart';
 import 'package:super_liquid_galaxy_controller/utils/galaxy_colors.dart';
 
 import '../components/connection_flag.dart';
+import '../components/custom_dialog.dart';
 import '../components/glassbox.dart';
 import '../utils/constants.dart';
 
@@ -39,6 +40,7 @@ class _DashBoardState extends State<DashBoard> {
   int selectedIndex = 0;
   TextEditingController keyController = TextEditingController();
 
+  // late TutorialCoachMark tutorialCoachMark;
   final _key1 = GlobalKey();
   final _key2 = GlobalKey();
   final _key3 = GlobalKey();
@@ -50,13 +52,11 @@ class _DashBoardState extends State<DashBoard> {
     initializeLGClient();
     initializeApiClient();
     showcaseController = Get.find();
-
+    /*createTutorial();
+    Future.delayed(Duration.zero, showTutorial);*/
+    //askForTutorial();
     if (showcaseController.isFirstLaunchDashboard()) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => ShowCaseWidget.of(context).startShowCase(
-          [_key1, _key2, _key3],
-        ),
-      );
+      Future.delayed(Duration.zero, askForTutorial);
     }
   }
 
@@ -158,6 +158,24 @@ class _DashBoardState extends State<DashBoard> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 12.0, horizontal: 8.0),
+                                  child: GlassBox(
+                                      height: screenHeight * 0.05,
+                                      width: screenHeight * 0.05,
+                                      child: Icon(
+                                        Icons.info_outline,
+                                        size: screenHeight * 0.045,
+                                        color: Colors.white,
+                                      ),
+                                      onTap: () {
+                                        WidgetsBinding.instance.addPostFrameCallback(
+                                              (_) => ShowCaseWidget.of(context).startShowCase(
+                                            [_key1, _key2, _key3],
+                                          ),
+                                        );
+                                      })),
+                              Padding(
                                 padding: EdgeInsets.symmetric(
                                     vertical: 12.0, horizontal: 20.0),
                                 child: GlassBox(
@@ -210,7 +228,7 @@ class _DashBoardState extends State<DashBoard> {
                                                             FontWeight.bold),
                                                   ),
                                                 ),
-                                              )
+                                              ),
                                             ],
                                           ),
                                         );
@@ -393,7 +411,8 @@ class _DashBoardState extends State<DashBoard> {
                         padding: const EdgeInsets.all(25.0),
                         child: Showcase(
                           key: _key3,
-                          description: 'This is the Navigation Island to access all the various features.',
+                          description:
+                              'This is the Navigation Island to access all the various features.',
                           descTextStyle: const TextStyle(
                             fontWeight: FontWeight.w500,
                             color: Colors.black,
@@ -808,6 +827,88 @@ class _DashBoardState extends State<DashBoard> {
     }
   }
 
+  void askForTutorial() async {
+    print("here");
+    var dialog = CustomDialog(
+        content: FittedBox(
+          fit: BoxFit.contain,
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              InkWell(
+                onTap: () {
+                  showcaseController.clearTutorialNeeds();
+                  Get.back();
+                },
+                child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        " No ",
+                        style: TextStyle(color: Colors.white, fontSize: 20.0),
+                      ),
+                    )),
+              ),
+              SizedBox(width: 25.0),
+              InkWell(
+                onTap: () {
+                  WidgetsBinding.instance.addPostFrameCallback(
+                    (_) => ShowCaseWidget.of(context).startShowCase(
+                      [_key1, _key2, _key3],
+                    ),
+                  );
+                  Get.back();
+                },
+                child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "Sure",
+                        style: TextStyle(color: Colors.white, fontSize: 20.0),
+                      ),
+                    )),
+              ),
+            ],
+          ),
+        ),
+        title: FittedBox(
+          fit: BoxFit.contain,
+          child: Padding(
+              padding: EdgeInsets.all(25.0),
+              child: Text(
+                "Would you Like to be shown \na tutorial of the app?",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 25.0,
+                ),
+              )),
+        ),
+        firstColor: Colors.grey,
+        secondColor: Colors.white,
+        headerIcon: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Image.asset(Assets.iconsTutorial, width: 150.0, height: 150.0),
+        ));
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        print("here2");
+        return dialog;
+      },
+    );
+  }
+}
+
 /*Future<void> testRun(String kml) async {
     await connectionClient.connectToLG();
     File? file = await connectionClient.makeFile("TEST", kml);
@@ -826,4 +927,119 @@ class _DashBoardState extends State<DashBoard> {
       duration: 5.seconds,
     ));
   }*/
-}
+
+/*void showTutorial() {
+    tutorialCoachMark.show(context: context);
+  }
+
+  void createTutorial() {
+    tutorialCoachMark = TutorialCoachMark(
+      targets: _createTargets(),
+      colorShadow: Colors.red,
+      textSkip: "SKIP",
+      paddingFocus: 10,
+      opacityShadow: 0.5,
+      imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+      onFinish: () {
+        print("finish");
+      },
+      onClickTarget: (target) {
+        print('onClickTarget: $target');
+      },
+      onClickTargetWithTapPosition: (target, tapDetails) {
+        print("target: $target");
+        print(
+            "clicked at position local: ${tapDetails.localPosition} - global: ${tapDetails.globalPosition}");
+      },
+      onClickOverlay: (target) {
+        print('onClickOverlay: $target');
+      },
+      onSkip: () {
+        print("skip");
+        return true;
+      },
+    );
+  }
+
+  List<TargetFocus> _createTargets() {
+    List<TargetFocus> targets = [];
+    targets.add(
+      TargetFocus(
+        identify: "keyBottomNavigation2",
+        keyTarget: _key1,
+        alignSkip: Alignment.bottomRight,
+        contents: [
+          TargetContent(
+            align: ContentAlignz,
+            builder: (context, controller) {
+              return const Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    "Titulo lorem ipsum",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+    targets.add(
+      TargetFocus(
+        identify: "keyBottomNavigation2",
+        keyTarget: _key2,
+        alignSkip: Alignment.bottomRight,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            builder: (context, controller) {
+              return const Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    "Titulo lorem ipsum",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+    targets.add(
+      TargetFocus(
+        identify: "keyBottomNavigation2",
+        keyTarget: _key3,
+        alignSkip: Alignment.bottomRight,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            builder: (context, controller) {
+              return const Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    "Titulo lorem ipsum",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+    return targets;
+  }*/

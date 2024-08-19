@@ -21,6 +21,8 @@ import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_suggestion_response.dart';
 import 'package:super_liquid_galaxy_controller/generated/assets.dart';
 
+import '../components/glassbox.dart';
+
 class MapController extends StatefulWidget {
   const MapController({super.key});
 
@@ -114,31 +116,53 @@ class MapControllerState extends State<MapController> {
           child: Material(
             color: Colors.transparent,
             child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    color: Colors.green.withOpacity(0.2),
-                    child: Showcase(
-                      key: _key1,
-                      description:
-                      'You can use this to search any location by Address. \nIt automatically seeks you to the selected location.',
-                      descTextStyle: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                        fontSize: 16,
-                      ),
-                      child: AutoCompleteLocationField(
-                        hintText: "Enter Location to search here",
-                        labelText: "",
-                        iconData: Icons.search_rounded,
-                        textInputType: TextInputType.text,
-                        isPassword: false,
-                        fillColor: Colors.white,
-                        textColor: Colors.black,
-                        autocompleteController: textController,
-                        seekTo: goToSearchFeature,
-                      ),
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  child: Showcase(
+                    key: _key1,
+                    description:
+                    'You can use this to search any location by Address. \nIt automatically seeks you to the selected location.',
+                    descTextStyle: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                      fontSize: 16,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 9,
+                          child: AutoCompleteLocationField(
+                            hintText: "Enter Location to search here",
+                            labelText: "",
+                            iconData: Icons.search_rounded,
+                            textInputType: TextInputType.text,
+                            isPassword: false,
+                            fillColor: Colors.white,
+                            textColor: Colors.black,
+                            autocompleteController: textController,
+                            seekTo: goToSearchFeature,
+                          ),
+                        ),
+                        Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 12.0, horizontal: 8.0),
+                            child: GlassBox(
+                                height: screenHeight * 0.05,
+                                width: screenHeight * 0.05,
+                                child: Icon(
+                                  Icons.info_outline,
+                                  size: screenHeight * 0.045,
+                                  color: Colors.white,
+                                ),
+                                onTap: () {
+                                    WidgetsBinding.instance.addPostFrameCallback(
+                                          (_) => ShowCaseWidget.of(context).startShowCase(
+                                        [_key1, _key2, _key3, _key4, _key5],
+                                      ),
+                                    );
+
+                                })),
+                      ],
                     ),
                   ),
                 )),

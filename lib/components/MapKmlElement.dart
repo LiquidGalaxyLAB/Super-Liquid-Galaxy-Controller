@@ -153,6 +153,9 @@ class _MapkmlelementState extends State<Mapkmlelement> {
                     elementIndex: widget.elementIndex,
                     submitData: widget.submitData));
                 widget.submitData(kmlElement);
+                if(kmlElement != null) {
+                  setMapdata(kmlElement);
+                }
               },
               icon: const Icon(
                 Icons.fullscreen_rounded,
@@ -307,6 +310,36 @@ class _MapkmlelementState extends State<Mapkmlelement> {
           Coordinates(latitude: coords.latitude, longitude: coords.longitude));
     }
     return list;
+  }
+
+  void setMapdata(KmlElement kmlElement) {
+    points.clear();
+    if(kmlElement.index==0)
+      {
+        Placemark mark = kmlElement.elementData;
+        points.add(mark.coordinate.toLatLngMap(mark.coordinate));
+      }
+    else
+      if(kmlElement.index==1)
+        {
+          LineString line = kmlElement.elementData;
+          points.addAll(line.coordinates.map((coord)=>coord.toLatLngMap(coord)));
+        }
+      else
+        if(kmlElement.index==2)
+          {
+            PolyGon line = kmlElement.elementData;
+            points.addAll(line.coordinates.map((coord)=>coord.toLatLngMap(coord)));
+          }
+    calculateMarkers();
+    polyline.clear();
+    polygon.clear();
+    polyline.add(calculatePolyLine());
+    polygon.add(calculatePolygon());
+    setState(() {
+      reloadMap();
+      print(points);
+    });
   }
 }
 

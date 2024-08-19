@@ -148,5 +148,16 @@ class ShowcaseController extends GetxController {
     print("set-poi-done");
   }
 
+  clearTutorialNeeds()
+  {
+    setPOICompleted();
+    setToursCompleted();
+    setMapsCompleted();
+    setSettingsCompleted();
+    setDashboardCompleted();
+    setGeoQuestCompleted();
+    setKmlBuilderCompleted();
+  }
+
 
 }

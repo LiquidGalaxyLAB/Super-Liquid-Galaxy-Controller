@@ -8,7 +8,6 @@ import 'package:super_liquid_galaxy_controller/data_class/kml_element.dart';
 import 'package:super_liquid_galaxy_controller/data_class/map_position.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_details_response.dart';
 import 'package:super_liquid_galaxy_controller/data_class/place_info.dart';
-import 'package:super_liquid_galaxy_controller/data_class/place_response.dart' as pr;
 import 'package:super_liquid_galaxy_controller/utils/constants.dart';
 import 'package:super_liquid_galaxy_controller/utils/geo_utils.dart';
 
@@ -47,7 +46,7 @@ class KMLGenerator {
   static getCoordinateList(List<Coordinates> list) {
     var coordinates = '';
     for (final coordinate in list) {
-      coordinates += '${coordinate.longitude},${coordinate.latitude},250 ';
+      coordinates += '${coordinate.longitude},${coordinate.latitude},380 ';
     }
     return '''<coordinates>${coordinates}</coordinates>''';
   }
@@ -73,7 +72,7 @@ class KMLGenerator {
   <Polygon>
   <extrude>1</extrude>
   <tessellate>1</tessellate>
-  <altitudeMode>clampToGround</altitudeMode>
+  <altitudeMode>relativeToGround</altitudeMode>
   <outerBoundaryIs>
   <LinearRing>
   ${getCoordinateList(placeMark.coordinates)}
@@ -402,14 +401,14 @@ class KMLGenerator {
         <Polygon>
         <extrude>2</extrude>
         <tessellate>1</tessellate>
-  <altitudeMode>clampToGround</altitudeMode>
+  <altitudeMode>relativeToGround</altitudeMode>
           <outerBoundaryIs>
             <LinearRing>
               <coordinates>
   ''';
 
     for (LatLng point in footprintPoints) {
-      kml += '${point.longitude},${point.latitude},0 ';
+      kml += '${point.longitude},${point.latitude},380 ';
     }
 
     kml += '''
@@ -483,14 +482,14 @@ class KMLGenerator {
         <Polygon>
         <extrude>2</extrude>
         <tessellate>1</tessellate>
-        <altitudeMode>clampToGround</altitudeMode>
+        <altitudeMode>relativeToGround</altitudeMode>
           <outerBoundaryIs>
             <LinearRing>
               <coordinates>
   ''';
 
     for (LatLng point in footprintPoints) {
-      kml += '${point.longitude},${point.latitude},0 ';
+      kml += '${point.longitude},${point.latitude},380 ';
     }
 
     kml += '''
@@ -505,7 +504,6 @@ class KMLGenerator {
   }
 
   //MAIN FOOTPRINT FUNCTION BELOW
-
   static String generatefootPrintLine(
       LatLng start, LatLng end, double dashLength, double gapLength) {
     final Distance distance = Distance();
@@ -582,6 +580,8 @@ class KMLGenerator {
     return kml;
   }
 
+
+  //unused
   static double transformAngle(double angle) {
     // Normalize the input angle to be within [-180, 180]
     angle = angle % 360;
@@ -602,6 +602,8 @@ class KMLGenerator {
     return transformedAngle;
   }
 
+
+  //unused
   static String generateDashedLineString(
       LatLng start, LatLng end, double dashLength, double gapLength) {
     final Distance distance = Distance();
@@ -649,7 +651,7 @@ class KMLGenerator {
   <LinearRing>
   <extrude>1</extrude>
   <tessellate>1</tessellate>
-  <altitudeMode>clampToGround</altitudeMode>
+  <altitudeMode>relativeToGround</altitudeMode>
   <coordinates>
   ${getCoordinateList([
           Coordinates.fromLatLng(roadEnd1),
@@ -860,14 +862,14 @@ class KMLGenerator {
         <Polygon>
         <extrude>2</extrude>
         <tessellate>1</tessellate>
-        <altitudeMode>clampToGround</altitudeMode>
+        <altitudeMode>relativeToGround</altitudeMode>
           <outerBoundaryIs>
             <LinearRing>
               <coordinates>
   ''';
 
     for (LatLng point in ellipsePoints) {
-      kml += '${point.longitude},${point.latitude},100 ';
+      kml += '${point.longitude},${point.latitude},380 ';
     }
 
     kml += '''
@@ -976,7 +978,7 @@ class KMLGenerator {
   <Polygon>
   <extrude>1</extrude>
   <tessellate>1</tessellate>
-  <altitudeMode>clampToGround</altitudeMode>
+  <altitudeMode>relativeToGround</altitudeMode>
   <outerBoundaryIs>
   <LinearRing>
   ${getCoordinateList(coords)}

@@ -168,18 +168,6 @@ class BalloonGenerator {
         "          <body>\n" +
         "            <table width=\"400\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\" style=\"font-size: 14px;\" border=1 frame=void rules=rows>\n''';
 
-    /*Iterator<PlaceInfo> iterator = nearbyPlaces.iterator();
-    int iterationCount = 0; // Counter variable to keep track of iterations
-    while (iterator.hasNext() && iterationCount < 10) {
-      PlaceInfo placeInfo = iterator.next();
-      sentence += "              <tr>\n" +
-          "                <td colspan=\"2\" align=\"center\">\n" +
-          "                <img src=\"" + placeInfo.getImageLink() + "\" alt=\"picture\" height=\"100\" style=\"float: left; margin-right: 10px;\" />\n" +
-          "                  <p><b>" + placeInfo.getTitle() + "</b> " + placeInfo.getDescription() + "</p>\n" +
-          "                </td>\n" +
-          "              </tr>\n";
-      iterationCount++; // Increment the counter variable
-    }*/
     List<PlaceInfo> nearbyPois = [];
     nearbyPois.addAll(list);
     int i =0;

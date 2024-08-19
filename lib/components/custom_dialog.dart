@@ -64,13 +64,16 @@ class CustomDialog extends StatelessWidget {
                   bottomLeft: Radius.circular(20.0),
                   bottomRight: Radius.circular(20.0),
                 )),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                title,
-                content,
-              ],
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  title,
+                  content,
+                ],
+              ),
             ),
           ),
         )

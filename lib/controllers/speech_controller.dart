@@ -130,8 +130,11 @@ class SpeechController extends GetxController {
   void detectCommandWord() {
     var traversalList = wordQueue.value.toList().reversed.toList();
     if(_needsDirectionWord) {
-      detectDirectionWord(wordQueue.value.toList(),0);
-      return;
+      var foundDir = detectDirectionWord(wordQueue.value.toList(),0);
+      //return;
+      if(foundDir) {
+        return;
+      }
     }
     for (final (index,token) in traversalList.indexed) {
       if (commands.contains(token.toLowerCase())) {
@@ -148,11 +151,12 @@ class SpeechController extends GetxController {
     }
   }
 
-  void detectDirectionWord(List<String> traversalList, int index)
+  bool detectDirectionWord(List<String> traversalList, int index)
   {
     if(_currentCommand == SpeechCommands.STOP)
       {
         executeCommand(-1);
+        return true;
       }
 
     for(final (i,token) in traversalList.indexed)
@@ -166,7 +170,7 @@ class SpeechController extends GetxController {
               if(moveDirections.contains(token)) {
                 _needsDirectionWord = false;
                 executeCommand(moveDirections.indexOf(token));
-                return;
+                return true;
               }
             }
           case SpeechCommands.ZOOM:
@@ -174,22 +178,24 @@ class SpeechController extends GetxController {
               if(zoomDirections.contains(token)) {
                 _needsDirectionWord = false;
                 executeCommand(zoomDirections.indexOf(token));
-                return;
+                return true;
               }
             }
           case SpeechCommands.STOP:
             {
               _needsDirectionWord = false;
               executeCommand(-1);
-              return;
+              return true;
             }
           default:
             {
               print("mapTest: default/none case");
+              return false;
             }
         }
 
       }
+    return false;
   }
 
   void executeCommand(int index) {
