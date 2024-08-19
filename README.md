@@ -1,11 +1,11 @@
 <p align="center">
-  <img alt="Super Liquid Galaxy Controller" src="https://raw.githubusercontent.com/AritraBiswas9788/Public-Assets/main/SLGC%20logo%20with%20title%20-%202.png" height="250px">
+  <img alt="Super Liquid Galaxy Controller" src="https://raw.githubusercontent.com/AritraBiswas9788/Public-Assets/main/SLGC%20logo%20with%20title.png" height="250px">
 </p>  
 
 # Super Liquid Galaxy Controller [SLGC]
 ### An application made with ❤️ by
 * [Aritra Biswas](https://github.com/AritraBiswas9788)
-* Mentor:[Yash Raj Bharti](https://github.com/yashrajbharti)
+* Mentor : [Yash Raj Bharti](https://github.com/yashrajbharti)
 * Organization Admin - Andreu Ibáñez
 * Lleida Liquid Galaxy LAB support - Oscar Pena
 
