@@ -4,10 +4,10 @@
 
 # Super Liquid Galaxy Controller [SLGC]
 ### An application made with ❤️ by
-[Aritra Biswas](https://github.com/AritraBiswas9788)
-Mentor:[Yash Raj Bharti](https://github.com/yashrajbharti)
-Organization Admin - Andreu Ibáñez
-Lleida Liquid Galaxy LAB support - Oscar Pena
+* [Aritra Biswas](https://github.com/AritraBiswas9788)
+* Mentor:[Yash Raj Bharti](https://github.com/yashrajbharti)
+* Organization Admin - Andreu Ibáñez
+* Lleida Liquid Galaxy LAB support - Oscar Pena
 
 
 <h2 align="center">Scan the QR code to Install the Application<h2>
@@ -144,7 +144,7 @@ $ flutter build apk
 ## Setting up the rig
 
 * The Liquid Galaxy rig while not necessary to operate the Application; is a very essential component to access a lot of features of the Application.
-* The Liquid Galaxy system is very simple to system and extremelt well-documented steps can be found here : [Documentation](https://www.liquidgalaxy.eu/2024/05/lg-wiki.html#content-wrapper).
+* The Liquid Galaxy system is very simple to setup and extremely well-documented steps can be found here : [Documentation](https://www.liquidgalaxy.eu/2024/05/lg-wiki.html#content-wrapper).
 * The Documentation tab gives unparalleled insight into the various ways one can use an LG rig.
 
 ## End-Credits
