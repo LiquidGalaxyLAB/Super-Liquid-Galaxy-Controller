@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="Super Liquid Galaxy Controller" src="https://raw.githubusercontent.com/AritraBiswas9788/Public-Assets/main/applogo2.png" height="250px">
+  <img alt="Super Liquid Galaxy Controller" src="https://raw.githubusercontent.com/AritraBiswas9788/Public-Assets/main/SLGC%20logo%20with%20title%20-%202.png" height="250px">
 </p>  
 
 # Super Liquid Galaxy Controller [SLGC]
